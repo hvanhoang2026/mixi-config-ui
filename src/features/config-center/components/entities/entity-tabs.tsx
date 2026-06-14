@@ -1,5 +1,7 @@
+import { useState } from 'react';
+import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
+import { DataTable, type DataTableProps } from 'primereact/datatable';
 import { TabPanel, TabView } from 'primereact/tabview';
 import type { Config, Environment, Project, Service } from '../../types';
 import type { EntityItem, EntityType } from '../../form-types';
@@ -23,6 +25,8 @@ type Props = {
 };
 
 export function EntityTabs(props: Props) {
+  const [visibleConfigValues, setVisibleConfigValues] = useState<Set<string>>(new Set());
+
   const actions = (type: EntityType, row: EntityItem) => (
     <ActionButtons
       type={type}
@@ -33,50 +37,94 @@ export function EntityTabs(props: Props) {
     />
   );
 
+  const toggleConfigValue = (configId: string) => {
+    setVisibleConfigValues((current) => {
+      const next = new Set(current);
+      if (next.has(configId)) {
+        next.delete(configId);
+      } else {
+        next.add(configId);
+      }
+      return next;
+    });
+  };
+
+  const configValue = (row: Config) => {
+    const visible = visibleConfigValues.has(row.id);
+    return (
+      <div className="flex align-items-center gap-2">
+        <span
+          style={{
+            display: 'inline-block',
+            maxWidth: 360,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            fontFamily: 'monospace',
+          }}
+          title={visible ? row.value : undefined}
+        >
+          {visible ? row.value : '••••••••••••'}
+        </span>
+        <Button
+          type="button"
+          icon={visible ? 'pi pi-eye-slash' : 'pi pi-eye'}
+          text
+          rounded
+          size="small"
+          aria-label={visible ? `Hide value for ${row.key}` : `Show value for ${row.key}`}
+          onClick={() => toggleConfigValue(row.id)}
+        />
+      </div>
+    );
+  };
+
   return (
     <TabView className="mt-3">
       <TabPanel header="Projects">
         <CrudHeader onAdd={() => props.onAdd('project')} />
-        <DataTable value={props.projects} loading={props.loading.project} responsiveLayout="scroll">
-          <Column field="name" header="Name" />
-          <Column field="code" header="Code" />
-          <Column field="description" header="Description" />
+        <EntityDataTable value={props.projects} loading={props.loading.project}>
+          <Column field="name" header="Name" filter sortable />
+          <Column field="code" header="Code" filter sortable />
+          <Column field="description" header="Description" filter />
           <Column header="Actions" body={(row: Project) => actions('project', row)} />
-        </DataTable>
+        </EntityDataTable>
       </TabPanel>
       <TabPanel header="Services">
         <CrudHeader onAdd={() => props.onAdd('service')} />
-        <DataTable value={props.services} loading={props.loading.service} responsiveLayout="scroll">
-          <Column field="name" header="Name" />
-          <Column field="code" header="Code" />
-          <Column field="type" header="Type" />
+        <EntityDataTable value={props.services} loading={props.loading.service}>
+          <Column field="name" header="Name" filter sortable />
+          <Column field="code" header="Code" filter sortable />
+          <Column field="type" header="Type" filter sortable />
           <Column
             field="projectId"
             header="Project"
+            filter
+            sortable
             body={(row: Service) => props.projects.find((project) => project.id === row.projectId)?.name ?? row.projectId}
           />
           <Column header="Actions" body={(row: Service) => actions('service', row)} />
-        </DataTable>
+        </EntityDataTable>
       </TabPanel>
       <TabPanel header="Environments">
         <CrudHeader onAdd={() => props.onAdd('environment')} />
-        <DataTable value={props.environments} loading={props.loading.environment} responsiveLayout="scroll">
-          <Column field="name" header="Name" />
-          <Column field="code" header="Code" />
-          <Column field="description" header="Description" />
+        <EntityDataTable value={props.environments} loading={props.loading.environment}>
+          <Column field="name" header="Name" filter sortable />
+          <Column field="code" header="Code" filter sortable />
+          <Column field="description" header="Description" filter />
           <Column header="Actions" body={(row: Environment) => actions('environment', row)} />
-        </DataTable>
+        </EntityDataTable>
       </TabPanel>
       <TabPanel header="Configs">
         <CrudHeader onAdd={() => props.onAdd('config')} />
-        <DataTable value={props.configs} loading={props.loading.config} responsiveLayout="scroll">
-          <Column field="key" header="Key" />
-          <Column field="value" header="Value" />
-          <Column field="description" header="Description" />
-          <Column field="isSecret" header="Secret" body={(row: Config) => (row.isSecret ? 'Yes' : 'No')} />
-          <Column field="isRequired" header="Required" body={(row: Config) => (row.isRequired ? 'Yes' : 'No')} />
+        <EntityDataTable value={props.configs} loading={props.loading.config}>
+          <Column field="key" header="Key" filter sortable />
+          <Column field="value" header="Value" filter body={configValue} />
+          <Column field="description" header="Description" filter />
+          <Column field="isSecret" header="Secret" filter sortable body={(row: Config) => (row.isSecret ? 'Yes' : 'No')} />
+          <Column field="isRequired" header="Required" filter sortable body={(row: Config) => (row.isRequired ? 'Yes' : 'No')} />
           <Column header="Actions" body={(row: Config) => actions('config', row)} />
-        </DataTable>
+        </EntityDataTable>
       </TabPanel>
       <TabPanel header="Runtime & History">
         <RuntimeHistoryPanel
@@ -87,5 +135,27 @@ export function EntityTabs(props: Props) {
         />
       </TabPanel>
     </TabView>
+  );
+}
+
+function EntityDataTable<T extends { id: string }>({
+  children,
+  ...props
+}: DataTableProps<T[]> & { children: React.ReactNode }) {
+  return (
+    <DataTable
+      {...props}
+      dataKey="id"
+      paginator
+      rows={10}
+      rowsPerPageOptions={[5, 10, 20, 50]}
+      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
+      currentPageReportTemplate="{first} - {last} of {totalRecords}"
+      filterDisplay="row"
+      responsiveLayout="scroll"
+      emptyMessage="No records found"
+    >
+      {children}
+    </DataTable>
   );
 }
