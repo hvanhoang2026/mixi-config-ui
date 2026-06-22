@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, type DataTableProps } from 'primereact/datatable';
-import { TabPanel, TabView } from 'primereact/tabview';
 import type { Config, Environment, Project, Service } from '../../types';
-import type { EntityItem, EntityType } from '../../form-types';
+import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
 import { ActionButtons } from '../shared/action-buttons';
 import { CrudHeader } from '../shared/crud-header';
 import { RuntimeHistoryPanel } from '../runtime-history/runtime-history-panel';
@@ -17,6 +16,7 @@ type Props = {
   loading: Record<EntityType, boolean>;
   runtimeText: string;
   history: unknown[];
+  activeSection: ConfigSection;
   onAdd: (type: EntityType) => void;
   onEdit: (type: EntityType, item: EntityItem) => void;
   onDelete: (type: EntityType, id: string) => Promise<void>;
@@ -79,9 +79,9 @@ export function EntityTabs(props: Props) {
     );
   };
 
-  return (
-    <TabView className="mt-3">
-      <TabPanel header="Projects">
+  if (props.activeSection === 'project') {
+    return (
+      <section className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('project')} />
         <EntityDataTable value={props.projects} loading={props.loading.project}>
           <Column field="name" header="Name" filter sortable />
@@ -89,8 +89,13 @@ export function EntityTabs(props: Props) {
           <Column field="description" header="Description" filter />
           <Column header="Actions" body={(row: Project) => actions('project', row)} />
         </EntityDataTable>
-      </TabPanel>
-      <TabPanel header="Services">
+      </section>
+    );
+  }
+
+  if (props.activeSection === 'service') {
+    return (
+      <section className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('service')} />
         <EntityDataTable value={props.services} loading={props.loading.service}>
           <Column field="name" header="Name" filter sortable />
@@ -105,8 +110,13 @@ export function EntityTabs(props: Props) {
           />
           <Column header="Actions" body={(row: Service) => actions('service', row)} />
         </EntityDataTable>
-      </TabPanel>
-      <TabPanel header="Environments">
+      </section>
+    );
+  }
+
+  if (props.activeSection === 'environment') {
+    return (
+      <section className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('environment')} />
         <EntityDataTable value={props.environments} loading={props.loading.environment}>
           <Column field="name" header="Name" filter sortable />
@@ -114,8 +124,13 @@ export function EntityTabs(props: Props) {
           <Column field="description" header="Description" filter />
           <Column header="Actions" body={(row: Environment) => actions('environment', row)} />
         </EntityDataTable>
-      </TabPanel>
-      <TabPanel header="Configs">
+      </section>
+    );
+  }
+
+  if (props.activeSection === 'config') {
+    return (
+      <section className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('config')} />
         <EntityDataTable value={props.configs} loading={props.loading.config}>
           <Column field="key" header="Key" filter sortable />
@@ -125,16 +140,19 @@ export function EntityTabs(props: Props) {
           <Column field="isRequired" header="Required" filter sortable body={(row: Config) => (row.isRequired ? 'Yes' : 'No')} />
           <Column header="Actions" body={(row: Config) => actions('config', row)} />
         </EntityDataTable>
-      </TabPanel>
-      <TabPanel header="Runtime & History">
-        <RuntimeHistoryPanel
-          runtimeText={props.runtimeText}
-          history={props.history}
-          onLoadRuntime={props.onLoadRuntime}
-          onLoadHistory={() => props.configs[0] && props.onHistory(props.configs[0].id)}
-        />
-      </TabPanel>
-    </TabView>
+      </section>
+    );
+  }
+
+  return (
+    <section className="content-panel" id="runtime">
+      <RuntimeHistoryPanel
+        runtimeText={props.runtimeText}
+        history={props.history}
+        onLoadRuntime={props.onLoadRuntime}
+        onLoadHistory={() => props.configs[0] && props.onHistory(props.configs[0].id)}
+      />
+    </section>
   );
 }
 

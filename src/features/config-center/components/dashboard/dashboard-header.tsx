@@ -36,7 +36,7 @@ export function DashboardHeader({
   ] as const;
 
   return (
-    <Card title="Mixi Config Center" subTitle="CRUD, search, export, history, runtime config">
+    <Card className="dashboard-card" title="Mixi Config Center" subTitle="CRUD, search, export, history, runtime config">
       <div className="flex gap-2 flex-wrap align-items-center">
         <Button label="Reload all" icon="pi pi-refresh" onClick={onReload} />
         <Button label="Import ENV" icon="pi pi-upload" severity="secondary" onClick={onImport} />
@@ -47,7 +47,7 @@ export function DashboardHeader({
       <div className="grid mt-3">
         {stats.map(([title, value]) => (
           <div className="col-12 md:col-3" key={title}>
-            <Card title={title}>{value ?? 0}</Card>
+            <Card className="stat-card" title={title}>{value ?? 0}</Card>
           </div>
         ))}
       </div>

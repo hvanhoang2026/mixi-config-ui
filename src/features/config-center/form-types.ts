@@ -9,3 +9,4 @@ export type ConfigForm = Omit<Config, 'id'>;
 
 export type EntityItem = Project | Service | Environment | Config;
 export type EditTarget = { type: EntityType; item?: EntityItem };
+export type ConfigSection = EntityType | 'runtime-history';
