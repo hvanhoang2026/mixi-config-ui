@@ -48,19 +48,6 @@ export function AppSidebar({ navigation }: Props) {
           </div>
         ) : null}
       </nav>
-
-      <div className="app-sidebar__footer">
-        <a
-          href="https://github.com/primefaces/sakai-react"
-          target="_blank"
-          rel="noreferrer"
-          className="app-sidebar__banner"
-        >
-          <span className="app-sidebar__banner-badge">Theme</span>
-          <strong>Sakai style</strong>
-          <span>PrimeReact admin language applied to Mixi Config.</span>
-        </a>
-      </div>
     </aside>
   );
 }

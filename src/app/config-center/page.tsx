@@ -7,6 +7,7 @@ import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
 import { api } from '../../features/config-center/api';
 import { AppShell } from '../../components/shell/app-shell';
+import { Button } from 'primereact/button';
 import { DashboardHeader } from '../../features/config-center/components/dashboard/dashboard-header';
 import { EntityDialog } from '../../features/config-center/components/dialogs/entity-dialog';
 import { ImportEnvDialog } from '../../features/config-center/components/dialogs/import-env-dialog';
@@ -158,10 +159,46 @@ export default function ConfigCenterPage() {
     { key: 'runtime-history', label: 'Runtime & History', icon: 'pi pi-history' },
   ] as const satisfies ReadonlyArray<{ key: ConfigSection; label: string; icon: string }>;
 
+  const contentActions = (
+    <>
+      <Button
+        label="Reload all"
+        icon="pi pi-refresh"
+        onClick={() => queryClient.invalidateQueries()}
+        className="dashboard-header__action dashboard-header__action--primary"
+      />
+      <Button
+        label="Import ENV"
+        icon="pi pi-upload"
+        severity="secondary"
+        onClick={() => setImportOpen(true)}
+        className="dashboard-header__action dashboard-header__action--soft"
+      />
+      <Button
+        label="Export ENV"
+        icon="pi pi-download"
+        outlined
+        onClick={async () => {
+          const query = serviceOptions[0]?.id ? `?serviceId=${serviceOptions[0].id}` : '';
+          setRuntimeText(await api<string>(`/configs/export-env${query}`));
+        }}
+        className="dashboard-header__action dashboard-header__action--ghost"
+      />
+      <Button
+        label="Reload Cache"
+        icon="pi pi-sync"
+        outlined
+        onClick={async () => {
+          await api('/configs/reload-cache', { method: 'POST' });
+          await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        }}
+        className="dashboard-header__action dashboard-header__action--ghost"
+      />
+    </>
+  );
+
   return (
     <AppShell
-      title="Config Center"
-      subtitle="Centralize environment variables, runtime exports, and delivery-safe operational changes across your Mixi services."
       navigation={
         <>
           {contentMenu.map((item) => (
@@ -201,6 +238,7 @@ export default function ConfigCenterPage() {
           environments={environmentOptions}
           configs={configItems}
           activeSection={activeSection}
+          actions={contentActions}
           loading={{
             project: initialized && isAuthenticated ? projects.isLoading : false,
             service: initialized && isAuthenticated ? services.isLoading : false,

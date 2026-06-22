@@ -1,5 +1,4 @@
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 
 type Dashboard = {
@@ -36,21 +35,34 @@ export function DashboardHeader({
   ] as const;
 
   return (
-    <Card className="dashboard-card" title="Mixi Config Center" subTitle="CRUD, search, export, history, runtime config">
-      <div className="flex gap-2 flex-wrap align-items-center">
-        <Button label="Reload all" icon="pi pi-refresh" onClick={onReload} />
-        <Button label="Import ENV" icon="pi pi-upload" severity="secondary" onClick={onImport} />
-        <Button label="Export ENV" icon="pi pi-download" outlined onClick={onExport} />
-        <Button label="Reload Cache" icon="pi pi-sync" outlined onClick={onReloadCache} />
-        <InputText value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder="Search configs" />
-      </div>
-      <div className="grid mt-3">
-        {stats.map(([title, value]) => (
-          <div className="col-12 md:col-3" key={title}>
-            <Card className="stat-card" title={title}>{value ?? 0}</Card>
+    <section className="dashboard-header">
+      <div className="dashboard-header__top">
+        <div className="dashboard-header__copy">
+          <span className="dashboard-header__eyebrow">Configuration Workspace</span>
+          <h1>Mixi Config Center</h1>
+          <p>Manage environment variables, exports, cache reloads, and audit history from one operational view.</p>
+        </div>
+
+        <div className="dashboard-header__tools">
+          <div className="dashboard-header__search">
+            <i className="pi pi-search" />
+            <InputText
+              value={search}
+              onChange={(event) => onSearchChange(event.target.value)}
+              placeholder="Search configs"
+            />
           </div>
+        </div>
+      </div>
+
+      <div className="dashboard-header__stats">
+        {stats.map(([title, value]) => (
+          <article className="stat-card" key={title}>
+            <span className="stat-card__label">{title}</span>
+            <strong className="stat-card__value">{value ?? 0}</strong>
+          </article>
         ))}
       </div>
-    </Card>
+    </section>
   );
 }

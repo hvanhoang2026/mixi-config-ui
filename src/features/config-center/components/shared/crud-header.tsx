@@ -1,9 +1,18 @@
+import type { ReactNode } from 'react';
 import { Button } from 'primereact/button';
 
-export function CrudHeader({ onAdd }: { onAdd: () => void }) {
+type Props = {
+  onAdd: () => void;
+  actions?: ReactNode;
+};
+
+export function CrudHeader({ onAdd, actions }: Props) {
   return (
-    <div className="mb-3 flex justify-content-end">
-      <Button label="Add new" icon="pi pi-plus" onClick={onAdd} />
+    <div className="crud-header">
+      <div className="crud-header__actions">
+        {actions}
+      </div>
+      <Button label="Add new" icon="pi pi-plus" onClick={onAdd} className="crud-header__add" />
     </div>
   );
 }

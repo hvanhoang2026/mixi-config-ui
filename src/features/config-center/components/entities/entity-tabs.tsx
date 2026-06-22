@@ -22,6 +22,7 @@ type Props = {
   onDelete: (type: EntityType, id: string) => Promise<void>;
   onHistory: (configId: string) => void;
   onLoadRuntime: () => Promise<void>;
+  actions?: React.ReactNode;
 };
 
 export function EntityTabs(props: Props) {
@@ -82,7 +83,7 @@ export function EntityTabs(props: Props) {
   if (props.activeSection === 'project') {
     return (
       <section className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('project')} />
+        <CrudHeader onAdd={() => props.onAdd('project')} actions={props.actions} />
         <EntityDataTable value={props.projects} loading={props.loading.project}>
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
@@ -96,7 +97,7 @@ export function EntityTabs(props: Props) {
   if (props.activeSection === 'service') {
     return (
       <section className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('service')} />
+        <CrudHeader onAdd={() => props.onAdd('service')} actions={props.actions} />
         <EntityDataTable value={props.services} loading={props.loading.service}>
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
@@ -117,7 +118,7 @@ export function EntityTabs(props: Props) {
   if (props.activeSection === 'environment') {
     return (
       <section className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('environment')} />
+        <CrudHeader onAdd={() => props.onAdd('environment')} actions={props.actions} />
         <EntityDataTable value={props.environments} loading={props.loading.environment}>
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
@@ -131,7 +132,7 @@ export function EntityTabs(props: Props) {
   if (props.activeSection === 'config') {
     return (
       <section className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('config')} />
+        <CrudHeader onAdd={() => props.onAdd('config')} actions={props.actions} />
         <EntityDataTable value={props.configs} loading={props.loading.config}>
           <Column field="key" header="Key" filter sortable />
           <Column field="value" header="Value" filter body={configValue} />
