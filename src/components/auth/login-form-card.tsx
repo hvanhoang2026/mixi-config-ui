@@ -132,7 +132,6 @@ export function LoginFormCard() {
                     checked={checked}
                     onChange={(event) => setChecked(event.checked ?? false)}
                     className="mr-2"
-                    binary
                   />
                   <label htmlFor="remember-config">Remember me</label>
                 </div>
