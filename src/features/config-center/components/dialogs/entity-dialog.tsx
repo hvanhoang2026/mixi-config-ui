@@ -27,7 +27,7 @@ const fields: Record<EntityType, string[]> = {
   project: ['name', 'code', 'description'],
   service: ['projectId', 'name', 'code', 'type', 'description'],
   environment: ['name', 'code', 'description'],
-  config: ['projectId', 'serviceId', 'environmentId', 'key', 'value', 'description', 'isSecret', 'isRequired'],
+  config: ['serviceId', 'environmentId', 'key', 'value', 'description', 'isSecret', 'isRequired'],
 };
 
 export function EntityDialog({ visible, activeType, onHide, onSubmit, forms, ...options }: Props) {

@@ -32,11 +32,13 @@ export default function ConfigCenterPage() {
   const { initialized, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<ConfigSection>('project');
+  const [activeSection, setActiveSection] = useState<ConfigSection>('config');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [search, setSearch] = useState('');
+  const [selectedServiceId, setSelectedServiceId] = useState('');
+  const [selectedEnvironmentId, setSelectedEnvironmentId] = useState('');
   const [envText, setEnvText] = useState('DB_HOST=localhost\nDB_PORT=5432\nJWT_SECRET=abc123');
   const [runtimeText, setRuntimeText] = useState('');
 
@@ -62,7 +64,14 @@ export default function ConfigCenterPage() {
   const projectOptions = projects.data ?? [];
   const serviceOptions = services.data ?? [];
   const environmentOptions = environments.data ?? [];
-  const configItems = configs.data ?? [];
+  const selectedService = serviceOptions.find((service) => service.id === selectedServiceId) ?? serviceOptions[0];
+  const selectedEnvironment = environmentOptions.find((environment) => environment.id === selectedEnvironmentId) ?? environmentOptions[0];
+  const selectedProject = projectOptions.find((project) => project.id === selectedService?.projectId);
+  const configItems = (configs.data ?? []).filter((config) => {
+    if (selectedService && config.serviceId !== selectedService.id) return false;
+    if (selectedEnvironment && config.environmentId !== selectedEnvironment.id) return false;
+    return true;
+  });
 
   const projectForm = useForm<ProjectForm>({ defaultValues: emptyProject });
   const serviceForm = useForm<ServiceForm>({ defaultValues: { projectId: '', name: '', code: '', type: 'backend', description: '' } });
@@ -78,6 +87,28 @@ export default function ConfigCenterPage() {
     if (editTarget.type === 'environment') environmentForm.reset(editTarget.item as Environment);
     if (editTarget.type === 'config') configForm.reset(editTarget.item as Config);
   }, [editTarget, projectForm, serviceForm, environmentForm, configForm]);
+
+  useEffect(() => {
+    if (!selectedServiceId && serviceOptions[0]) setSelectedServiceId(serviceOptions[0].id);
+  }, [selectedServiceId, serviceOptions]);
+
+  useEffect(() => {
+    if (!selectedEnvironmentId && environmentOptions[0]) setSelectedEnvironmentId(environmentOptions[0].id);
+  }, [selectedEnvironmentId, environmentOptions]);
+
+  useEffect(() => {
+    if (!selectedService && selectedServiceId) setSelectedServiceId(serviceOptions[0]?.id ?? '');
+  }, [selectedService, selectedServiceId, serviceOptions]);
+
+  useEffect(() => {
+    if (!selectedEnvironment && selectedEnvironmentId) setSelectedEnvironmentId(environmentOptions[0]?.id ?? '');
+  }, [selectedEnvironment, selectedEnvironmentId, environmentOptions]);
+
+  useEffect(() => {
+    configForm.setValue('projectId', selectedProject?.id ?? '');
+    configForm.setValue('serviceId', selectedService?.id ?? '');
+    configForm.setValue('environmentId', selectedEnvironment?.id ?? '');
+  }, [configForm, selectedEnvironment, selectedProject, selectedService]);
 
   useEffect(() => {
     if (!initialized || !isAuthenticated) return;
@@ -121,12 +152,12 @@ export default function ConfigCenterPage() {
 
   function resetForm(type: EntityType) {
     if (type === 'project') projectForm.reset(emptyProject);
-    if (type === 'service') serviceForm.reset({ projectId: projectOptions[0]?.id ?? '', name: '', code: '', type: 'backend', description: '' });
+    if (type === 'service') serviceForm.reset({ projectId: selectedProject?.id ?? projectOptions[0]?.id ?? '', name: '', code: '', type: 'backend', description: '' });
     if (type === 'environment') environmentForm.reset(emptyEnvironment);
     if (type === 'config') configForm.reset({
-      projectId: projectOptions[0]?.id ?? '',
-      serviceId: serviceOptions[0]?.id ?? '',
-      environmentId: environmentOptions[0]?.id ?? '',
+      projectId: selectedProject?.id ?? '',
+      serviceId: selectedService?.id ?? '',
+      environmentId: selectedEnvironment?.id ?? '',
       key: '',
       value: '',
       description: '',
@@ -152,36 +183,44 @@ export default function ConfigCenterPage() {
   }
 
   const contentMenu = [
-    { key: 'project', label: 'Projects', icon: 'pi pi-folder' },
     { key: 'service', label: 'Services', icon: 'pi pi-briefcase' },
     { key: 'environment', label: 'Environments', icon: 'pi pi-globe' },
-    { key: 'config', label: 'Configs', icon: 'pi pi-sliders-h' },
+    { key: 'config', label: 'Service Configs', icon: 'pi pi-sliders-h' },
     { key: 'runtime-history', label: 'Runtime & History', icon: 'pi pi-history' },
+    { key: 'project', label: 'Projects', icon: 'pi pi-folder' },
   ] as const satisfies ReadonlyArray<{ key: ConfigSection; label: string; icon: string }>;
+
+  const canRunScopedActions = !!selectedService && !!selectedEnvironment;
 
   const contentActions = (
     <>
       <Button
-        label="Reload all"
+        label="Refresh workspace"
         icon="pi pi-refresh"
-        onClick={() => queryClient.invalidateQueries()}
+        onClick={() => invalidateAll()}
         className="dashboard-header__action dashboard-header__action--primary"
       />
       <Button
-        label="Import ENV"
+        label="Import service ENV"
         icon="pi pi-upload"
         severity="secondary"
         onClick={() => setImportOpen(true)}
+        disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--soft"
       />
       <Button
-        label="Export ENV"
+        label="Export service ENV"
         icon="pi pi-download"
         outlined
         onClick={async () => {
-          const query = serviceOptions[0]?.id ? `?serviceId=${serviceOptions[0].id}` : '';
-          setRuntimeText(await api<string>(`/configs/export-env${query}`));
+          const query = new URLSearchParams({
+            projectId: selectedProject?.id ?? '',
+            serviceId: selectedService?.id ?? '',
+            environmentId: selectedEnvironment?.id ?? '',
+          }).toString();
+          setRuntimeText(await api<string>(`/configs/export-env${query ? `?${query}` : ''}`));
         }}
+        disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--ghost"
       />
       <Button
@@ -189,9 +228,18 @@ export default function ConfigCenterPage() {
         icon="pi pi-sync"
         outlined
         onClick={async () => {
-          await api('/configs/reload-cache', { method: 'POST' });
+          await api('/configs/reload-cache', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              projectId: selectedProject?.id ?? '',
+              serviceId: selectedService?.id ?? '',
+              environmentId: selectedEnvironment?.id ?? '',
+            }),
+          });
           await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
         }}
+        disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--ghost"
       />
     </>
@@ -218,18 +266,16 @@ export default function ConfigCenterPage() {
       <AuthGuard>
         <DashboardHeader
           dashboard={dashboard.data}
+          projectName={selectedProject?.name}
+          services={serviceOptions}
+          environments={environmentOptions}
+          selectedServiceId={selectedService?.id ?? ''}
+          selectedEnvironmentId={selectedEnvironment?.id ?? ''}
           search={search}
+          actions={contentActions}
+          onServiceChange={setSelectedServiceId}
+          onEnvironmentChange={setSelectedEnvironmentId}
           onSearchChange={setSearch}
-          onReload={() => queryClient.invalidateQueries()}
-          onImport={() => setImportOpen(true)}
-          onExport={async () => {
-            const query = serviceOptions[0]?.id ? `?serviceId=${serviceOptions[0].id}` : '';
-            setRuntimeText(await api<string>(`/configs/export-env${query}`));
-          }}
-          onReloadCache={async () => {
-            await api('/configs/reload-cache', { method: 'POST' });
-            await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-          }}
         />
 
         <EntityTabs
@@ -238,7 +284,6 @@ export default function ConfigCenterPage() {
           environments={environmentOptions}
           configs={configItems}
           activeSection={activeSection}
-          actions={contentActions}
           loading={{
             project: initialized && isAuthenticated ? projects.isLoading : false,
             service: initialized && isAuthenticated ? services.isLoading : false,
@@ -248,12 +293,23 @@ export default function ConfigCenterPage() {
           runtimeText={runtimeText}
           history={history.data ?? []}
           onAdd={addEntity}
-          onEdit={(type: EntityType, item: EntityItem) => setEditTarget({ type, item })}
+          onEdit={(type: EntityType, item: EntityItem) => {
+            if (type === 'service') {
+              const service = item as Service;
+              setSelectedServiceId(service.id);
+            }
+            if (type === 'config') {
+              const config = item as Config;
+              setSelectedServiceId(config.serviceId);
+              setSelectedEnvironmentId(config.environmentId);
+            }
+            setEditTarget({ type, item });
+          }}
           onDelete={deleteEntity}
           onHistory={loadHistory}
           onLoadRuntime={async () => {
-            const service = serviceOptions[0];
-            const environment = environmentOptions[0];
+            const service = selectedService;
+            const environment = selectedEnvironment;
             if (service && environment) {
               setRuntimeText(await api<string>(`/runtime-config/${service.code}/${environment.code}`));
             }
@@ -274,13 +330,21 @@ export default function ConfigCenterPage() {
         <ImportEnvDialog
           visible={importOpen}
           value={envText}
+          projectName={selectedProject?.name}
+          serviceName={selectedService?.name}
+          environmentName={selectedEnvironment?.name}
           onChange={setEnvText}
           onHide={() => setImportOpen(false)}
           onImport={async () => {
             await api('/configs/import-env', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ content: envText }),
+              body: JSON.stringify({
+                content: envText,
+                projectId: selectedProject?.id ?? '',
+                serviceId: selectedService?.id ?? '',
+                environmentId: selectedEnvironment?.id ?? '',
+              }),
             });
             setImportOpen(false);
             await queryClient.invalidateQueries({ queryKey: ['configs'] });
