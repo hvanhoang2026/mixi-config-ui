@@ -10,7 +10,6 @@ import { Divider } from 'primereact/divider';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Password } from 'primereact/password';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { useAuth } from '../../features/auth/AuthProvider';
 
 const REMEMBER_CREDENTIALS_KEY = 'mixi-config-remember-credentials';
@@ -86,16 +85,7 @@ export function LoginFormCard() {
             </span>
           </div>
 
-          {!initialized ? (
-            <div className="auth-page__loading">
-              <ProgressSpinner
-                style={{ width: '44px', height: '44px' }}
-                strokeWidth="4"
-                animationDuration=".8s"
-              />
-              <span>Checking session...</span>
-            </div>
-          ) : (
+          {initialized ? (
             <form className="auth-page__form" onSubmit={handleSubmit}>
               {error ? <Message severity="error" text={error} className="w-full mb-4" /> : null}
               <label htmlFor="config-email" className="block text-900 text-xl font-medium mb-2">
@@ -146,7 +136,7 @@ export function LoginFormCard() {
                 disabled={loading}
               />
             </form>
-          )}
+          ) : null}
         </Card>
       </div>
     </div>

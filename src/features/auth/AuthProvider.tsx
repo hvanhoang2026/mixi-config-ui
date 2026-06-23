@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useGlobalLoading } from '../../components/loading/global-loading';
 import { AUTH_REFRESHED_EVENT, authApi, type AuthResponse, type AuthUser } from './authApi';
 import { clearStoredAuth, isTokenExpired, readStoredAuth, writeStoredAuth } from './authStorage';
 
@@ -53,6 +54,7 @@ function createAuthenticatedState(
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const globalLoading = useGlobalLoading();
   const [state, setState] = useState<AuthState>({
     initialized: false,
     loading: true,
@@ -78,19 +80,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshSession = useCallback(async () => {
+    const hideLoading = globalLoading.show();
     const stored = readStoredAuth();
-    if (!stored) {
-      clearStoredAuth();
-      setState((current) => ({
-        ...current,
-        initialized: true,
-        loading: false,
-        isAuthenticated: false,
-      }));
-      return;
-    }
-
     try {
+      if (!stored) {
+        clearStoredAuth();
+        setState((current) => ({
+          ...current,
+          initialized: true,
+          loading: false,
+          isAuthenticated: false,
+        }));
+        return;
+      }
+
       if (!isTokenExpired(stored.accessToken)) {
         const profile = await authApi.getMyProfile(stored.accessToken).catch(() => null);
         persistState(
@@ -145,8 +148,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: null,
         remember: false,
       });
+    } finally {
+      hideLoading();
     }
-  }, [persistState]);
+  }, [globalLoading, persistState]);
 
   useEffect(() => {
     refreshSession();
@@ -210,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       login: async (email, password, remember = false) => {
+        const hideLoading = globalLoading.show();
         setState((current) => ({ ...current, loading: true }));
         try {
           const response = await authApi.login({ email, password });
@@ -234,9 +240,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           setState((current) => ({ ...current, loading: false }));
           throw error;
+        } finally {
+          hideLoading();
         }
       },
       logout: async () => {
+        const hideLoading = globalLoading.show();
         const token = state.accessToken;
         clearStoredAuth();
         setState({
@@ -249,12 +258,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           remember: false,
         });
         if (token) {
-          authApi.logout(token).catch(() => undefined);
+          await authApi.logout(token).catch(() => undefined);
         }
+        hideLoading();
       },
       refreshSession,
     }),
-    [persistState, refreshSession, state],
+    [globalLoading, persistState, refreshSession, state],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
