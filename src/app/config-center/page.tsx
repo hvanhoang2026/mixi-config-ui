@@ -45,11 +45,6 @@ export default function ConfigCenterPage() {
   const projects = useCrud<Project>('projects', '/projects');
   const services = useCrud<Service>('services', '/services');
   const environments = useCrud<Environment>('environments', '/environments');
-  const configs = useQuery({
-    queryKey: ['configs', search],
-    queryFn: () => api<Config[]>(`/configs${search ? `?q=${encodeURIComponent(search)}` : ''}`),
-    enabled: initialized && isAuthenticated,
-  });
   const dashboard = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api<Record<string, number>>('/dashboard'),
@@ -67,11 +62,27 @@ export default function ConfigCenterPage() {
   const selectedService = serviceOptions.find((service) => service.id === selectedServiceId) ?? serviceOptions[0];
   const selectedEnvironment = environmentOptions.find((environment) => environment.id === selectedEnvironmentId) ?? environmentOptions[0];
   const selectedProject = projectOptions.find((project) => project.id === selectedService?.projectId);
-  const configItems = (configs.data ?? []).filter((config) => {
-    if (selectedService && config.serviceId !== selectedService.id) return false;
-    if (selectedEnvironment && config.environmentId !== selectedEnvironment.id) return false;
-    return true;
+  const configs = useQuery({
+    queryKey: ['configs', selectedService?.id, selectedEnvironment?.id, search],
+    queryFn: () => {
+      const query = new URLSearchParams();
+      if (selectedEnvironment?.id) query.set('environmentId', selectedEnvironment.id);
+      return api<Config[]>(
+        `/configs/service/${selectedService?.id}${query.toString() ? `?${query.toString()}` : ''}`,
+      );
+    },
+    enabled: initialized && isAuthenticated && !!selectedService?.id,
+    select: (items) => {
+      const normalizedSearch = search.trim().toLowerCase();
+      if (!normalizedSearch) return items;
+      return items.filter((item) =>
+        [item.key, item.value, item.description ?? ''].some((value) =>
+          value.toLowerCase().includes(normalizedSearch),
+        ),
+      );
+    },
   });
+  const configItems = configs.data ?? [];
 
   const projectForm = useForm<ProjectForm>({ defaultValues: emptyProject });
   const serviceForm = useForm<ServiceForm>({ defaultValues: { projectId: '', name: '', code: '', type: 'backend', description: '' } });
@@ -173,6 +184,44 @@ export default function ConfigCenterPage() {
 
   async function deleteEntity(type: EntityType, id: string) {
     await mutations[type].remove.mutateAsync(id);
+    await invalidateAll();
+  }
+
+  async function saveConfigValue(config: Config, value: string) {
+    const updated = await api<Config>(`/configs/${config.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectId: config.projectId,
+        serviceId: config.serviceId,
+        environmentId: config.environmentId,
+        key: config.key,
+        value,
+        description: config.description ?? '',
+        isSecret: config.isSecret,
+        isRequired: config.isRequired,
+      }),
+    });
+
+    queryClient.setQueriesData<Config[]>({ queryKey: ['configs'] }, (current) =>
+      current?.map((item) => (item.id === updated.id ? updated : item)) ?? current,
+    );
+  }
+
+  async function bulkSaveConfigs(lines: Array<{ key: string; value: string }>) {
+    if (!selectedService || !selectedEnvironment) return;
+
+    await api('/configs/bulk-upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+          projectId: selectedProject?.id ?? selectedService.projectId,
+          serviceId: selectedService.id,
+          environmentId: selectedEnvironment.id,
+        entries: lines,
+      }),
+    });
+
     await invalidateAll();
   }
 
@@ -283,6 +332,8 @@ export default function ConfigCenterPage() {
           services={serviceOptions}
           environments={environmentOptions}
           configs={configItems}
+          selectedServiceId={selectedService?.id ?? ''}
+          selectedEnvironmentId={selectedEnvironment?.id ?? ''}
           activeSection={activeSection}
           loading={{
             project: initialized && isAuthenticated ? projects.isLoading : false,
@@ -306,6 +357,10 @@ export default function ConfigCenterPage() {
             setEditTarget({ type, item });
           }}
           onDelete={deleteEntity}
+          onSelectService={setSelectedServiceId}
+          onSelectEnvironment={setSelectedEnvironmentId}
+          onSaveConfigValue={saveConfigValue}
+          onBulkSaveConfigs={bulkSaveConfigs}
           onHistory={loadHistory}
           onLoadRuntime={async () => {
             const service = selectedService;

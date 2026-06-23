@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, type DataTableProps } from 'primereact/datatable';
 import type { Config, Environment, Project, Service } from '../../types';
@@ -7,6 +5,7 @@ import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
 import { ActionButtons } from '../shared/action-buttons';
 import { CrudHeader } from '../shared/crud-header';
 import { RuntimeHistoryPanel } from '../runtime-history/runtime-history-panel';
+import { ServiceConfigsView } from '../service-configs/service-configs-view';
 
 type Props = {
   projects: Project[];
@@ -23,11 +22,15 @@ type Props = {
   onHistory: (configId: string) => void;
   onLoadRuntime: () => Promise<void>;
   actions?: React.ReactNode;
+  selectedServiceId: string;
+  selectedEnvironmentId: string;
+  onSelectService: (serviceId: string) => void;
+  onSelectEnvironment: (environmentId: string) => void;
+  onSaveConfigValue: (config: Config, value: string) => Promise<void>;
+  onBulkSaveConfigs: (lines: Array<{ key: string; value: string }>) => Promise<void>;
 };
 
 export function EntityTabs(props: Props) {
-  const [visibleConfigValues, setVisibleConfigValues] = useState<Set<string>>(new Set());
-
   const actions = (type: EntityType, row: EntityItem) => (
     <ActionButtons
       type={type}
@@ -37,48 +40,6 @@ export function EntityTabs(props: Props) {
       onHistory={props.onHistory}
     />
   );
-
-  const toggleConfigValue = (configId: string) => {
-    setVisibleConfigValues((current) => {
-      const next = new Set(current);
-      if (next.has(configId)) {
-        next.delete(configId);
-      } else {
-        next.add(configId);
-      }
-      return next;
-    });
-  };
-
-  const configValue = (row: Config) => {
-    const visible = visibleConfigValues.has(row.id);
-    return (
-      <div className="flex align-items-center gap-2">
-        <span
-          style={{
-            display: 'inline-block',
-            maxWidth: 360,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            fontFamily: 'monospace',
-          }}
-          title={visible ? row.value : undefined}
-        >
-          {visible ? row.value : '••••••••••••'}
-        </span>
-        <Button
-          type="button"
-          icon={visible ? 'pi pi-eye-slash' : 'pi pi-eye'}
-          text
-          rounded
-          size="small"
-          aria-label={visible ? `Hide value for ${row.key}` : `Show value for ${row.key}`}
-          onClick={() => toggleConfigValue(row.id)}
-        />
-      </div>
-    );
-  };
 
   if (props.activeSection === 'project') {
     return (
@@ -107,7 +68,9 @@ export function EntityTabs(props: Props) {
             header="Project"
             filter
             sortable
-            body={(row: Service) => props.projects.find((project) => project.id === row.projectId)?.name ?? row.projectId}
+            body={(row: Service) =>
+              props.projects.find((project) => project.id === row.projectId)?.name ?? row.projectId
+            }
           />
           <Column header="Actions" body={(row: Service) => actions('service', row)} />
         </EntityDataTable>
@@ -131,17 +94,23 @@ export function EntityTabs(props: Props) {
 
   if (props.activeSection === 'config') {
     return (
-      <section className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('config')} actions={props.actions} />
-        <EntityDataTable value={props.configs} loading={props.loading.config}>
-          <Column field="key" header="Key" filter sortable />
-          <Column field="value" header="Value" filter body={configValue} />
-          <Column field="description" header="Description" filter />
-          <Column field="isSecret" header="Secret" filter sortable body={(row: Config) => (row.isSecret ? 'Yes' : 'No')} />
-          <Column field="isRequired" header="Required" filter sortable body={(row: Config) => (row.isRequired ? 'Yes' : 'No')} />
-          <Column header="Actions" body={(row: Config) => actions('config', row)} />
-        </EntityDataTable>
-      </section>
+      <ServiceConfigsView
+        services={props.services}
+        projects={props.projects}
+        environments={props.environments}
+        configs={props.configs}
+        selectedServiceId={props.selectedServiceId}
+        selectedEnvironmentId={props.selectedEnvironmentId}
+        loading={props.loading.service || props.loading.config}
+        onSelectService={props.onSelectService}
+        onSelectEnvironment={props.onSelectEnvironment}
+        onAddConfig={() => props.onAdd('config')}
+        onEditConfig={(config) => props.onEdit('config', config)}
+        onDeleteConfig={(configId) => props.onDelete('config', configId)}
+        onSaveConfigValue={props.onSaveConfigValue}
+        onBulkSave={props.onBulkSaveConfigs}
+        onHistory={props.onHistory}
+      />
     );
   }
 
