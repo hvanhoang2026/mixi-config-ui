@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useIsFetching, useIsMutating } from '@tanstack/react-query';
-import { FadeLoader } from 'react-spinners';
+import { Spinner } from '@w-iris/react';
 
 interface GlobalLoadingContextValue {
   show: () => () => void;
@@ -56,14 +56,7 @@ export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
         <div className="global-loading" role="status" aria-live="polite" aria-label="Loading">
           <div className="global-loading__panel">
             <div className="global-loading__loader" aria-hidden="true">
-              <FadeLoader
-                color="#2563eb"
-                height={10}
-                width={4}
-                radius={3}
-                margin={-3}
-                speedMultiplier={1.05}
-              />
+              <Spinner label="Loading" size="lg" />
             </div>
             <span>Loading...</span>
           </div>

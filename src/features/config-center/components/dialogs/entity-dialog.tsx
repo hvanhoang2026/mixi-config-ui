@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
+import { FormField } from '@w-iris/react';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
@@ -109,7 +110,11 @@ function SelectField({ options, value, onChange, placeholder }: { options: Array
 }
 
 function Field({ label, input }: { label: string; input: ReactNode }) {
-  return <div className="col-12"><div className="mb-1">{label}</div>{input}</div>;
+  return (
+    <div className="col-12">
+      <FormField label={label}>{input}</FormField>
+    </div>
+  );
 }
 
 function CheckField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {

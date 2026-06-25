@@ -1,3 +1,4 @@
+import { StatCard } from '@w-iris/react';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
@@ -98,10 +99,7 @@ export function DashboardHeader({
 
       <div className="dashboard-header__stats">
         {stats.map(([title, value]) => (
-          <article className="stat-card" key={title}>
-            <span className="stat-card__label">{title}</span>
-            <strong className="stat-card__value">{value ?? 0}</strong>
-          </article>
+          <StatCard key={title} label={title} value={value ?? 0} />
         ))}
       </div>
     </section>

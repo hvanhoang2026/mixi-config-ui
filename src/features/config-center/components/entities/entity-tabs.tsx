@@ -1,5 +1,5 @@
-import { Column } from 'primereact/column';
-import { DataTable, type DataTableProps } from 'primereact/datatable';
+import { Column, DataTable } from '@w-iris/react';
+import type { DataTableProps } from 'primereact/datatable';
 import type { Config, Environment, Project, Service } from '../../types';
 import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
 import { ActionButtons } from '../shared/action-buttons';

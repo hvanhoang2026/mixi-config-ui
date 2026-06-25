@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Column, DataTable } from '@w-iris/react';
 import { Button } from 'primereact/button';
-import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
