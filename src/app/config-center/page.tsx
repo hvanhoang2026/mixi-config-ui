@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
-import { api } from '../../features/config-center/api';
+import { API_BASE, api } from '../../features/config-center/api';
 import { AppShell } from '../../components/shell/app-shell';
 import { Button } from 'primereact/button';
 import { DashboardHeader } from '../../features/config-center/components/dashboard/dashboard-header';
@@ -122,9 +122,29 @@ export default function ConfigCenterPage() {
   }, [configForm, selectedEnvironment, selectedProject, selectedService]);
 
   useEffect(() => {
-    if (!initialized || !isAuthenticated) return;
-    void invalidateAll();
-  }, [initialized, isAuthenticated]);
+    if (activeSection !== 'runtime-history') return;
+    if (!selectedService || !selectedEnvironment) {
+      setRuntimeText('');
+      return;
+    }
+
+    void loadRuntime();
+  }, [activeSection, selectedEnvironment?.code, selectedService?.code]);
+
+  useEffect(() => {
+    if (activeSection !== 'runtime-history') return;
+
+    const firstConfig = configItems[0];
+    if (!firstConfig) {
+      setActiveConfigId(null);
+      return;
+    }
+
+    const activeConfigStillVisible = configItems.some((config) => config.id === activeConfigId);
+    if (!activeConfigId || !activeConfigStillVisible) {
+      loadHistory(firstConfig.id);
+    }
+  }, [activeConfigId, activeSection, configItems]);
 
   const mutations = {
     project: useEntityMutations<ProjectForm>('projects', '/projects'),
@@ -231,6 +251,17 @@ export default function ConfigCenterPage() {
     setActiveSection('runtime-history');
   }
 
+  async function loadRuntime() {
+    const service = selectedService;
+    const environment = selectedEnvironment;
+    if (!service || !environment) return;
+
+    const runtime = await api<Record<string, string>>(
+      `/runtime-config/${service.code}/${environment.code}`,
+    );
+    setRuntimeText(JSON.stringify(runtime, null, 2));
+  }
+
   const contentMenu = [
     { key: 'service', label: 'Services', icon: 'pi pi-briefcase' },
     { key: 'environment', label: 'Environments', icon: 'pi pi-globe' },
@@ -332,6 +363,7 @@ export default function ConfigCenterPage() {
           services={serviceOptions}
           environments={environmentOptions}
           configs={configItems}
+          apiBaseUrl={API_BASE}
           selectedServiceId={selectedService?.id ?? ''}
           selectedEnvironmentId={selectedEnvironment?.id ?? ''}
           activeSection={activeSection}
@@ -362,13 +394,7 @@ export default function ConfigCenterPage() {
           onSaveConfigValue={saveConfigValue}
           onBulkSaveConfigs={bulkSaveConfigs}
           onHistory={loadHistory}
-          onLoadRuntime={async () => {
-            const service = selectedService;
-            const environment = selectedEnvironment;
-            if (service && environment) {
-              setRuntimeText(await api<string>(`/runtime-config/${service.code}/${environment.code}`));
-            }
-          }}
+          onLoadRuntime={loadRuntime}
         />
 
         <EntityDialog

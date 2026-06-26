@@ -7,7 +7,17 @@ import { GlobalLoadingProvider } from '../components/loading/global-loading';
 import { AuthProvider } from '../features/auth/AuthProvider';
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [client] = useState(() => new QueryClient());
+  const [client] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: 1,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
   return (
     <WPrimeProvider>
       <QueryClientProvider client={client}>

@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useIsFetching, useIsMutating } from '@tanstack/react-query';
+import { useIsMutating } from '@tanstack/react-query';
 import { Spinner } from '@w-iris/react';
 
 interface GlobalLoadingContextValue {
@@ -20,11 +20,10 @@ const GlobalLoadingContext = createContext<GlobalLoadingContextValue | null>(nul
 const SPINNER_DELAY_MS = 150;
 
 export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
-  const fetchingCount = useIsFetching();
   const mutatingCount = useIsMutating();
   const [manualCount, setManualCount] = useState(0);
   const [visible, setVisible] = useState(false);
-  const loading = fetchingCount + mutatingCount + manualCount > 0;
+  const loading = mutatingCount + manualCount > 0;
 
   useEffect(() => {
     if (!loading) {

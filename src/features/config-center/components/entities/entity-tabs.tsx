@@ -1,6 +1,6 @@
 import { Column, DataTable } from '@w-iris/react';
 import type { DataTableProps } from 'primereact/datatable';
-import type { Config, Environment, Project, Service } from '../../types';
+import type { Config, Environment, HistoryItem, Project, Service } from '../../types';
 import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
 import { ActionButtons } from '../shared/action-buttons';
 import { CrudHeader } from '../shared/crud-header';
@@ -12,9 +12,10 @@ type Props = {
   services: Service[];
   environments: Environment[];
   configs: Config[];
+  apiBaseUrl: string;
   loading: Record<EntityType, boolean>;
   runtimeText: string;
-  history: unknown[];
+  history: HistoryItem[];
   activeSection: ConfigSection;
   onAdd: (type: EntityType) => void;
   onEdit: (type: EntityType, item: EntityItem) => void;
@@ -117,6 +118,12 @@ export function EntityTabs(props: Props) {
   return (
     <section className="content-panel" id="runtime">
       <RuntimeHistoryPanel
+        apiBaseUrl={props.apiBaseUrl}
+        selectedService={props.services.find((service) => service.id === props.selectedServiceId)}
+        selectedEnvironment={props.environments.find(
+          (environment) => environment.id === props.selectedEnvironmentId,
+        )}
+        configs={props.configs}
         runtimeText={props.runtimeText}
         history={props.history}
         onLoadRuntime={props.onLoadRuntime}

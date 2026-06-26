@@ -43,9 +43,9 @@ export function DashboardHeader({
   onSearchChange,
 }: Props) {
   const stats = [
-    ['Services', dashboard?.totalServices],
-    ['Environments', dashboard?.totalEnvironments],
-    ['Configs', dashboard?.totalConfigs],
+    ['Services', dashboard?.totalServices, 'pi pi-briefcase'],
+    ['Environments', dashboard?.totalEnvironments, 'pi pi-globe'],
+    ['Configs', dashboard?.totalConfigs, 'pi pi-sliders-h'],
   ] as const;
 
   return (
@@ -98,8 +98,8 @@ export function DashboardHeader({
       </div>
 
       <div className="dashboard-header__stats">
-        {stats.map(([title, value]) => (
-          <StatCard key={title} label={title} value={value ?? 0} />
+        {stats.map(([title, value, icon]) => (
+          <StatCard key={title} label={title} value={value ?? 0} icon={<i className={icon} aria-hidden="true" />} />
         ))}
       </div>
     </section>
