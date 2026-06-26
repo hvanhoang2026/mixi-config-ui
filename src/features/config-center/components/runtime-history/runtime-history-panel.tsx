@@ -25,10 +25,27 @@ export function RuntimeHistoryPanel({
   const serviceCode = selectedService?.code || ':serviceCode';
   const environmentCode = selectedEnvironment?.code || ':environmentCode';
   const endpoint = `${apiBaseUrl}/runtime-config/${serviceCode}/${environmentCode}`;
-  const curlSnippet = `curl -H "Authorization: Bearer $MIXI_CONFIG_TOKEN" \\\n  "${endpoint}"`;
-  const nodeSnippet = `const response = await fetch("${endpoint}", {\n  headers: { Authorization: \`Bearer \${process.env.MIXI_CONFIG_TOKEN}\` },\n});\n\nconst config = await response.json();`;
-  const envSnippet = `MIXI_CONFIG_API_URL=${apiBaseUrl}\nMIXI_CONFIG_TOKEN=<service-access-token>\nMIXI_SERVICE_CODE=${serviceCode}\nMIXI_ENVIRONMENT_CODE=${environmentCode}`;
-  const runtimeOutput = runtimeText || '{}';
+  const requiresToken = selectedService?.type !== 'frontend';
+  const authLine = requiresToken
+    ? 'Authorization: Bearer {MIXI_CONFIG_TOKEN}'
+    : 'No token required for frontend service type';
+  const curlSnippet = requiresToken
+    ? `curl -H "Authorization: Bearer $MIXI_CONFIG_TOKEN" \\\n  "${endpoint}"`
+    : `curl "${endpoint}"`;
+  const nodeSnippet = requiresToken
+    ? `const response = await fetch("${endpoint}", {\n  headers: { Authorization: \`Bearer \${process.env.MIXI_CONFIG_TOKEN}\` },\n});\n\nconst config = await response.json();`
+    : `const response = await fetch("${endpoint}");\nconst config = await response.json();`;
+  const envSnippet = [
+    `MIXI_CONFIG_API_URL=${apiBaseUrl}`,
+    requiresToken ? 'MIXI_CONFIG_TOKEN=<server-side-runtime-token>' : undefined,
+    `MIXI_SERVICE_CODE=${serviceCode}`,
+    `MIXI_ENVIRONMENT_CODE=${environmentCode}`,
+  ].filter(Boolean).join('\n');
+  const runtimeOutput =
+    runtimeText ||
+    (requiresToken
+      ? 'Runtime values are protected by MIXI_CONFIG_TOKEN and should be fetched from a server-side service.'
+      : 'Frontend service runtime values can be fetched without MIXI_CONFIG_TOKEN.');
   const configKeyList = configs.length
     ? configs.map((config) => `- \`${config.key}\`${config.description ? `: ${config.description}` : ''}`).join('\n')
     : '- No config keys are currently loaded for this scope.';
@@ -40,6 +57,7 @@ Use this file as implementation context for an engineer or AI agent integrating 
 
 - Service: ${selectedService?.name ?? 'Not selected'}
 - Service code: \`${serviceCode}\`
+- Service type: \`${selectedService?.type ?? 'unknown'}\`
 - Environment: ${selectedEnvironment?.name ?? 'Not selected'}
 - Environment code: \`${environmentCode}\`
 - Config keys loaded: ${configs.length}
@@ -48,7 +66,7 @@ Use this file as implementation context for an engineer or AI agent integrating 
 
 \`\`\`text
 GET ${endpoint}
-Authorization: Bearer {MIXI_CONFIG_TOKEN}
+${authLine}
 \`\`\`
 
 ## Required Service ENV
@@ -82,7 +100,9 @@ ${runtimeOutput}
 ## Integration Notes For AI Agents
 
 - Read runtime configuration from the endpoint above instead of hardcoding environment-specific values.
-- Store \`MIXI_CONFIG_TOKEN\` in the target service secret manager or deployment environment.
+- Frontend service type can fetch runtime config without \`MIXI_CONFIG_TOKEN\`.
+- Non-frontend service types must store \`MIXI_CONFIG_TOKEN\` only in the target service secret manager or deployment environment.
+- Do not expose \`MIXI_CONFIG_TOKEN\` in browser code or public frontend environment variables.
 - Load config during service startup, then refresh when the service needs updated values.
 - Treat the response as a key-value object.
 - Do not log secret config values.
@@ -112,7 +132,6 @@ ${runtimeOutput}
             <span className="p-button-icon p-c pi pi-download" aria-hidden="true" />
             <span className="p-button-label">Download guide</span>
           </a>
-          <Button icon="pi pi-refresh" label="Refresh runtime" onClick={onLoadRuntime} />
         </div>
       </div>
 
@@ -125,12 +144,20 @@ ${runtimeOutput}
               <dd>{selectedService?.name ?? 'Select a service'}</dd>
             </div>
             <div>
+              <dt>Type</dt>
+              <dd>{selectedService?.type ?? '-'}</dd>
+            </div>
+            <div>
               <dt>Environment</dt>
               <dd>{selectedEnvironment?.name ?? 'Select an environment'}</dd>
             </div>
             <div>
               <dt>Endpoint</dt>
               <dd className="api-guide__mono">{endpoint}</dd>
+            </div>
+            <div>
+              <dt>Auth</dt>
+              <dd>{requiresToken ? 'Authorization: Bearer $MIXI_CONFIG_TOKEN' : 'No token required for frontend'}</dd>
             </div>
             <div>
               <dt>Config keys</dt>

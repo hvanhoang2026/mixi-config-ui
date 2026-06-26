@@ -14,7 +14,9 @@ Replace:
 - `{MIXI_CONFIG_API_URL}` with the Mixi Config API base URL.
 - `{serviceCode}` with the service code registered in Mixi Config.
 - `{environmentCode}` with the target environment code.
-- `{MIXI_CONFIG_TOKEN}` with the service access token.
+- `{MIXI_CONFIG_TOKEN}` with the server-side runtime config token configured in `mixi-config-api`.
+- Frontend service type can call this endpoint without `MIXI_CONFIG_TOKEN`.
+- Non-frontend service types must send `MIXI_CONFIG_TOKEN`.
 
 ## Required Environment Variables
 
@@ -30,6 +32,12 @@ MIXI_ENVIRONMENT_CODE=<environment-code>
 ```bash
 curl -H "Authorization: Bearer $MIXI_CONFIG_TOKEN" \
   "$MIXI_CONFIG_API_URL/runtime-config/$MIXI_SERVICE_CODE/$MIXI_ENVIRONMENT_CODE"
+```
+
+For frontend service type:
+
+```bash
+curl "$MIXI_CONFIG_API_URL/runtime-config/$MIXI_SERVICE_CODE/$MIXI_ENVIRONMENT_CODE"
 ```
 
 ## Node.js
@@ -54,10 +62,22 @@ const config = await response.json();
 ## Integration Notes For AI Agents
 
 - Read configuration through the runtime endpoint instead of hardcoding environment-specific values.
-- Keep `MIXI_CONFIG_TOKEN` in the target service secret store.
+- Frontend service type can fetch runtime config without `MIXI_CONFIG_TOKEN`.
+- Keep `MIXI_CONFIG_TOKEN` in the target service secret store for non-frontend service types.
+- Do not expose `MIXI_CONFIG_TOKEN` in browser code or public frontend environment variables.
 - Load config during service startup and refresh it when your service needs updated values.
 - Treat the response as a key-value object.
 - Do not log secret config values.
+
+## API Protection
+
+`mixi-config-api` rejects runtime config requests when:
+
+- The requested service is not type `frontend` and the server has no `MIXI_CONFIG_TOKEN` configured.
+- The requested service is not type `frontend` and the request omits the token.
+- The requested service is not type `frontend` and the request sends an invalid token.
+
+Send the token with either `Authorization: Bearer {MIXI_CONFIG_TOKEN}` or `x-config-token: {MIXI_CONFIG_TOKEN}`.
 
 ## Expected Response Shape
 

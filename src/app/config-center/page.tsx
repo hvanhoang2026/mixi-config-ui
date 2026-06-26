@@ -123,16 +123,6 @@ export default function ConfigCenterPage() {
 
   useEffect(() => {
     if (activeSection !== 'runtime-history') return;
-    if (!selectedService || !selectedEnvironment) {
-      setRuntimeText('');
-      return;
-    }
-
-    void loadRuntime();
-  }, [activeSection, selectedEnvironment?.code, selectedService?.code]);
-
-  useEffect(() => {
-    if (activeSection !== 'runtime-history') return;
 
     const firstConfig = configItems[0];
     if (!firstConfig) {
