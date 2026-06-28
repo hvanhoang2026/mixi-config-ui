@@ -6,7 +6,8 @@
     "dev": "node scripts/next-cli.js dev",
     "build": "node scripts/next-cli.js build",
     "start": "node scripts/next-cli.js start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "vercel -prod"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.20",
