@@ -4,7 +4,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-blue/theme.css';
 import '@w-iris/themes/base.css';
 import '@w-iris/themes/light.css';
-import '@w-iris/react/styles.css';
+import 'w-iris-react/styles.css';
 import './globals.css';
 import type { ReactNode } from 'react';
 import { Providers } from './providers';

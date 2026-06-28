@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
-import { FormField } from '@w-iris/react';
+import { FormField } from 'w-iris-react';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
