@@ -1,6 +1,6 @@
 'use client';
 
-import { AdminLoginForm } from 'w-iris-react';
+import { AdminLoginForm } from '@w-iris/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '../../features/auth/AuthProvider';

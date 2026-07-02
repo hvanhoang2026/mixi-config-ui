@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useIsMutating } from '@tanstack/react-query';
-import { Spinner } from 'w-iris-react';
+import { Spinner } from '@w-iris/react';
 
 interface GlobalLoadingContextValue {
   show: () => () => void;

@@ -1,4 +1,4 @@
-import { Column, DataTable } from 'w-iris-react';
+import { Column, DataTable } from '@w-iris/react';
 import type { DataTableProps } from 'primereact/datatable';
 import type { Config, Environment, HistoryItem, Project, Service } from '../../types';
 import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
