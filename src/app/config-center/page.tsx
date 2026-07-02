@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AdminUserMenu, MixiAdminShell, type MixiAdminMenuItem } from '@w-iris/react';
 import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
 import { API_BASE, api } from '../../features/config-center/api';
-import { AppShell } from '../../components/shell/app-shell';
 import { Button } from 'primereact/button';
 import { DashboardHeader } from '../../features/config-center/components/dashboard/dashboard-header';
 import { EntityDialog } from '../../features/config-center/components/dialogs/entity-dialog';
@@ -29,7 +30,8 @@ const emptyProject: ProjectForm = { name: '', code: '', description: '' };
 const emptyEnvironment: EnvironmentForm = { name: '', code: '', description: '' };
 
 export default function ConfigCenterPage() {
-  const { initialized, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { initialized, isAuthenticated, user, logout } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<ConfigSection>('config');
@@ -261,6 +263,26 @@ export default function ConfigCenterPage() {
   ] as const satisfies ReadonlyArray<{ key: ConfigSection; label: string; icon: string }>;
 
   const canRunScopedActions = !!selectedService && !!selectedEnvironment;
+  const activePath = `/config-center/${activeSection}`;
+  const shellMenu: MixiAdminMenuItem[] = [
+    {
+      label: 'Workspace',
+      icon: 'pi pi-fw pi-sliders-h',
+      items: [
+        { label: 'Config Center', icon: 'pi pi-fw pi-sliders-h', href: '/config-center/config' },
+        { label: 'Mixi Admin', icon: 'pi pi-fw pi-arrow-up-right', url: 'http://localhost:3000/main', target: '_blank' },
+      ],
+    },
+    {
+      label: 'Content',
+      icon: 'pi pi-fw pi-folder-open',
+      items: contentMenu.map((item) => ({
+        label: item.label,
+        icon: `pi pi-fw ${item.icon.replace('pi ', '')}`,
+        href: `/config-center/${item.key}`,
+      })),
+    },
+  ];
 
   const contentActions = (
     <>
@@ -316,24 +338,38 @@ export default function ConfigCenterPage() {
   );
 
   return (
-    <AppShell
-      navigation={
-        <>
-          {contentMenu.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={`app-sidebar__link app-sidebar__button${activeSection === item.key ? ' is-active' : ''}`}
-              onClick={() => setActiveSection(item.key)}
-            >
-              <i className={`pi ${item.icon}`} />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </>
-      }
-    >
-      <AuthGuard>
+    <AuthGuard>
+      <MixiAdminShell
+        brand="MIXI CONFIG"
+        brandHref="/config-center"
+        homeHref="/config-center"
+        pageTitle="Config Center"
+        menu={shellMenu}
+        activePath={activePath}
+        onNavigate={(href) => {
+          const nextSection = href.replace('/config-center/', '') as ConfigSection;
+          if (contentMenu.some((item) => item.key === nextSection)) {
+            setActiveSection(nextSection);
+            return;
+          }
+          router.push(href);
+        }}
+        user={
+          <AdminUserMenu
+            user={{
+              name: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
+              email: user?.email,
+              role: user?.roles?.[0] ?? 'SUPERADMIN',
+              avatarUrl: user?.avatarUrl ?? undefined,
+              tenantName: user?.tenantName ?? 'Config Center workspace',
+            }}
+            onLogout={async () => {
+              await logout();
+              router.replace('/login');
+            }}
+          />
+        }
+      >
         <DashboardHeader
           dashboard={dashboard.data}
           projectName={selectedProject?.name}
@@ -421,8 +457,8 @@ export default function ConfigCenterPage() {
             await queryClient.invalidateQueries({ queryKey: ['configs'] });
           }}
         />
-      </AuthGuard>
-    </AppShell>
+      </MixiAdminShell>
+    </AuthGuard>
   );
 }
 
