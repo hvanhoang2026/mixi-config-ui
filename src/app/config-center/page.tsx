@@ -1,10 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AdminUserMenu, MixiAdminShell, type MixiAdminMenuItem } from '@w-iris/react';
+import {
+  AdminUserMenu,
+  MixiAccountPages,
+  MixiAdminShell,
+  createMixiAccountMenuItems,
+  type MixiAccountPagesProps,
+  type MixiAdminMenuItem,
+} from '@w-iris/react';
 import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
 import { API_BASE, api } from '../../features/config-center/api';
@@ -43,6 +50,14 @@ export default function ConfigCenterPage() {
   const [selectedEnvironmentId, setSelectedEnvironmentId] = useState('');
   const [envText, setEnvText] = useState('DB_HOST=localhost\nDB_PORT=5432\nJWT_SECRET=abc123');
   const [runtimeText, setRuntimeText] = useState('');
+  const [activeAccountPage, setActiveAccountPage] = useState<MixiAccountPagesProps['page'] | null>(null);
+
+  useEffect(() => {
+    const account = new URLSearchParams(window.location.search).get('account');
+    if (account === 'profile' || account === 'settings' || account === 'security') {
+      setActiveAccountPage(account);
+    }
+  }, []);
 
   const projects = useCrud<Project>('projects', '/projects');
   const services = useCrud<Service>('services', '/services');
@@ -263,7 +278,34 @@ export default function ConfigCenterPage() {
   ] as const satisfies ReadonlyArray<{ key: ConfigSection; label: string; icon: string }>;
 
   const canRunScopedActions = !!selectedService && !!selectedEnvironment;
-  const activePath = `/config-center/${activeSection}`;
+  const accountPaths = useMemo(
+    () => ({
+      profile: '/config-center?account=profile',
+      settings: '/config-center?account=settings',
+      security: '/config-center?account=security',
+    }),
+    [],
+  );
+  const activePath = activeAccountPage
+    ? accountPaths[activeAccountPage]
+    : `/config-center/${activeSection}`;
+  const shellUser = {
+    name: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
+    email: user?.email,
+    role: user?.roles?.[0] ?? 'SUPERADMIN',
+    avatarUrl: user?.avatarUrl ?? undefined,
+    tenantName: user?.tenantName ?? 'Config Center workspace',
+    fullName: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
+    phone: user?.phone,
+    bio: undefined,
+    birthday: undefined,
+    address: undefined,
+    city: undefined,
+    country: undefined,
+    jobTitle: user?.roles?.[0] ?? 'SUPERADMIN',
+    department: 'Configuration',
+    website: undefined,
+  };
   const shellMenu: MixiAdminMenuItem[] = [
     {
       label: 'Workspace',
@@ -347,8 +389,17 @@ export default function ConfigCenterPage() {
         menu={shellMenu}
         activePath={activePath}
         onNavigate={(href) => {
+          const account = new URL(href, window.location.origin).searchParams.get('account');
+          if (account === 'profile' || account === 'settings' || account === 'security') {
+            window.history.pushState(null, '', href);
+            setActiveAccountPage(account);
+            return;
+          }
+
+          setActiveAccountPage(null);
           const nextSection = href.replace('/config-center/', '') as ConfigSection;
           if (contentMenu.some((item) => item.key === nextSection)) {
+            window.history.pushState(null, '', href);
             setActiveSection(nextSection);
             return;
           }
@@ -356,13 +407,17 @@ export default function ConfigCenterPage() {
         }}
         user={
           <AdminUserMenu
-            user={{
-              name: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
-              email: user?.email,
-              role: user?.roles?.[0] ?? 'SUPERADMIN',
-              avatarUrl: user?.avatarUrl ?? undefined,
-              tenantName: user?.tenantName ?? 'Config Center workspace',
-            }}
+            user={shellUser}
+            items={createMixiAccountMenuItems(
+              (href) => {
+                const account = new URL(href, window.location.origin).searchParams.get('account');
+                if (account === 'profile' || account === 'settings' || account === 'security') {
+                  window.history.pushState(null, '', href);
+                  setActiveAccountPage(account);
+                }
+              },
+              accountPaths,
+            )}
             onLogout={async () => {
               await logout();
               router.replace('/login');
@@ -370,58 +425,64 @@ export default function ConfigCenterPage() {
           />
         }
       >
-        <DashboardHeader
-          dashboard={dashboard.data}
-          projectName={selectedProject?.name}
-          services={serviceOptions}
-          environments={environmentOptions}
-          selectedServiceId={selectedService?.id ?? ''}
-          selectedEnvironmentId={selectedEnvironment?.id ?? ''}
-          search={search}
-          actions={contentActions}
-          onServiceChange={setSelectedServiceId}
-          onEnvironmentChange={setSelectedEnvironmentId}
-          onSearchChange={setSearch}
-        />
+        {activeAccountPage ? (
+          <MixiAccountPages page={activeAccountPage} user={shellUser} />
+        ) : (
+          <>
+            <DashboardHeader
+              dashboard={dashboard.data}
+              projectName={selectedProject?.name}
+              services={serviceOptions}
+              environments={environmentOptions}
+              selectedServiceId={selectedService?.id ?? ''}
+              selectedEnvironmentId={selectedEnvironment?.id ?? ''}
+              search={search}
+              actions={contentActions}
+              onServiceChange={setSelectedServiceId}
+              onEnvironmentChange={setSelectedEnvironmentId}
+              onSearchChange={setSearch}
+            />
 
-        <EntityTabs
-          projects={projectOptions}
-          services={serviceOptions}
-          environments={environmentOptions}
-          configs={configItems}
-          apiBaseUrl={API_BASE}
-          selectedServiceId={selectedService?.id ?? ''}
-          selectedEnvironmentId={selectedEnvironment?.id ?? ''}
-          activeSection={activeSection}
-          loading={{
-            project: initialized && isAuthenticated ? projects.isLoading : false,
-            service: initialized && isAuthenticated ? services.isLoading : false,
-            environment: initialized && isAuthenticated ? environments.isLoading : false,
-            config: initialized && isAuthenticated ? configs.isLoading : false,
-          }}
-          runtimeText={runtimeText}
-          history={history.data ?? []}
-          onAdd={addEntity}
-          onEdit={(type: EntityType, item: EntityItem) => {
-            if (type === 'service') {
-              const service = item as Service;
-              setSelectedServiceId(service.id);
-            }
-            if (type === 'config') {
-              const config = item as Config;
-              setSelectedServiceId(config.serviceId);
-              setSelectedEnvironmentId(config.environmentId);
-            }
-            setEditTarget({ type, item });
-          }}
-          onDelete={deleteEntity}
-          onSelectService={setSelectedServiceId}
-          onSelectEnvironment={setSelectedEnvironmentId}
-          onSaveConfigValue={saveConfigValue}
-          onBulkSaveConfigs={bulkSaveConfigs}
-          onHistory={loadHistory}
-          onLoadRuntime={loadRuntime}
-        />
+            <EntityTabs
+              projects={projectOptions}
+              services={serviceOptions}
+              environments={environmentOptions}
+              configs={configItems}
+              apiBaseUrl={API_BASE}
+              selectedServiceId={selectedService?.id ?? ''}
+              selectedEnvironmentId={selectedEnvironment?.id ?? ''}
+              activeSection={activeSection}
+              loading={{
+                project: initialized && isAuthenticated ? projects.isLoading : false,
+                service: initialized && isAuthenticated ? services.isLoading : false,
+                environment: initialized && isAuthenticated ? environments.isLoading : false,
+                config: initialized && isAuthenticated ? configs.isLoading : false,
+              }}
+              runtimeText={runtimeText}
+              history={history.data ?? []}
+              onAdd={addEntity}
+              onEdit={(type: EntityType, item: EntityItem) => {
+                if (type === 'service') {
+                  const service = item as Service;
+                  setSelectedServiceId(service.id);
+                }
+                if (type === 'config') {
+                  const config = item as Config;
+                  setSelectedServiceId(config.serviceId);
+                  setSelectedEnvironmentId(config.environmentId);
+                }
+                setEditTarget({ type, item });
+              }}
+              onDelete={deleteEntity}
+              onSelectService={setSelectedServiceId}
+              onSelectEnvironment={setSelectedEnvironmentId}
+              onSaveConfigValue={saveConfigValue}
+              onBulkSaveConfigs={bulkSaveConfigs}
+              onHistory={loadHistory}
+              onLoadRuntime={loadRuntime}
+            />
+          </>
+        )}
 
         <EntityDialog
           visible={!!editTarget}
