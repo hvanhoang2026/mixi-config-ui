@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useGlobalLoading } from '../../components/loading/global-loading';
-import { AUTH_REFRESHED_EVENT, authApi, type AuthResponse, type AuthUser } from './authApi';
+import { AUTH_REFRESHED_EVENT, authApi, type AuthResponse, type AuthUser, type LoginResponse } from './authApi';
 import { clearStoredAuth, isTokenExpired, readStoredAuth, writeStoredAuth } from './authStorage';
 
 interface AuthState {
@@ -24,7 +24,7 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: (email: string, password: string, remember?: boolean) => Promise<void>;
+  login: (email: string, password: string, remember?: boolean, mfaCode?: string) => Promise<{ requiresMfa: boolean }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
 }
@@ -51,6 +51,10 @@ function createAuthenticatedState(
     user: response.user,
     remember,
   };
+}
+
+function isAuthResponse(response: LoginResponse): response is AuthResponse {
+  return 'accessToken' in response && 'refreshToken' in response && 'user' in response;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -214,11 +218,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       ...state,
-      login: async (email, password, remember = false) => {
+      login: async (email, password, remember = false, mfaCode) => {
         const hideLoading = globalLoading.show();
         setState((current) => ({ ...current, loading: true }));
         try {
-          const response = await authApi.login({ email, password });
+          const response = await authApi.login({ email, password, mfaCode });
+          if (!isAuthResponse(response)) {
+            setState((current) => ({ ...current, loading: false }));
+            return { requiresMfa: true };
+          }
           const profile = await authApi.getMyProfile(response.accessToken).catch(() => null);
           persistState(
             createAuthenticatedState(
@@ -237,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               remember,
             ),
           );
+          return { requiresMfa: false };
         } catch (error) {
           setState((current) => ({ ...current, loading: false }));
           throw error;

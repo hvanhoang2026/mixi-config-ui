@@ -36,6 +36,13 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
+export interface MfaRequiredResponse {
+  requiresMfa: true;
+  message?: string;
+}
+
+export type LoginResponse = AuthResponse | MfaRequiredResponse;
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${AUTH_BASE_URL}${path}`, {
     ...init,
@@ -181,8 +188,13 @@ export async function requestWithAuth<T>(
 }
 
 export const authApi = {
-  login: (data: { email: string; password: string }) =>
-    request<AuthResponse>('/auth/login', {
+  login: (data: { email: string; password: string; mfaCode?: string }) =>
+    request<LoginResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  register: (data: { name: string; email: string; password: string }) =>
+    request<{ message: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
