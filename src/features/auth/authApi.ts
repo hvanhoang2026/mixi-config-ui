@@ -7,6 +7,17 @@ const AUTH_BASE_URL =
 const AUTH_REFRESHED_EVENT = 'mixi-config:auth-refreshed';
 let refreshPromise: Promise<string | null> | null = null;
 
+function redirectToLogin() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  clearStoredAuth();
+  if (window.location.pathname !== '/login') {
+    window.location.replace('/login');
+  }
+}
+
 class ApiError extends Error {
   status: number;
 
@@ -138,7 +149,7 @@ export async function requestWithAuth<T>(
   if (!effectiveToken || isTokenExpired(effectiveToken)) {
     effectiveToken = await refreshAccessToken();
     if (!effectiveToken) {
-      clearStoredAuth();
+      redirectToLogin();
       throw new Error('Session expired');
     }
   }
@@ -170,12 +181,15 @@ export async function requestWithAuth<T>(
 
     const refreshedToken = await refreshAccessToken();
     if (!refreshedToken) {
-      clearStoredAuth();
+      redirectToLogin();
       throw new Error('Session expired');
     }
 
     const retried = await fetch(input, withBearerToken(init, refreshedToken));
     if (!retried.ok) {
+      if (retried.status === 401) {
+        redirectToLogin();
+      }
       throw new Error(await retried.text());
     }
     const text = await retried.text();
