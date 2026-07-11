@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Skeleton } from 'primereact/skeleton';
 import type { Config, Environment, Project, Service } from '../../types';
 
 type Props = {
@@ -167,54 +168,58 @@ export function ServiceConfigsView({
           </div>
         </div>
 
-        <DataTable
-          value={services}
-          dataKey="id"
-          loading={loading}
-          paginator
-          rows={10}
-          rowsPerPageOptions={[5, 10, 20, 50]}
-          filterDisplay="row"
-          responsiveLayout="scroll"
-          emptyMessage="No services found"
-          selectionMode="single"
-          onRowClick={(event) => {
-            const service = event.data as Service;
-            onSelectService(service.id);
-            setDetailOpen(true);
-          }}
-          rowClassName={() => 'service-configs__service-row'}
-          className="service-configs__table"
-        >
-          <Column field="name" header="Service" filter sortable />
-          <Column field="code" header="Code" filter sortable />
-          <Column
-            field="projectId"
-            header="Project"
-            filter
-            sortable
-            body={(row: Service) =>
-              projects.find((project) => project.id === row.projectId)?.name ?? row.projectId
-            }
-          />
-          <Column field="type" header="Type" filter sortable />
-          <Column
-            header=""
-            body={(row: Service) => (
-              <Button
-                type="button"
-                icon="pi pi-arrow-right"
-                text
-                rounded
-                aria-label={`Open configs for ${row.name}`}
-                onClick={() => {
-                  onSelectService(row.id);
-                  setDetailOpen(true);
-                }}
-              />
-            )}
-          />
-        </DataTable>
+        {loading ? (
+          <ServiceListSkeleton />
+        ) : (
+          <DataTable
+            value={services}
+            dataKey="id"
+            loading={loading}
+            paginator
+            rows={10}
+            rowsPerPageOptions={[5, 10, 20, 50]}
+            filterDisplay="row"
+            responsiveLayout="scroll"
+            emptyMessage="No services found"
+            selectionMode="single"
+            onRowClick={(event) => {
+              const service = event.data as Service;
+              onSelectService(service.id);
+              setDetailOpen(true);
+            }}
+            rowClassName={() => 'service-configs__service-row'}
+            className="service-configs__table"
+          >
+            <Column field="name" header="Service" filter sortable />
+            <Column field="code" header="Code" filter sortable />
+            <Column
+              field="projectId"
+              header="Project"
+              filter
+              sortable
+              body={(row: Service) =>
+                projects.find((project) => project.id === row.projectId)?.name ?? row.projectId
+              }
+            />
+            <Column field="type" header="Type" filter sortable />
+            <Column
+              header=""
+              body={(row: Service) => (
+                <Button
+                  type="button"
+                  icon="pi pi-arrow-right"
+                  text
+                  rounded
+                  aria-label={`Open configs for ${row.name}`}
+                  onClick={() => {
+                    onSelectService(row.id);
+                    setDetailOpen(true);
+                  }}
+                />
+              )}
+            />
+          </DataTable>
+        )}
       </section>
     );
   }
@@ -280,124 +285,128 @@ export function ServiceConfigsView({
 
       <div className="service-configs__grid">
         <div className="service-configs__config-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Key</th>
-                <th>Value</th>
-                <th>Description</th>
-                <th>Save</th>
-                <th>Actions</th>
-              </tr>
-              <tr className="service-configs__filter-row">
-                <th>
-                  <InputText
-                    value={keyFilter}
-                    onChange={(event) => setKeyFilter(event.currentTarget.value)}
-                    className="w-full"
-                  />
-                </th>
-                <th />
-                <th>
-                  <InputText
-                    value={descriptionFilter}
-                    onChange={(event) => setDescriptionFilter(event.currentTarget.value)}
-                    className="w-full"
-                  />
-                </th>
-                <th />
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {visibleConfigs.length ? (
-                visibleConfigs.map((row) => {
-                  const isSaving = savingConfigId === row.id;
-                  const isSaved = savedConfigId === row.id;
-                  const draftValue = draftValues[row.id] ?? row.value ?? '';
-
-                  return (
-                    <tr key={row.id}>
-                      <td>{row.key}</td>
-                      <td>
-                        <InputText
-                          value={draftValue}
-                          onChange={(event) => {
-                            const nextValue = event.currentTarget.value;
-                            setDraftValues((current) => ({ ...current, [row.id]: nextValue }));
-                            setLocalConfigs((current) =>
-                              current.map((item) =>
-                                item.id === row.id ? { ...item, value: nextValue } : item,
-                              ),
-                            );
-                            dirtyConfigIdsRef.current.add(row.id);
-                            setSavedConfigId((current) => (current === row.id ? null : current));
-                          }}
-                          className="w-full service-configs__value-input"
-                        />
-                      </td>
-                      <td>{row.description}</td>
-                      <td>
-                        <button
-                          type="button"
-                          disabled={(savingConfigId !== null && !isSaving) || deletingConfigId !== null}
-                          aria-label={`Save ${row.key}`}
-                          className={`service-configs__icon-button service-configs__row-save${isSaved ? ' is-success' : ''}`}
-                          onClick={() => saveConfigValue(row)}
-                        >
-                          <i
-                            className={
-                              isSaving
-                                ? 'pi pi-spinner service-configs__saving-icon'
-                                : isSaved
-                                  ? 'pi pi-check'
-                                  : 'pi pi-save'
-                            }
-                          />
-                        </button>
-                      </td>
-                      <td>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            size="small"
-                            icon="pi pi-pencil"
-                            text
-                            disabled={savingConfigId !== null || deletingConfigId !== null}
-                            onClick={() => onEditConfig(row)}
-                          />
-                          <Button
-                            type="button"
-                            size="small"
-                            icon="pi pi-history"
-                            text
-                            disabled={savingConfigId !== null || deletingConfigId !== null}
-                            onClick={() => onHistory(row.id)}
-                          />
-                          <Button
-                            type="button"
-                            size="small"
-                            icon="pi pi-trash"
-                            text
-                            severity="danger"
-                            loading={deletingConfigId === row.id}
-                            disabled={savingConfigId !== null || deletingConfigId !== null}
-                            onClick={() => deleteConfig(row.id)}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
+          {loading ? (
+            <ServiceConfigDetailSkeleton />
+          ) : (
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan={5}>
-                    <ServiceConfigEmptyState onAddConfig={onAddConfig} />
-                  </td>
+                  <th>Key</th>
+                  <th>Value</th>
+                  <th>Description</th>
+                  <th>Save</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+                <tr className="service-configs__filter-row">
+                  <th>
+                    <InputText
+                      value={keyFilter}
+                      onChange={(event) => setKeyFilter(event.currentTarget.value)}
+                      className="w-full"
+                    />
+                  </th>
+                  <th />
+                  <th>
+                    <InputText
+                      value={descriptionFilter}
+                      onChange={(event) => setDescriptionFilter(event.currentTarget.value)}
+                      className="w-full"
+                    />
+                  </th>
+                  <th />
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {visibleConfigs.length ? (
+                  visibleConfigs.map((row) => {
+                    const isSaving = savingConfigId === row.id;
+                    const isSaved = savedConfigId === row.id;
+                    const draftValue = draftValues[row.id] ?? row.value ?? '';
+
+                    return (
+                      <tr key={row.id}>
+                        <td>{row.key}</td>
+                        <td>
+                          <InputText
+                            value={draftValue}
+                            onChange={(event) => {
+                              const nextValue = event.currentTarget.value;
+                              setDraftValues((current) => ({ ...current, [row.id]: nextValue }));
+                              setLocalConfigs((current) =>
+                                current.map((item) =>
+                                  item.id === row.id ? { ...item, value: nextValue } : item,
+                                ),
+                              );
+                              dirtyConfigIdsRef.current.add(row.id);
+                              setSavedConfigId((current) => (current === row.id ? null : current));
+                            }}
+                            className="w-full service-configs__value-input"
+                          />
+                        </td>
+                        <td>{row.description}</td>
+                        <td>
+                          <button
+                            type="button"
+                            disabled={(savingConfigId !== null && !isSaving) || deletingConfigId !== null}
+                            aria-label={`Save ${row.key}`}
+                            className={`service-configs__icon-button service-configs__row-save${isSaved ? ' is-success' : ''}`}
+                            onClick={() => saveConfigValue(row)}
+                          >
+                            <i
+                              className={
+                                isSaving
+                                  ? 'pi pi-spinner service-configs__saving-icon'
+                                  : isSaved
+                                    ? 'pi pi-check'
+                                    : 'pi pi-save'
+                              }
+                            />
+                          </button>
+                        </td>
+                        <td>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              size="small"
+                              icon="pi pi-pencil"
+                              text
+                              disabled={savingConfigId !== null || deletingConfigId !== null}
+                              onClick={() => onEditConfig(row)}
+                            />
+                            <Button
+                              type="button"
+                              size="small"
+                              icon="pi pi-history"
+                              text
+                              disabled={savingConfigId !== null || deletingConfigId !== null}
+                              onClick={() => onHistory(row.id)}
+                            />
+                            <Button
+                              type="button"
+                              size="small"
+                              icon="pi pi-trash"
+                              text
+                              severity="danger"
+                              loading={deletingConfigId === row.id}
+                              disabled={savingConfigId !== null || deletingConfigId !== null}
+                              onClick={() => deleteConfig(row.id)}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5}>
+                      <ServiceConfigEmptyState onAddConfig={onAddConfig} />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="service-configs__bulk">
@@ -411,17 +420,25 @@ export function ServiceConfigsView({
               icon="pi pi-save"
               label={bulkSaving ? 'Saving...' : 'Save bulk'}
               loading={bulkSaving}
-              disabled={bulkSaving || savingConfigId !== null || deletingConfigId !== null}
+              disabled={loading || bulkSaving || savingConfigId !== null || deletingConfigId !== null}
               onClick={saveBulkConfigs}
             />
           </div>
-          <InputTextarea
-            value={bulkText}
-            onChange={(event) => setBulkText(event.target.value)}
-            rows={12}
-            placeholder={'DATABASE_URL=postgres://...\nJWT_SECRET=change-me\nFEATURE_FLAG=true'}
-            className="w-full service-configs__bulk-input"
-          />
+          {loading ? (
+            <div className="service-configs__bulk-input service-configs__bulk-input--skeleton">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <Skeleton key={index} width={index === 7 ? '65%' : '100%'} height="0.95rem" />
+              ))}
+            </div>
+          ) : (
+            <InputTextarea
+              value={bulkText}
+              onChange={(event) => setBulkText(event.target.value)}
+              rows={12}
+              placeholder={'DATABASE_URL=postgres://...\nJWT_SECRET=change-me\nFEATURE_FLAG=true'}
+              className="w-full service-configs__bulk-input"
+            />
+          )}
         </div>
       </div>
     </section>
@@ -437,6 +454,56 @@ function ServiceConfigEmptyState({ onAddConfig }: { onAddConfig: () => void }) {
       <strong>No configs in this environment</strong>
       <span>Create the first config or paste multiple KEY=value lines below.</span>
       <Button type="button" icon="pi pi-plus" label="Add config" size="small" onClick={onAddConfig} />
+    </div>
+  );
+}
+
+function ServiceListSkeleton() {
+  return (
+    <div className="service-configs__table service-configs__table--skeleton">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="service-configs__table-skeleton-row">
+          <Skeleton width="24%" height="1rem" />
+          <Skeleton width="18%" height="1rem" />
+          <Skeleton width="22%" height="1rem" />
+          <Skeleton width="14%" height="1rem" />
+          <Skeleton shape="circle" size="2rem" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ServiceConfigDetailSkeleton() {
+  return (
+    <div className="service-configs__detail-skeleton">
+      <div className="service-configs__detail-skeleton-row service-configs__detail-skeleton-row--header">
+        <Skeleton width="22%" height="1rem" />
+        <Skeleton width="30%" height="1rem" />
+        <Skeleton width="24%" height="1rem" />
+        <Skeleton width="3rem" height="1rem" />
+        <Skeleton width="6rem" height="1rem" />
+      </div>
+      <div className="service-configs__detail-skeleton-row service-configs__detail-skeleton-row--filters">
+        <Skeleton width="100%" height="2.5rem" />
+        <div />
+        <Skeleton width="100%" height="2.5rem" />
+        <div />
+        <div />
+      </div>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div key={index} className="service-configs__detail-skeleton-row">
+          <Skeleton width="80%" height="1rem" />
+          <Skeleton width="100%" height="2.5rem" />
+          <Skeleton width="90%" height="1rem" />
+          <Skeleton shape="circle" size="2rem" />
+          <div className="service-configs__detail-skeleton-actions">
+            <Skeleton shape="circle" size="2rem" />
+            <Skeleton shape="circle" size="2rem" />
+            <Skeleton shape="circle" size="2rem" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

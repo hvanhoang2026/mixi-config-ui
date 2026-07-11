@@ -1,4 +1,5 @@
 import { Button } from 'primereact/button';
+import { Skeleton } from 'primereact/skeleton';
 import type { Config, Environment, HistoryItem, Service } from '../../types';
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
   configs: Config[];
   runtimeText: string;
   history: HistoryItem[];
+  loading?: boolean;
   onLoadRuntime: () => Promise<void>;
   onLoadHistory: () => void;
 };
@@ -19,6 +21,7 @@ export function RuntimeHistoryPanel({
   configs,
   runtimeText,
   history,
+  loading = false,
   onLoadRuntime,
   onLoadHistory,
 }: Props) {
@@ -141,34 +144,34 @@ ${runtimeOutput}
           <dl className="api-guide__facts">
             <div>
               <dt>Service</dt>
-              <dd>{selectedService?.name ?? 'Select a service'}</dd>
+              <dd>{loading ? <Skeleton width="10rem" height="1rem" /> : selectedService?.name ?? 'Select a service'}</dd>
             </div>
             <div>
               <dt>Type</dt>
-              <dd>{selectedService?.type ?? '-'}</dd>
+              <dd>{loading ? <Skeleton width="6rem" height="1rem" /> : selectedService?.type ?? '-'}</dd>
             </div>
             <div>
               <dt>Environment</dt>
-              <dd>{selectedEnvironment?.name ?? 'Select an environment'}</dd>
+              <dd>{loading ? <Skeleton width="9rem" height="1rem" /> : selectedEnvironment?.name ?? 'Select an environment'}</dd>
             </div>
             <div>
               <dt>Endpoint</dt>
-              <dd className="api-guide__mono">{endpoint}</dd>
+              <dd className="api-guide__mono">{loading ? <Skeleton width="100%" height="1rem" /> : endpoint}</dd>
             </div>
             <div>
               <dt>Auth</dt>
-              <dd>{requiresToken ? 'Authorization: Bearer $MIXI_CONFIG_TOKEN' : 'No token required for frontend'}</dd>
+              <dd>{loading ? <Skeleton width="14rem" height="1rem" /> : requiresToken ? 'Authorization: Bearer $MIXI_CONFIG_TOKEN' : 'No token required for frontend'}</dd>
             </div>
             <div>
               <dt>Config keys</dt>
-              <dd>{configs.length}</dd>
+              <dd>{loading ? <Skeleton width="2rem" height="1rem" /> : configs.length}</dd>
             </div>
           </dl>
         </section>
 
         <section className="api-guide__panel">
           <h3>Service ENV</h3>
-          <pre className="api-guide__code">{envSnippet}</pre>
+          {loading ? <RuntimeCodeSkeleton /> : <pre className="api-guide__code">{envSnippet}</pre>}
         </section>
 
         <section className="api-guide__panel api-guide__panel--wide">
@@ -176,18 +179,18 @@ ${runtimeOutput}
           <div className="api-guide__code-grid">
             <div>
               <span>cURL</span>
-              <pre className="api-guide__code">{curlSnippet}</pre>
+              {loading ? <RuntimeCodeSkeleton /> : <pre className="api-guide__code">{curlSnippet}</pre>}
             </div>
             <div>
               <span>Node.js</span>
-              <pre className="api-guide__code">{nodeSnippet}</pre>
+              {loading ? <RuntimeCodeSkeleton /> : <pre className="api-guide__code">{nodeSnippet}</pre>}
             </div>
           </div>
         </section>
 
         <section className="api-guide__panel">
           <h3>Runtime response</h3>
-          <pre className="api-guide__code api-guide__code--response">{runtimeOutput}</pre>
+          {loading ? <RuntimeCodeSkeleton response /> : <pre className="api-guide__code api-guide__code--response">{runtimeOutput}</pre>}
         </section>
 
         <section className="api-guide__panel">
@@ -195,7 +198,17 @@ ${runtimeOutput}
             <h3>Config history</h3>
             <Button icon="pi pi-history" label="Load history" size="small" text onClick={onLoadHistory} />
           </div>
-          {history.length ? (
+          {loading ? (
+            <div className="api-guide__history">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <article key={index} className="api-guide__history-item">
+                  <Skeleton width="7rem" height="1rem" />
+                  <Skeleton width="9rem" height="0.9rem" />
+                  <Skeleton width="100%" height="0.95rem" />
+                </article>
+              ))}
+            </div>
+          ) : history.length ? (
             <div className="api-guide__history">
               {history.slice(0, 5).map((item) => (
                 <article key={item.id} className="api-guide__history-item">
@@ -210,6 +223,16 @@ ${runtimeOutput}
           )}
         </section>
       </div>
+    </div>
+  );
+}
+
+function RuntimeCodeSkeleton({ response = false }: { response?: boolean }) {
+  return (
+    <div className={`api-guide__code api-guide__code--skeleton${response ? ' api-guide__code--response' : ''}`}>
+      {Array.from({ length: response ? 6 : 4 }).map((_, index) => (
+        <Skeleton key={index} width={index === 0 ? '70%' : index === 3 ? '55%' : '100%'} height="0.9rem" />
+      ))}
     </div>
   );
 }

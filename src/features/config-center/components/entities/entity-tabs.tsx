@@ -1,5 +1,6 @@
 import { Column, DataTable } from '@w-iris/react';
 import type { DataTableProps } from 'primereact/datatable';
+import { Skeleton } from 'primereact/skeleton';
 import type { Config, Environment, HistoryItem, Project, Service } from '../../types';
 import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
 import { ActionButtons } from '../shared/action-buttons';
@@ -16,6 +17,7 @@ type Props = {
   loading: Record<EntityType, boolean>;
   runtimeText: string;
   history: HistoryItem[];
+  runtimeLoading?: boolean;
   activeSection: ConfigSection;
   onAdd: (type: EntityType) => void;
   onEdit: (type: EntityType, item: EntityItem) => void;
@@ -126,6 +128,7 @@ export function EntityTabs(props: Props) {
         configs={props.configs}
         runtimeText={props.runtimeText}
         history={props.history}
+        loading={props.runtimeLoading}
         onLoadRuntime={props.onLoadRuntime}
         onLoadHistory={() => props.configs[0] && props.onHistory(props.configs[0].id)}
       />
@@ -137,6 +140,10 @@ function EntityDataTable<T extends { id: string }>({
   children,
   ...props
 }: DataTableProps<T[]> & { children: React.ReactNode }) {
+  if (props.loading) {
+    return <EntityTableSkeleton />;
+  }
+
   return (
     <DataTable
       {...props}
@@ -152,5 +159,20 @@ function EntityDataTable<T extends { id: string }>({
     >
       {children}
     </DataTable>
+  );
+}
+
+function EntityTableSkeleton() {
+  return (
+    <div className="entity-table-skeleton">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="entity-table-skeleton__row">
+          <Skeleton width="22%" height="1rem" />
+          <Skeleton width="18%" height="1rem" />
+          <Skeleton width="26%" height="1rem" />
+          <Skeleton width="16%" height="1rem" />
+        </div>
+      ))}
+    </div>
   );
 }

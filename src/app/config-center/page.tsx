@@ -431,6 +431,7 @@ export default function ConfigCenterPage() {
           <>
             <DashboardHeader
               dashboard={dashboard.data}
+              loading={initialized && isAuthenticated && (dashboard.isLoading || projects.isLoading || services.isLoading || environments.isLoading)}
               projectName={selectedProject?.name}
               services={serviceOptions}
               environments={environmentOptions}
@@ -460,6 +461,7 @@ export default function ConfigCenterPage() {
               }}
               runtimeText={runtimeText}
               history={history.data ?? []}
+              runtimeLoading={initialized && isAuthenticated && (services.isLoading || environments.isLoading || configs.isLoading || history.isLoading)}
               onAdd={addEntity}
               onEdit={(type: EntityType, item: EntityItem) => {
                 if (type === 'service') {

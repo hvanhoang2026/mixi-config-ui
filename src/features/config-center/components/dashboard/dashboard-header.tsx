@@ -1,7 +1,7 @@
 import { StatCard } from '@w-iris/react';
-import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
+import { Skeleton } from 'primereact/skeleton';
 
 type Dashboard = {
   totalProjects?: number;
@@ -17,6 +17,7 @@ type Option = {
 
 type Props = {
   dashboard?: Dashboard;
+  loading?: boolean;
   projectName?: string;
   services: Option[];
   environments: Option[];
@@ -31,6 +32,7 @@ type Props = {
 
 export function DashboardHeader({
   dashboard,
+  loading = false,
   projectName,
   services,
   environments,
@@ -55,52 +57,85 @@ export function DashboardHeader({
           <span className="dashboard-header__eyebrow">Service Configuration Workspace</span>
           <h1>Mixi Config Center</h1>
           <p>Manage config by service scope. Import, export, runtime preview, and cache actions now run against the selected service and environment.</p>
-          {projectName ? <div className="dashboard-header__scope-note">Project metadata: {projectName}</div> : null}
+          {loading ? (
+            <div className="dashboard-header__scope-note">
+              <Skeleton width="16rem" height="1rem" />
+            </div>
+          ) : projectName ? (
+            <div className="dashboard-header__scope-note">Project metadata: {projectName}</div>
+          ) : null}
         </div>
 
         <div className="dashboard-header__tools">
           <div className="dashboard-header__scope-grid">
             <div className="dashboard-header__scope-field">
               <span>Service</span>
-              <Dropdown
-                optionLabel="name"
-                optionValue="id"
-                options={services}
-                value={selectedServiceId}
-                onChange={(event) => onServiceChange(event.value)}
-                placeholder="Select service"
-                className="w-full"
-              />
+              {loading ? (
+                <Skeleton height="2.75rem" borderRadius="12px" />
+              ) : (
+                <Dropdown
+                  optionLabel="name"
+                  optionValue="id"
+                  options={services}
+                  value={selectedServiceId}
+                  onChange={(event) => onServiceChange(event.value)}
+                  placeholder="Select service"
+                  className="w-full"
+                />
+              )}
             </div>
             <div className="dashboard-header__scope-field">
               <span>Environment</span>
-              <Dropdown
-                optionLabel="name"
-                optionValue="id"
-                options={environments}
-                value={selectedEnvironmentId}
-                onChange={(event) => onEnvironmentChange(event.value)}
-                placeholder="Select environment"
-                className="w-full"
-              />
+              {loading ? (
+                <Skeleton height="2.75rem" borderRadius="12px" />
+              ) : (
+                <Dropdown
+                  optionLabel="name"
+                  optionValue="id"
+                  options={environments}
+                  value={selectedEnvironmentId}
+                  onChange={(event) => onEnvironmentChange(event.value)}
+                  placeholder="Select environment"
+                  className="w-full"
+                />
+              )}
             </div>
           </div>
           <div className="dashboard-header__search">
             <i className="pi pi-search" />
-            <InputText
-              value={search}
-              onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Search service config keys"
-            />
+            {loading ? (
+              <Skeleton width="100%" height="1.1rem" />
+            ) : (
+              <InputText
+                value={search}
+                onChange={(event) => onSearchChange(event.target.value)}
+                placeholder="Search service config keys"
+              />
+            )}
           </div>
-          {actions ? <div className="dashboard-header__actions">{actions}</div> : null}
+          {loading ? (
+            <div className="dashboard-header__actions dashboard-header__actions--skeleton">
+              <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
+              <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
+              <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
+            </div>
+          ) : actions ? (
+            <div className="dashboard-header__actions">{actions}</div>
+          ) : null}
         </div>
       </div>
 
       <div className="dashboard-header__stats">
-        {stats.map(([title, value, icon]) => (
-          <StatCard key={title} label={title} value={value ?? 0} icon={<i className={icon} aria-hidden="true" />} />
-        ))}
+        {stats.map(([title, value, icon]) =>
+          loading ? (
+            <div key={title} className="stat-card stat-card--skeleton">
+              <Skeleton width="6rem" height="0.95rem" />
+              <Skeleton width="4.5rem" height="2rem" />
+            </div>
+          ) : (
+            <StatCard key={title} label={title} value={value ?? 0} icon={<i className={icon} aria-hidden="true" />} />
+          ),
+        )}
       </div>
     </section>
   );
