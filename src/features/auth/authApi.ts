@@ -208,7 +208,7 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
   register: (data: { name: string; email: string; password: string }) =>
-    request<{ message: string }>('/auth/register', {
+    request<{ message: string }>('/auth/register/email', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
