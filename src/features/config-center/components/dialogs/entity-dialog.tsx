@@ -75,7 +75,7 @@ function FormFields({
   const { register, handleSubmit, setValue, watch } = form;
 
   return (
-    <form onSubmit={handleSubmit((values) => onSubmit(values as FormValues))} className="grid">
+    <form data-testid="auto-entity-dialog-1-form" onSubmit={handleSubmit((values) => onSubmit(values as FormValues))} className="grid">
       {activeFields.includes('projectId') && <SelectField testId="entity-project" options={projectOptions} value={watch('projectId')} onChange={(value) => setValue('projectId', value)} placeholder="Project" />}
       {activeFields.includes('serviceId') && <SelectField testId="entity-service" options={serviceOptions} value={watch('serviceId')} onChange={(value) => setValue('serviceId', value)} placeholder="Service" />}
       {activeFields.includes('environmentId') && <SelectField testId="entity-environment" options={environmentOptions} value={watch('environmentId')} onChange={(value) => setValue('environmentId', value)} placeholder="Environment" />}
@@ -95,7 +95,7 @@ function FormFields({
       {activeFields.includes('description') && <Field label="Description" input={<InputTextarea data-testid="entity-description" {...register('description')} rows={4} className="w-full" />} />}
       {activeFields.includes('isSecret') && <CheckField label="Secret" checked={watch('isSecret')} onChange={(value) => setValue('isSecret', value)} />}
       {activeFields.includes('isRequired') && <CheckField label="Required" checked={watch('isRequired')} onChange={(value) => setValue('isRequired', value)} />}
-      <div className="col-12 flex justify-content-end gap-2 mt-3">
+      <div data-testid="auto-entity-dialog-2-div" className="col-12 flex justify-content-end gap-2 mt-3">
         <Button type="button" data-testid="entity-cancel-button" label="Cancel" severity="secondary" onClick={onCancel} />
         <Button type="submit" data-testid="entity-save-button" label="Save" />
       </div>
@@ -105,7 +105,7 @@ function FormFields({
 
 function SelectField({ testId, options, value, onChange, placeholder }: { testId: string; options: Array<{ id: string; name: string }>; value: string; onChange: (value: string) => void; placeholder: string }) {
   return (
-    <div className="col-12">
+    <div data-testid="auto-entity-dialog-3-div" className="col-12">
       <Dropdown data-testid={testId} optionLabel="name" optionValue="id" options={options} value={value} onChange={(event) => onChange(event.value)} placeholder={placeholder} className="w-full" />
     </div>
   );
@@ -113,7 +113,7 @@ function SelectField({ testId, options, value, onChange, placeholder }: { testId
 
 function Field({ label, input }: { label: string; input: ReactNode }) {
   return (
-    <div className="col-12">
+    <div data-testid="auto-entity-dialog-4-div" className="col-12">
       <FormField label={label}>{input}</FormField>
     </div>
   );
@@ -121,9 +121,9 @@ function Field({ label, input }: { label: string; input: ReactNode }) {
 
 function CheckField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
   return (
-    <div className="col-12 flex align-items-center gap-2">
+    <div data-testid="auto-entity-dialog-5-div" className="col-12 flex align-items-center gap-2">
       <Checkbox checked={checked} onChange={(event) => onChange(!!event.checked)} />
-      <span>{label}</span>
+      <span data-testid="auto-entity-dialog-6-span">{label}</span>
     </div>
   );
 }

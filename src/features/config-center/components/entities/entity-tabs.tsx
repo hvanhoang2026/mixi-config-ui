@@ -46,7 +46,7 @@ export function EntityTabs(props: Props) {
 
   if (props.activeSection === 'project') {
     return (
-      <section className="content-panel">
+      <section data-testid="auto-entity-tabs-1-section" className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('project')} actions={props.actions} />
         <EntityDataTable value={props.projects} loading={props.loading.project}>
           <Column field="name" header="Name" filter sortable />
@@ -60,7 +60,7 @@ export function EntityTabs(props: Props) {
 
   if (props.activeSection === 'service') {
     return (
-      <section className="content-panel">
+      <section data-testid="auto-entity-tabs-2-section" className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('service')} actions={props.actions} />
         <EntityDataTable value={props.services} loading={props.loading.service}>
           <Column field="name" header="Name" filter sortable />
@@ -83,7 +83,7 @@ export function EntityTabs(props: Props) {
 
   if (props.activeSection === 'environment') {
     return (
-      <section className="content-panel">
+      <section data-testid="auto-entity-tabs-3-section" className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('environment')} actions={props.actions} />
         <EntityDataTable value={props.environments} loading={props.loading.environment}>
           <Column field="name" header="Name" filter sortable />
@@ -118,7 +118,7 @@ export function EntityTabs(props: Props) {
   }
 
   return (
-    <section className="content-panel" id="runtime">
+    <section data-testid="auto-entity-tabs-4-section" className="content-panel" id="runtime">
       <RuntimeHistoryPanel
         apiBaseUrl={props.apiBaseUrl}
         selectedService={props.services.find((service) => service.id === props.selectedServiceId)}
@@ -164,9 +164,9 @@ function EntityDataTable<T extends { id: string }>({
 
 function EntityTableSkeleton() {
   return (
-    <div className="entity-table-skeleton">
+    <div data-testid="auto-entity-tabs-5-div" className="entity-table-skeleton">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="entity-table-skeleton__row">
+        <div data-testid="auto-entity-tabs-6-div" key={index} className="entity-table-skeleton__row">
           <Skeleton width="22%" height="1rem" />
           <Skeleton width="18%" height="1rem" />
           <Skeleton width="26%" height="1rem" />

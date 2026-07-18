@@ -25,15 +25,15 @@ export function ImportEnvDialog({
 }: Props) {
   return (
     <Dialog data-testid="import-env-dialog" visible={visible} onHide={onHide} header="Import Service ENV" style={{ width: 'min(760px, 95vw)' }}>
-      <div className="mb-3">
-        <div className="text-900 font-semibold">Target scope</div>
-        <div className="text-600 text-sm mt-1">
+      <div data-testid="auto-import-env-dialog-1-div" className="mb-3">
+        <div data-testid="auto-import-env-dialog-2-div" className="text-900 font-semibold">Target scope</div>
+        <div data-testid="auto-import-env-dialog-3-div" className="text-600 text-sm mt-1">
           {serviceName ? `${serviceName} / ${environmentName ?? 'No environment'}` : 'No service selected'}
           {projectName ? ` / ${projectName}` : ''}
         </div>
       </div>
       <InputTextarea data-testid="import-env-textarea" value={value} onChange={(event) => onChange(event.target.value)} rows={16} className="w-full" />
-      <div className="mt-3 flex justify-content-end gap-2">
+      <div data-testid="auto-import-env-dialog-4-div" className="mt-3 flex justify-content-end gap-2">
         <Button data-testid="import-env-close-button" label="Close" severity="secondary" onClick={onHide} />
         <Button data-testid="import-env-submit-button" label="Import" onClick={onImport} />
       </div>

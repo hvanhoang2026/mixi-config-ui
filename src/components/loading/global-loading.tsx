@@ -52,12 +52,12 @@ export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
     <GlobalLoadingContext.Provider value={value}>
       {children}
       {visible ? (
-        <div className="global-loading" role="status" aria-live="polite" aria-label="Loading">
-          <div className="global-loading__panel">
-            <div className="global-loading__loader" aria-hidden="true">
+        <div data-testid="auto-global-loading-1-div" className="global-loading" role="status" aria-live="polite" aria-label="Loading">
+          <div data-testid="auto-global-loading-2-div" className="global-loading__panel">
+            <div data-testid="auto-global-loading-3-div" className="global-loading__loader" aria-hidden="true">
               <Spinner label="Loading" size="lg" />
             </div>
-            <span>Loading...</span>
+            <span data-testid="auto-global-loading-4-span">Loading...</span>
           </div>
         </div>
       ) : null}

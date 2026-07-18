@@ -52,24 +52,24 @@ export function DashboardHeader({
 
   return (
     <section className="dashboard-header" data-testid="dashboard-header">
-      <div className="dashboard-header__top">
-        <div className="dashboard-header__copy">
-          <span className="dashboard-header__eyebrow">Service Configuration Workspace</span>
-          <h1>Mixi Config Center</h1>
-          <p>Manage config by service scope. Import, export, runtime preview, and cache actions now run against the selected service and environment.</p>
+      <div data-testid="auto-dashboard-header-1-div" className="dashboard-header__top">
+        <div data-testid="auto-dashboard-header-2-div" className="dashboard-header__copy">
+          <span data-testid="auto-dashboard-header-3-span" className="dashboard-header__eyebrow">Service Configuration Workspace</span>
+          <h1 data-testid="auto-dashboard-header-4-h1">Mixi Config Center</h1>
+          <p data-testid="auto-dashboard-header-5-p">Manage config by service scope. Import, export, runtime preview, and cache actions now run against the selected service and environment.</p>
           {loading ? (
-            <div className="dashboard-header__scope-note">
+            <div data-testid="auto-dashboard-header-6-div" className="dashboard-header__scope-note">
               <Skeleton width="16rem" height="1rem" />
             </div>
           ) : projectName ? (
-            <div className="dashboard-header__scope-note">Project metadata: {projectName}</div>
+            <div data-testid="auto-dashboard-header-7-div" className="dashboard-header__scope-note">Project metadata: {projectName}</div>
           ) : null}
         </div>
 
-        <div className="dashboard-header__tools">
-          <div className="dashboard-header__scope-grid">
-            <div className="dashboard-header__scope-field">
-              <span>Service</span>
+        <div data-testid="auto-dashboard-header-8-div" className="dashboard-header__tools">
+          <div data-testid="auto-dashboard-header-9-div" className="dashboard-header__scope-grid">
+            <div data-testid="auto-dashboard-header-10-div" className="dashboard-header__scope-field">
+              <span data-testid="auto-dashboard-header-11-span">Service</span>
               {loading ? (
                 <Skeleton height="2.75rem" borderRadius="12px" />
               ) : (
@@ -85,8 +85,8 @@ export function DashboardHeader({
                 />
               )}
             </div>
-            <div className="dashboard-header__scope-field">
-              <span>Environment</span>
+            <div data-testid="auto-dashboard-header-12-div" className="dashboard-header__scope-field">
+              <span data-testid="auto-dashboard-header-13-span">Environment</span>
               {loading ? (
                 <Skeleton height="2.75rem" borderRadius="12px" />
               ) : (
@@ -103,8 +103,8 @@ export function DashboardHeader({
               )}
             </div>
           </div>
-          <div className="dashboard-header__search">
-            <i className="pi pi-search" />
+          <div data-testid="auto-dashboard-header-14-div" className="dashboard-header__search">
+            <i data-testid="auto-dashboard-header-15-i" className="pi pi-search" />
             {loading ? (
               <Skeleton width="100%" height="1.1rem" />
             ) : (
@@ -117,26 +117,26 @@ export function DashboardHeader({
             )}
           </div>
           {loading ? (
-            <div className="dashboard-header__actions dashboard-header__actions--skeleton">
+            <div data-testid="auto-dashboard-header-16-div" className="dashboard-header__actions dashboard-header__actions--skeleton">
               <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
               <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
               <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
             </div>
           ) : actions ? (
-            <div className="dashboard-header__actions">{actions}</div>
+            <div data-testid="auto-dashboard-header-17-div" className="dashboard-header__actions">{actions}</div>
           ) : null}
         </div>
       </div>
 
-      <div className="dashboard-header__stats">
+      <div data-testid="auto-dashboard-header-18-div" className="dashboard-header__stats">
         {stats.map(([title, value, icon]) =>
           loading ? (
-            <div key={title} className="stat-card stat-card--skeleton">
+            <div data-testid="auto-dashboard-header-19-div" key={title} className="stat-card stat-card--skeleton">
               <Skeleton width="6rem" height="0.95rem" />
               <Skeleton width="4.5rem" height="2rem" />
             </div>
           ) : (
-            <StatCard key={title} label={title} value={value ?? 0} icon={<i className={icon} aria-hidden="true" />} />
+            <StatCard key={title} label={title} value={value ?? 0} icon={<i data-testid="auto-dashboard-header-20-i" className={icon} aria-hidden="true" />} />
           ),
         )}
       </div>

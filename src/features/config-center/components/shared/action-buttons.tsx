@@ -11,7 +11,7 @@ type Props = {
 
 export function ActionButtons({ type, row, onEdit, onDelete, onHistory }: Props) {
   return (
-    <div className="flex gap-2">
+    <div data-testid="auto-action-buttons-1-div" className="flex gap-2">
       <Button data-testid={`edit-${type}-${row.id}`} size="small" icon="pi pi-pencil" text onClick={() => onEdit(type, row)} />
       {type === 'config' && onHistory && (
         <Button data-testid={`history-config-${row.id}`} size="small" icon="pi pi-history" text onClick={() => onHistory(row.id)} />

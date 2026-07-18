@@ -11,8 +11,8 @@ import { Providers } from './providers';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="vi">
-      <body>
+    <html data-testid="auto-layout-1-html" lang="vi">
+      <body data-testid="auto-layout-2-body">
         <Providers>{children}</Providers>
       </body>
     </html>

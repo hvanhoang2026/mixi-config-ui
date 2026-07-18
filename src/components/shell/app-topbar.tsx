@@ -29,17 +29,17 @@ export function AppTopbar() {
 
   return (
     <div className="app-topbar" data-testid="app-topbar">
-      <a href="/config-center" className="app-topbar__brand">
-        <div className="app-topbar__brand-mark">M</div>
-        <span>MIXI CONFIG</span>
+      <a data-testid="auto-app-topbar-1-a" href="/config-center" className="app-topbar__brand">
+        <div data-testid="auto-app-topbar-2-div" className="app-topbar__brand-mark">M</div>
+        <span data-testid="auto-app-topbar-3-span">MIXI CONFIG</span>
       </a>
 
-      <div className="app-topbar__search">
-        <i className="pi pi-search" />
+      <div data-testid="auto-app-topbar-4-div" className="app-topbar__search">
+        <i data-testid="auto-app-topbar-5-i" className="pi pi-search" />
         <InputText data-testid="topbar-search" placeholder="Search project, env, key..." />
       </div>
 
-      <div className="app-topbar__actions">
+      <div data-testid="auto-app-topbar-6-div" className="app-topbar__actions">
         <Button icon="pi pi-calendar" rounded text severity="secondary" className="app-topbar__action" />
         <Button icon="pi pi-cog" rounded text severity="secondary" className="app-topbar__action" />
         <button
@@ -50,39 +50,39 @@ export function AppTopbar() {
           aria-haspopup
           aria-controls="app-topbar-profile-panel"
         >
-          <div className="app-topbar__avatar">
+          <div data-testid="auto-app-topbar-7-div" className="app-topbar__avatar">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className="app-topbar__avatar-image" />
+              <img data-testid="auto-app-topbar-8-img" src={avatarUrl} alt={displayName} className="app-topbar__avatar-image" />
             ) : (
               avatarText
             )}
           </div>
-          <div className="app-topbar__profile-copy">
-            <strong>{displayName}</strong>
+          <div data-testid="auto-app-topbar-9-div" className="app-topbar__profile-copy">
+            <strong data-testid="auto-app-topbar-10-strong">{displayName}</strong>
           </div>
-          <i className="pi pi-angle-down app-topbar__profile-caret" />
+          <i data-testid="auto-app-topbar-11-i" className="pi pi-angle-down app-topbar__profile-caret" />
         </button>
         <OverlayPanel ref={overlayRef} id="app-topbar-profile-panel" className="app-topbar__panel">
-          <div className="app-topbar__panel-card">
-            <div className="app-topbar__panel-header">
-              <div className="app-topbar__avatar app-topbar__avatar--large">
+          <div data-testid="auto-app-topbar-12-div" className="app-topbar__panel-card">
+            <div data-testid="auto-app-topbar-13-div" className="app-topbar__panel-header">
+              <div data-testid="auto-app-topbar-14-div" className="app-topbar__avatar app-topbar__avatar--large">
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt={displayName} className="app-topbar__avatar-image" />
+                  <img data-testid="auto-app-topbar-15-img" src={avatarUrl} alt={displayName} className="app-topbar__avatar-image" />
                 ) : (
                   avatarText
                 )}
               </div>
-              <div className="app-topbar__panel-copy">
-                <strong>{displayName}</strong>
-                <span>{email}</span>
-                <small>{user?.tenantName || 'Config Center workspace'}</small>
+              <div data-testid="auto-app-topbar-16-div" className="app-topbar__panel-copy">
+                <strong data-testid="auto-app-topbar-17-strong">{displayName}</strong>
+                <span data-testid="auto-app-topbar-18-span">{email}</span>
+                <small data-testid="auto-app-topbar-19-small">{user?.tenantName || 'Config Center workspace'}</small>
               </div>
             </div>
             <button type="button" data-testid="logout-button" className="app-topbar__panel-item" onClick={handleLogout}>
-              <i className="pi pi-sign-out" />
-              <span>Logout</span>
+              <i data-testid="auto-app-topbar-20-i" className="pi pi-sign-out" />
+              <span data-testid="auto-app-topbar-21-span">Logout</span>
             </button>
           </div>
         </OverlayPanel>

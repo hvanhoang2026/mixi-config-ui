@@ -12,14 +12,14 @@ type Props = {
 
 export function AppShell({ children, aside, navigation }: Props) {
   return (
-    <div className="app-shell">
+    <div data-testid="auto-app-shell-1-div" className="app-shell">
       <AppSidebar navigation={navigation} />
-      <div className="app-shell__content">
+      <div data-testid="auto-app-shell-2-div" className="app-shell__content">
         <AppTopbar />
-        <main className="app-shell__main">
-          <div className={`app-shell__body${aside ? '' : ' app-shell__body--full'}`}>
-            <section className="app-shell__primary">{children}</section>
-            {aside ? <aside className="app-shell__aside">{aside}</aside> : null}
+        <main data-testid="auto-app-shell-3-main" className="app-shell__main">
+          <div data-testid="auto-app-shell-4-div" className={`app-shell__body${aside ? '' : ' app-shell__body--full'}`}>
+            <section data-testid="auto-app-shell-5-section" className="app-shell__primary">{children}</section>
+            {aside ? <aside data-testid="auto-app-shell-6-aside" className="app-shell__aside">{aside}</aside> : null}
           </div>
         </main>
       </div>
