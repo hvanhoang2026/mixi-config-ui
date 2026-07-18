@@ -12,7 +12,7 @@ export function CrudHeader({ onAdd, actions }: Props) {
       <div className="crud-header__actions">
         {actions}
       </div>
-      <Button label="Add new" icon="pi pi-plus" onClick={onAdd} className="crud-header__add" />
+      <Button data-testid="add-new-button" label="Add new" icon="pi pi-plus" onClick={onAdd} className="crud-header__add" />
     </div>
   );
 }

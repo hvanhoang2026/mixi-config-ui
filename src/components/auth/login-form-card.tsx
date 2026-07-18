@@ -21,7 +21,8 @@ export function LoginFormCard() {
   if (!initialized) return null;
 
   return (
-    <AdminLoginForm
+    <div data-testid="login-form">
+      <AdminLoginForm
       teamName="Mixi Config"
       loading={loading}
       forgotPasswordHref="/login"
@@ -30,6 +31,7 @@ export function LoginFormCard() {
       onSubmit={async ({ email, password, remember, mfaCode }) => {
         return login(email, password, remember, mfaCode);
       }}
-    />
+      />
+    </div>
   );
 }

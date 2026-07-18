@@ -32,6 +32,7 @@ export function AppSidebar({ navigation }: Props) {
             {group.items.map((item) => (
               <Link
                 key={item.label}
+                data-testid={`sidebar-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 href={item.href}
                 className={`app-sidebar__link${item.active ? ' is-active' : ''}`}
               >

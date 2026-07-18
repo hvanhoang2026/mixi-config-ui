@@ -38,6 +38,7 @@ export function EntityDialog({ visible, activeType, onHide, onSubmit, forms, ...
     <Dialog
       visible={visible}
       onHide={onHide}
+      data-testid="entity-dialog"
       header={`${title.charAt(0).toUpperCase()}${title.slice(1)} Form`}
       style={{ width: 'min(720px, 96vw)' }}
     >
@@ -75,36 +76,37 @@ function FormFields({
 
   return (
     <form onSubmit={handleSubmit((values) => onSubmit(values as FormValues))} className="grid">
-      {activeFields.includes('projectId') && <SelectField options={projectOptions} value={watch('projectId')} onChange={(value) => setValue('projectId', value)} placeholder="Project" />}
-      {activeFields.includes('serviceId') && <SelectField options={serviceOptions} value={watch('serviceId')} onChange={(value) => setValue('serviceId', value)} placeholder="Service" />}
-      {activeFields.includes('environmentId') && <SelectField options={environmentOptions} value={watch('environmentId')} onChange={(value) => setValue('environmentId', value)} placeholder="Environment" />}
+      {activeFields.includes('projectId') && <SelectField testId="entity-project" options={projectOptions} value={watch('projectId')} onChange={(value) => setValue('projectId', value)} placeholder="Project" />}
+      {activeFields.includes('serviceId') && <SelectField testId="entity-service" options={serviceOptions} value={watch('serviceId')} onChange={(value) => setValue('serviceId', value)} placeholder="Service" />}
+      {activeFields.includes('environmentId') && <SelectField testId="entity-environment" options={environmentOptions} value={watch('environmentId')} onChange={(value) => setValue('environmentId', value)} placeholder="Environment" />}
       {activeFields.includes('type') && (
         <SelectField
           options={[{ name: 'Backend', id: 'backend' }, { name: 'Frontend', id: 'frontend' }, { name: 'Mobile', id: 'mobile' }, { name: 'Worker', id: 'worker' }]}
           value={watch('type')}
           onChange={(value) => setValue('type', value)}
+          testId="entity-type"
           placeholder="Type"
         />
       )}
-      {activeFields.includes('name') && <Field label="Name" input={<InputText {...register('name')} className="w-full" />} />}
-      {activeFields.includes('code') && <Field label="Code" input={<InputText {...register('code')} className="w-full" />} />}
-      {activeFields.includes('key') && <Field label="Key" input={<InputText {...register('key')} className="w-full" />} />}
-      {activeFields.includes('value') && <Field label="Value" input={<InputText {...register('value')} className="w-full" />} />}
-      {activeFields.includes('description') && <Field label="Description" input={<InputTextarea {...register('description')} rows={4} className="w-full" />} />}
+      {activeFields.includes('name') && <Field label="Name" input={<InputText data-testid="entity-name" {...register('name')} className="w-full" />} />}
+      {activeFields.includes('code') && <Field label="Code" input={<InputText data-testid="entity-code" {...register('code')} className="w-full" />} />}
+      {activeFields.includes('key') && <Field label="Key" input={<InputText data-testid="entity-key" {...register('key')} className="w-full" />} />}
+      {activeFields.includes('value') && <Field label="Value" input={<InputText data-testid="entity-value" {...register('value')} className="w-full" />} />}
+      {activeFields.includes('description') && <Field label="Description" input={<InputTextarea data-testid="entity-description" {...register('description')} rows={4} className="w-full" />} />}
       {activeFields.includes('isSecret') && <CheckField label="Secret" checked={watch('isSecret')} onChange={(value) => setValue('isSecret', value)} />}
       {activeFields.includes('isRequired') && <CheckField label="Required" checked={watch('isRequired')} onChange={(value) => setValue('isRequired', value)} />}
       <div className="col-12 flex justify-content-end gap-2 mt-3">
-        <Button type="button" label="Cancel" severity="secondary" onClick={onCancel} />
-        <Button type="submit" label="Save" />
+        <Button type="button" data-testid="entity-cancel-button" label="Cancel" severity="secondary" onClick={onCancel} />
+        <Button type="submit" data-testid="entity-save-button" label="Save" />
       </div>
     </form>
   );
 }
 
-function SelectField({ options, value, onChange, placeholder }: { options: Array<{ id: string; name: string }>; value: string; onChange: (value: string) => void; placeholder: string }) {
+function SelectField({ testId, options, value, onChange, placeholder }: { testId: string; options: Array<{ id: string; name: string }>; value: string; onChange: (value: string) => void; placeholder: string }) {
   return (
     <div className="col-12">
-      <Dropdown optionLabel="name" optionValue="id" options={options} value={value} onChange={(event) => onChange(event.value)} placeholder={placeholder} className="w-full" />
+      <Dropdown data-testid={testId} optionLabel="name" optionValue="id" options={options} value={value} onChange={(event) => onChange(event.value)} placeholder={placeholder} className="w-full" />
     </div>
   );
 }

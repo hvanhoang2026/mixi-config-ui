@@ -116,7 +116,7 @@ ${runtimeOutput}
   const markdownDownloadHref = `data:text/markdown;charset=utf-8,${encodeURIComponent(markdownGuide)}`;
 
   return (
-    <div className="api-guide">
+    <div className="api-guide" data-testid="runtime-history-panel">
       <div className="api-guide__header">
         <div>
           <span className="api-guide__eyebrow">Runtime integration</span>
@@ -128,6 +128,7 @@ ${runtimeOutput}
         </div>
         <div className="api-guide__header-actions">
           <a
+            data-testid="download-integration-guide"
             className="api-guide__download p-button p-component"
             href={markdownDownloadHref}
             download={downloadFileName || 'mixi-config-integration.md'}
@@ -190,13 +191,13 @@ ${runtimeOutput}
 
         <section className="api-guide__panel">
           <h3>Runtime response</h3>
-          {loading ? <RuntimeCodeSkeleton response /> : <pre className="api-guide__code api-guide__code--response">{runtimeOutput}</pre>}
+          {loading ? <RuntimeCodeSkeleton response /> : <pre className="api-guide__code api-guide__code--response" data-testid="runtime-response">{runtimeOutput}</pre>}
         </section>
 
         <section className="api-guide__panel">
           <div className="api-guide__panel-title">
             <h3>Config history</h3>
-            <Button icon="pi pi-history" label="Load history" size="small" text onClick={onLoadHistory} />
+            <Button data-testid="load-history-button" icon="pi pi-history" label="Load history" size="small" text onClick={onLoadHistory} />
           </div>
           {loading ? (
             <div className="api-guide__history">

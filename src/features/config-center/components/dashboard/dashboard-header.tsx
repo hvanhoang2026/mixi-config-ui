@@ -51,7 +51,7 @@ export function DashboardHeader({
   ] as const;
 
   return (
-    <section className="dashboard-header">
+    <section className="dashboard-header" data-testid="dashboard-header">
       <div className="dashboard-header__top">
         <div className="dashboard-header__copy">
           <span className="dashboard-header__eyebrow">Service Configuration Workspace</span>
@@ -80,6 +80,7 @@ export function DashboardHeader({
                   value={selectedServiceId}
                   onChange={(event) => onServiceChange(event.value)}
                   placeholder="Select service"
+                  data-testid="service-selector"
                   className="w-full"
                 />
               )}
@@ -96,6 +97,7 @@ export function DashboardHeader({
                   value={selectedEnvironmentId}
                   onChange={(event) => onEnvironmentChange(event.value)}
                   placeholder="Select environment"
+                  data-testid="environment-selector"
                   className="w-full"
                 />
               )}
@@ -109,6 +111,7 @@ export function DashboardHeader({
               <InputText
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
+                data-testid="config-search-input"
                 placeholder="Search service config keys"
               />
             )}

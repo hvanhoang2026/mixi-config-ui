@@ -5,8 +5,10 @@ import { LoginFormCard } from '../../components/auth/login-form-card';
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={null}>
+    <div data-testid="login-page">
+      <Suspense fallback={null}>
       <LoginFormCard />
-    </Suspense>
+      </Suspense>
+    </div>
   );
 }

@@ -329,12 +329,14 @@ export default function ConfigCenterPage() {
   const contentActions = (
     <>
       <Button
+        data-testid="refresh-workspace-button"
         label="Refresh workspace"
         icon="pi pi-refresh"
         onClick={() => invalidateAll()}
         className="dashboard-header__action dashboard-header__action--primary"
       />
       <Button
+        data-testid="import-service-env-button"
         label="Import service ENV"
         icon="pi pi-upload"
         severity="secondary"
@@ -343,6 +345,7 @@ export default function ConfigCenterPage() {
         className="dashboard-header__action dashboard-header__action--soft"
       />
       <Button
+        data-testid="export-service-env-button"
         label="Export service ENV"
         icon="pi pi-download"
         outlined
@@ -358,6 +361,7 @@ export default function ConfigCenterPage() {
         className="dashboard-header__action dashboard-header__action--ghost"
       />
       <Button
+        data-testid="reload-cache-button"
         label="Reload Cache"
         icon="pi pi-sync"
         outlined

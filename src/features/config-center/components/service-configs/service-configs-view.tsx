@@ -160,7 +160,7 @@ export function ServiceConfigsView({
 
   if (!detailOpen || !selectedService) {
     return (
-      <section className="content-panel service-configs">
+      <section className="content-panel service-configs" data-testid="service-configs-list">
         <div className="service-configs__header service-configs__header--list">
           <div>
             <h2>Service Configs</h2>
@@ -210,6 +210,7 @@ export function ServiceConfigsView({
                   icon="pi pi-arrow-right"
                   text
                   rounded
+                  data-testid={`open-configs-${row.code}`}
                   aria-label={`Open configs for ${row.name}`}
                   onClick={() => {
                     onSelectService(row.id);
@@ -225,7 +226,7 @@ export function ServiceConfigsView({
   }
 
   return (
-    <section className="content-panel service-configs">
+    <section className="content-panel service-configs" data-testid="service-configs-view">
       <div className="service-configs__detail-hero">
         <div className="service-configs__title-block">
           <Button
@@ -252,12 +253,14 @@ export function ServiceConfigsView({
             value={selectedEnvironmentId}
             onChange={(event) => onSelectEnvironment(event.value)}
             placeholder="Environment"
+            data-testid="service-configs-environment-selector"
             className="service-configs__environment"
           />
           <Button
             type="button"
             icon="pi pi-plus"
             label="Add config"
+            data-testid="service-configs-add-button"
             className="service-configs__add-button"
             onClick={onAddConfig}
           />
@@ -300,6 +303,7 @@ export function ServiceConfigsView({
                 <tr className="service-configs__filter-row">
                   <th>
                     <InputText
+                      data-testid="config-key-filter-input"
                       value={keyFilter}
                       onChange={(event) => setKeyFilter(event.currentTarget.value)}
                       className="w-full"
@@ -308,6 +312,7 @@ export function ServiceConfigsView({
                   <th />
                   <th>
                     <InputText
+                      data-testid="config-description-filter-input"
                       value={descriptionFilter}
                       onChange={(event) => setDescriptionFilter(event.currentTarget.value)}
                       className="w-full"
@@ -329,6 +334,7 @@ export function ServiceConfigsView({
                         <td>{row.key}</td>
                         <td>
                           <InputText
+                            data-testid={`config-value-input-${row.key}`}
                             value={draftValue}
                             onChange={(event) => {
                               const nextValue = event.currentTarget.value;
@@ -349,6 +355,7 @@ export function ServiceConfigsView({
                           <button
                             type="button"
                             disabled={(savingConfigId !== null && !isSaving) || deletingConfigId !== null}
+                            data-testid={`save-config-${row.key}`}
                             aria-label={`Save ${row.key}`}
                             className={`service-configs__icon-button service-configs__row-save${isSaved ? ' is-success' : ''}`}
                             onClick={() => saveConfigValue(row)}
@@ -418,6 +425,7 @@ export function ServiceConfigsView({
             <Button
               type="button"
               icon="pi pi-save"
+              data-testid="save-bulk-config-button"
               label={bulkSaving ? 'Saving...' : 'Save bulk'}
               loading={bulkSaving}
               disabled={loading || bulkSaving || savingConfigId !== null || deletingConfigId !== null}
@@ -432,6 +440,7 @@ export function ServiceConfigsView({
             </div>
           ) : (
             <InputTextarea
+              data-testid="bulk-config-input"
               value={bulkText}
               onChange={(event) => setBulkText(event.target.value)}
               rows={12}
@@ -453,7 +462,7 @@ function ServiceConfigEmptyState({ onAddConfig }: { onAddConfig: () => void }) {
       </div>
       <strong>No configs in this environment</strong>
       <span>Create the first config or paste multiple KEY=value lines below.</span>
-      <Button type="button" icon="pi pi-plus" label="Add config" size="small" onClick={onAddConfig} />
+      <Button type="button" data-testid="empty-state-add-config-button" icon="pi pi-plus" label="Add config" size="small" onClick={onAddConfig} />
     </div>
   );
 }

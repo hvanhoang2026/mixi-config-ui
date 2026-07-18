@@ -28,7 +28,7 @@ export function AppTopbar() {
   }
 
   return (
-    <div className="app-topbar">
+    <div className="app-topbar" data-testid="app-topbar">
       <a href="/config-center" className="app-topbar__brand">
         <div className="app-topbar__brand-mark">M</div>
         <span>MIXI CONFIG</span>
@@ -36,7 +36,7 @@ export function AppTopbar() {
 
       <div className="app-topbar__search">
         <i className="pi pi-search" />
-        <InputText placeholder="Search project, env, key..." />
+        <InputText data-testid="topbar-search" placeholder="Search project, env, key..." />
       </div>
 
       <div className="app-topbar__actions">
@@ -44,6 +44,7 @@ export function AppTopbar() {
         <Button icon="pi pi-cog" rounded text severity="secondary" className="app-topbar__action" />
         <button
           type="button"
+          data-testid="profile-menu-button"
           className="app-topbar__profile app-topbar__profile-button"
           onClick={(event) => overlayRef.current?.toggle(event)}
           aria-haspopup
@@ -79,7 +80,7 @@ export function AppTopbar() {
                 <small>{user?.tenantName || 'Config Center workspace'}</small>
               </div>
             </div>
-            <button type="button" className="app-topbar__panel-item" onClick={handleLogout}>
+            <button type="button" data-testid="logout-button" className="app-topbar__panel-item" onClick={handleLogout}>
               <i className="pi pi-sign-out" />
               <span>Logout</span>
             </button>

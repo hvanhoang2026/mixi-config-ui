@@ -11,7 +11,8 @@ export default function RegisterPage() {
   const [message, setMessage] = useState<{ severity: 'success' | 'error'; text: string } | null>(null);
 
   return (
-    <AdminRegisterForm
+    <div data-testid="register-page">
+      <AdminRegisterForm
       teamName="Mixi Config"
       loginHref="/login"
       loading={loading}
@@ -29,6 +30,7 @@ export default function RegisterPage() {
           setLoading(false);
         }
       }}
-    />
+      />
+    </div>
   );
 }
