@@ -3,7 +3,7 @@
 import { clearStoredAuth, isTokenExpired, readStoredAuth, writeStoredAuth } from './authStorage';
 
 const AUTH_BASE_URL =
-  process.env.NEXT_PUBLIC_AUTH_API_BASE_URL ?? 'https://auth-api-khaki.vercel.app/api';
+  process.env.NEXT_PUBLIC_AUTH_API_BASE_URL;
 const AUTH_REFRESHED_EVENT = 'mixi-config:auth-refreshed';
 let refreshPromise: Promise<string | null> | null = null;
 
