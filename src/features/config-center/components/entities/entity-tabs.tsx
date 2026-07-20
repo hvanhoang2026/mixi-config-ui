@@ -48,7 +48,7 @@ export function EntityTabs(props: Props) {
     return (
       <section data-testid="auto-entity-tabs-1-section" className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('project')} actions={props.actions} />
-        <EntityDataTable value={props.projects} loading={props.loading.project}>
+        <EntityDataTable value={props.projects} loading={props.loading.project} loadingIcon="pi pi-hourglass">
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
           <Column field="description" header="Description" filter />
@@ -62,7 +62,7 @@ export function EntityTabs(props: Props) {
     return (
       <section data-testid="auto-entity-tabs-2-section" className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('service')} actions={props.actions} />
-        <EntityDataTable value={props.services} loading={props.loading.service}>
+        <EntityDataTable value={props.services} loading={props.loading.service} loadingIcon="pi pi-hourglass">
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
           <Column field="type" header="Type" filter sortable />
@@ -85,7 +85,7 @@ export function EntityTabs(props: Props) {
     return (
       <section data-testid="auto-entity-tabs-3-section" className="content-panel">
         <CrudHeader onAdd={() => props.onAdd('environment')} actions={props.actions} />
-        <EntityDataTable value={props.environments} loading={props.loading.environment}>
+        <EntityDataTable value={props.environments} loading={props.loading.environment} loadingIcon="pi pi-hourglass">
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
           <Column field="description" header="Description" filter />

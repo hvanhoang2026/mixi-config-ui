@@ -804,14 +804,8 @@ a { color: inherit; text-decoration: none; }
   opacity: 1;
 }
 
-.service-configs__saving-icon {
-  animation: service-configs-spin 0.75s linear infinite;
-}
-
-@keyframes service-configs-spin {
-  to {
-    transform: rotate(360deg);
-  }
+.service-configs__loading-icon {
+  line-height: 1;
 }
 
 .service-configs__back {

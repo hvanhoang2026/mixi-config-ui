@@ -10,14 +10,13 @@ import {
   type ReactNode,
 } from 'react';
 import { useIsMutating } from '@tanstack/react-query';
-import { Spinner } from '@w-iris/react';
 
 interface GlobalLoadingContextValue {
   show: () => () => void;
 }
 
 const GlobalLoadingContext = createContext<GlobalLoadingContextValue | null>(null);
-const SPINNER_DELAY_MS = 150;
+const LOADING_DELAY_MS = 150;
 
 export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
   const mutatingCount = useIsMutating();
@@ -31,7 +30,7 @@ export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const timer = window.setTimeout(() => setVisible(true), SPINNER_DELAY_MS);
+    const timer = window.setTimeout(() => setVisible(true), LOADING_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [loading]);
 
@@ -55,7 +54,7 @@ export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
         <div data-testid="auto-global-loading-1-div" className="global-loading" role="status" aria-live="polite" aria-label="Loading">
           <div data-testid="auto-global-loading-2-div" className="global-loading__panel">
             <div data-testid="auto-global-loading-3-div" className="global-loading__loader" aria-hidden="true">
-              <Spinner label="Loading" size="lg" />
+              <i className="pi pi-hourglass" />
             </div>
             <span data-testid="auto-global-loading-4-span">Loading...</span>
           </div>
