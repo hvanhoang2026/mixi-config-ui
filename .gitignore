@@ -2,6 +2,7 @@ node_modules/
 .next/
 .next-dev/
 out/
+coverage/
 
 .env*.local
 
@@ -12,3 +13,4 @@ out/
 Thumbs.db
 .vercel
 .env*
+!.env.example

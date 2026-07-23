@@ -73,9 +73,12 @@ export default function ConfigCenterPage() {
     enabled: initialized && isAuthenticated && !!activeConfigId && historyOpen,
   });
 
-  const projectOptions = projects.data ?? [];
-  const serviceOptions = services.data ?? [];
-  const environmentOptions = environments.data ?? [];
+  const projectOptions = useMemo(() => projects.data ?? [], [projects.data]);
+  const serviceOptions = useMemo(() => services.data ?? [], [services.data]);
+  const environmentOptions = useMemo(
+    () => environments.data ?? [],
+    [environments.data],
+  );
   const selectedService = serviceOptions.find((service) => service.id === selectedServiceId) ?? serviceOptions[0];
   const selectedEnvironment = environmentOptions.find((environment) => environment.id === selectedEnvironmentId) ?? environmentOptions[0];
   const selectedProject = projectOptions.find((project) => project.id === selectedService?.projectId);
@@ -99,7 +102,7 @@ export default function ConfigCenterPage() {
       );
     },
   });
-  const configItems = configs.data ?? [];
+  const configItems = useMemo(() => configs.data ?? [], [configs.data]);
 
   const projectForm = useForm<ProjectForm>({ defaultValues: emptyProject });
   const serviceForm = useForm<ServiceForm>({ defaultValues: { projectId: '', name: '', code: '', type: 'backend', description: '' } });

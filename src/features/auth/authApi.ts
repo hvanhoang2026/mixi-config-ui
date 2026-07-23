@@ -1,20 +1,26 @@
-'use client';
+"use client";
 
-import { clearStoredAuth, isTokenExpired, readStoredAuth, writeStoredAuth } from './authStorage';
+import {
+  clearStoredAuth,
+  isTokenExpired,
+  readStoredAuth,
+  writeStoredAuth,
+} from "./authStorage";
+import { publicEnv } from "../../shared/config/public-env";
 
-const AUTH_BASE_URL =
-  process.env.NEXT_PUBLIC_AUTH_API_BASE_URL;
-const AUTH_REFRESHED_EVENT = 'mixi-config:auth-refreshed';
+const AUTH_BASE_URL = publicEnv.authApiBaseUrl;
+const AUTH_REFRESHED_EVENT = "mixi-config:auth-refreshed";
+const REQUEST_TIMEOUT_MS = 15_000;
 let refreshPromise: Promise<string | null> | null = null;
 
 function redirectToLogin() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return;
   }
 
   clearStoredAuth();
-  if (window.location.pathname !== '/login') {
-    window.location.replace('/login');
+  if (window.location.pathname !== "/login") {
+    window.location.replace("/login");
   }
 }
 
@@ -24,6 +30,36 @@ class ApiError extends Error {
   constructor(message: string, status: number) {
     super(message);
     this.status = status;
+  }
+}
+
+function readErrorMessage(value: unknown, fallback: string) {
+  if (!value || typeof value !== "object" || !("message" in value))
+    return fallback;
+  const message = (value as Record<string, unknown>).message;
+  if (typeof message === "string") return message;
+  if (
+    Array.isArray(message) &&
+    message.every((item): item is string => typeof item === "string")
+  ) {
+    return message.join(", ");
+  }
+  return fallback;
+}
+
+async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(
+    () => controller.abort(),
+    REQUEST_TIMEOUT_MS,
+  );
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: init?.signal ?? controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeout);
   }
 }
 
@@ -55,21 +91,19 @@ export interface MfaRequiredResponse {
 export type LoginResponse = AuthResponse | MfaRequiredResponse;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${AUTH_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(`${AUTH_BASE_URL}${path}`, {
     ...init,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
   });
 
   if (!response.ok) {
-    let message = response.statusText || 'Request failed';
+    let message = response.statusText || "Request failed";
     try {
-      const errorData = await response.json();
-      message = Array.isArray(errorData.message)
-        ? errorData.message.join(', ')
-        : errorData.message || message;
+      const errorData: unknown = await response.json();
+      message = readErrorMessage(errorData, message);
     } catch {
       // ignore
     }
@@ -84,7 +118,10 @@ function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
 }
 
-function withBearerToken(init: RequestInit | undefined, accessToken: string): RequestInit {
+function withBearerToken(
+  init: RequestInit | undefined,
+  accessToken: string,
+): RequestInit {
   return {
     ...init,
     headers: {
@@ -102,8 +139,8 @@ async function refreshAccessToken(): Promise<string | null> {
     if (!stored?.refreshToken) return null;
 
     try {
-      const refreshed = await request<AuthResponse>('/auth/refresh', {
-        method: 'POST',
+      const refreshed = await request<AuthResponse>("/auth/refresh", {
+        method: "POST",
         body: JSON.stringify({ refreshToken: stored.refreshToken }),
       });
 
@@ -116,7 +153,7 @@ async function refreshAccessToken(): Promise<string | null> {
         Boolean(stored.remember),
       );
 
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent(AUTH_REFRESHED_EVENT, {
             detail: {
@@ -150,30 +187,33 @@ export async function requestWithAuth<T>(
     effectiveToken = await refreshAccessToken();
     if (!effectiveToken) {
       redirectToLogin();
-      throw new Error('Session expired');
+      throw new Error("Session expired");
     }
   }
 
   try {
-    const response = await fetch(input, withBearerToken(init, effectiveToken));
+    const response = await fetchWithTimeout(
+      input,
+      withBearerToken(init, effectiveToken),
+    );
     if (!response.ok) {
-      let message = response.statusText || 'Request failed';
+      let message = response.statusText || "Request failed";
       try {
-        const errorData = await response.json();
-        message = Array.isArray(errorData.message)
-          ? errorData.message.join(', ')
-          : errorData.message || message;
+        const errorData: unknown = await response.json();
+        message = readErrorMessage(errorData, message);
       } catch {
         // ignore
       }
       throw new ApiError(message, response.status);
     }
     const text = await response.text();
-    return (text
-      ? response.headers.get('content-type')?.includes('application/json')
-        ? JSON.parse(text)
-        : text
-      : {}) as T;
+    return (
+      text
+        ? response.headers.get("content-type")?.includes("application/json")
+          ? JSON.parse(text)
+          : text
+        : {}
+    ) as T;
   } catch (error) {
     if (!isApiError(error) || error.status !== 401) {
       throw error;
@@ -182,10 +222,13 @@ export async function requestWithAuth<T>(
     const refreshedToken = await refreshAccessToken();
     if (!refreshedToken) {
       redirectToLogin();
-      throw new Error('Session expired');
+      throw new Error("Session expired");
     }
 
-    const retried = await fetch(input, withBearerToken(init, refreshedToken));
+    const retried = await fetchWithTimeout(
+      input,
+      withBearerToken(init, refreshedToken),
+    );
     if (!retried.ok) {
       if (retried.status === 401) {
         redirectToLogin();
@@ -193,34 +236,40 @@ export async function requestWithAuth<T>(
       throw new Error(await retried.text());
     }
     const text = await retried.text();
-    return (text
-      ? retried.headers.get('content-type')?.includes('application/json')
-        ? JSON.parse(text)
-        : text
-      : {}) as T;
+    return (
+      text
+        ? retried.headers.get("content-type")?.includes("application/json")
+          ? JSON.parse(text)
+          : text
+        : {}
+    ) as T;
   }
 }
 
 export const authApi = {
   login: (data: { email: string; password: string; mfaCode?: string }) =>
-    request<LoginResponse>('/auth/login', {
-      method: 'POST',
+    request<LoginResponse>("/auth/login", {
+      method: "POST",
       body: JSON.stringify(data),
     }),
   register: (data: { name: string; email: string; password: string }) =>
-    request<{ message: string }>('/auth/register/email', {
-      method: 'POST',
+    request<{ message: string }>("/auth/register/email", {
+      method: "POST",
       body: JSON.stringify(data),
     }),
   refresh: (refreshToken: string) =>
-    request<AuthResponse>('/auth/refresh', {
-      method: 'POST',
+    request<AuthResponse>("/auth/refresh", {
+      method: "POST",
       body: JSON.stringify({ refreshToken }),
     }),
   logout: (accessToken: string) =>
-    requestWithAuth<{ success: boolean }>(`${AUTH_BASE_URL}/auth/logout`, accessToken, {
-      method: 'POST',
-    }),
+    requestWithAuth<{ success: boolean }>(
+      `${AUTH_BASE_URL}/auth/logout`,
+      accessToken,
+      {
+        method: "POST",
+      },
+    ),
   getMyProfile: (accessToken: string) =>
     requestWithAuth<{
       id: string;
