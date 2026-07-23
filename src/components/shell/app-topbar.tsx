@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { OverlayPanel } from "primereact/overlaypanel";
@@ -82,12 +83,14 @@ export function AppTopbar() {
             className="app-topbar__avatar"
           >
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 data-testid="auto-app-topbar-8-img"
                 src={avatarUrl}
                 alt={displayName}
                 className="app-topbar__avatar-image"
+                width={40}
+                height={40}
+                unoptimized
               />
             ) : (
               avatarText
@@ -124,12 +127,14 @@ export function AppTopbar() {
                 className="app-topbar__avatar app-topbar__avatar--large"
               >
                 {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     data-testid="auto-app-topbar-15-img"
                     src={avatarUrl}
                     alt={displayName}
                     className="app-topbar__avatar-image"
+                    width={40}
+                    height={40}
+                    unoptimized
                   />
                 ) : (
                   avatarText

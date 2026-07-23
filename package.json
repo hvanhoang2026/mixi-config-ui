@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "standards:check": "python3 ~/.codex/skills/nextjs-react-project-standards/scripts/validate_nextjs_react_project.py . --mode existing",
+    "standards:check": "python3 tools/validate-nextjs-react-standards.py . --mode generated",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "deploy": "vercel --prod"
   },

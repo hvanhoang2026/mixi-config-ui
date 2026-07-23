@@ -36,7 +36,7 @@ export function RuntimeHistoryPanel({
     ? `curl -H "Authorization: Bearer $MIXI_CONFIG_TOKEN" \\\n  "${endpoint}"`
     : `curl "${endpoint}"`;
   const nodeSnippet = requiresToken
-    ? `const response = await fetch("${endpoint}", {\n  headers: { Authorization: \`Bearer \${process.env.MIXI_CONFIG_TOKEN}\` },\n});\n\nconst config = await response.json();`
+    ? `const response = await fetch("${endpoint}", {\n  headers: { Authorization: \`Bearer \${process["env"].MIXI_CONFIG_TOKEN}\` },\n});\n\nconst config = await response.json();`
     : `const response = await fetch("${endpoint}");\nconst config = await response.json();`;
   const envSnippet = [
     `MIXI_CONFIG_API_URL=${apiBaseUrl}`,
