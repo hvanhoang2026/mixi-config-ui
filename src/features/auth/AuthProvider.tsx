@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -8,10 +8,20 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
-import { useGlobalLoading } from '../../components/loading/global-loading';
-import { AUTH_REFRESHED_EVENT, authApi, type AuthResponse, type AuthUser, type LoginResponse } from './authApi';
-import { clearStoredAuth, isTokenExpired, readStoredAuth, writeStoredAuth } from './authStorage';
+} from "react";
+import {
+  AUTH_REFRESHED_EVENT,
+  authApi,
+  type AuthResponse,
+  type AuthUser,
+  type LoginResponse,
+} from "./authApi";
+import {
+  clearStoredAuth,
+  isTokenExpired,
+  readStoredAuth,
+  writeStoredAuth,
+} from "./authStorage";
 
 interface AuthState {
   initialized: boolean;
@@ -24,18 +34,23 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: (email: string, password: string, remember?: boolean, mfaCode?: string) => Promise<{ requiresMfa: boolean }>;
+  login: (
+    email: string,
+    password: string,
+    remember?: boolean,
+    mfaCode?: string,
+  ) => Promise<{ requiresMfa: boolean }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const SHARED_AUTH_EVENT = 'mixi:auth';
-const SHARED_TOKEN_KEY = 'mixi.shared.accessToken';
-const SHARED_TENANT_ID_KEY = 'mixi.shared.tenantId';
-const SHARED_TENANT_CODE_KEY = 'mixi.shared.tenantCode';
-const SHARED_TENANT_NAME_KEY = 'mixi.shared.tenantName';
-const SHARED_ROLES_KEY = 'mixi.shared.roles';
+const SHARED_AUTH_EVENT = "mixi:auth";
+const SHARED_TOKEN_KEY = "mixi.shared.accessToken";
+const SHARED_TENANT_ID_KEY = "mixi.shared.tenantId";
+const SHARED_TENANT_CODE_KEY = "mixi.shared.tenantCode";
+const SHARED_TENANT_NAME_KEY = "mixi.shared.tenantName";
+const SHARED_ROLES_KEY = "mixi.shared.roles";
 
 function createAuthenticatedState(
   accessToken: string,
@@ -54,11 +69,14 @@ function createAuthenticatedState(
 }
 
 function isAuthResponse(response: LoginResponse): response is AuthResponse {
-  return 'accessToken' in response && 'refreshToken' in response && 'user' in response;
+  return (
+    "accessToken" in response &&
+    "refreshToken" in response &&
+    "user" in response
+  );
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const globalLoading = useGlobalLoading();
   const [state, setState] = useState<AuthState>({
     initialized: false,
     loading: true,
@@ -84,7 +102,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshSession = useCallback(async () => {
-    const hideLoading = globalLoading.show();
     const stored = readStoredAuth();
     try {
       if (!stored) {
@@ -99,7 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!isTokenExpired(stored.accessToken)) {
-        const profile = await authApi.getMyProfile(stored.accessToken).catch(() => null);
+        const profile = await authApi
+          .getMyProfile(stored.accessToken)
+          .catch(() => null);
         persistState(
           createAuthenticatedState(
             stored.accessToken,
@@ -111,8 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 ...profile?.profile,
                 email: profile?.email ?? stored.user.email,
                 tenantId: profile?.tenantId ?? stored.user.tenantId ?? null,
-                tenantCode: profile?.tenantCode ?? stored.user.tenantCode ?? null,
-                tenantName: profile?.tenantName ?? stored.user.tenantName ?? null,
+                tenantCode:
+                  profile?.tenantCode ?? stored.user.tenantCode ?? null,
+                tenantName:
+                  profile?.tenantName ?? stored.user.tenantName ?? null,
               },
             },
             Boolean(stored.remember),
@@ -122,7 +143,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const refreshed = await authApi.refresh(stored.refreshToken);
-      const profile = await authApi.getMyProfile(refreshed.accessToken).catch(() => null);
+      const profile = await authApi
+        .getMyProfile(refreshed.accessToken)
+        .catch(() => null);
       persistState(
         createAuthenticatedState(
           refreshed.accessToken,
@@ -134,8 +157,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               ...profile?.profile,
               email: profile?.email ?? refreshed.user.email,
               tenantId: profile?.tenantId ?? refreshed.user.tenantId ?? null,
-              tenantCode: profile?.tenantCode ?? refreshed.user.tenantCode ?? null,
-              tenantName: profile?.tenantName ?? refreshed.user.tenantName ?? null,
+              tenantCode:
+                profile?.tenantCode ?? refreshed.user.tenantCode ?? null,
+              tenantName:
+                profile?.tenantName ?? refreshed.user.tenantName ?? null,
             },
           },
           Boolean(stored.remember),
@@ -152,47 +177,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: null,
         remember: false,
       });
-    } finally {
-      hideLoading();
     }
-  }, [globalLoading, persistState]);
+  }, [persistState]);
 
   useEffect(() => {
     refreshSession();
   }, [refreshSession]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const handleAuthRefreshed = (event: Event) => {
-      const customEvent = event as CustomEvent<{ accessToken?: string; refreshToken?: string }>;
+      const customEvent = event as CustomEvent<{
+        accessToken?: string;
+        refreshToken?: string;
+      }>;
       const nextAccessToken = customEvent.detail?.accessToken;
       const nextRefreshToken = customEvent.detail?.refreshToken;
       if (!nextAccessToken || !nextRefreshToken) return;
 
       setState((current) => {
         if (!current.isAuthenticated) return current;
-        return { ...current, accessToken: nextAccessToken, refreshToken: nextRefreshToken };
+        return {
+          ...current,
+          accessToken: nextAccessToken,
+          refreshToken: nextRefreshToken,
+        };
       });
     };
 
-    window.addEventListener(AUTH_REFRESHED_EVENT, handleAuthRefreshed as EventListener);
+    window.addEventListener(
+      AUTH_REFRESHED_EVENT,
+      handleAuthRefreshed as EventListener,
+    );
     return () =>
-      window.removeEventListener(AUTH_REFRESHED_EVENT, handleAuthRefreshed as EventListener);
+      window.removeEventListener(
+        AUTH_REFRESHED_EVENT,
+        handleAuthRefreshed as EventListener,
+      );
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
-    const isSuperAdmin = state.user?.roles?.includes('SUPERADMIN') ?? false;
+    const isSuperAdmin = state.user?.roles?.includes("SUPERADMIN") ?? false;
     if (state.accessToken) {
       window.localStorage.setItem(SHARED_TOKEN_KEY, state.accessToken);
-      window.localStorage.setItem(SHARED_ROLES_KEY, JSON.stringify(state.user?.roles ?? []));
-      if (!isSuperAdmin && state.user?.tenantId) window.localStorage.setItem(SHARED_TENANT_ID_KEY, state.user.tenantId);
+      window.localStorage.setItem(
+        SHARED_ROLES_KEY,
+        JSON.stringify(state.user?.roles ?? []),
+      );
+      if (!isSuperAdmin && state.user?.tenantId)
+        window.localStorage.setItem(SHARED_TENANT_ID_KEY, state.user.tenantId);
       else window.localStorage.removeItem(SHARED_TENANT_ID_KEY);
-      if (!isSuperAdmin && state.user?.tenantCode) window.localStorage.setItem(SHARED_TENANT_CODE_KEY, state.user.tenantCode);
+      if (!isSuperAdmin && state.user?.tenantCode)
+        window.localStorage.setItem(
+          SHARED_TENANT_CODE_KEY,
+          state.user.tenantCode,
+        );
       else window.localStorage.removeItem(SHARED_TENANT_CODE_KEY);
-      if (!isSuperAdmin && state.user?.tenantName) window.localStorage.setItem(SHARED_TENANT_NAME_KEY, state.user.tenantName);
+      if (!isSuperAdmin && state.user?.tenantName)
+        window.localStorage.setItem(
+          SHARED_TENANT_NAME_KEY,
+          state.user.tenantName,
+        );
       else window.localStorage.removeItem(SHARED_TENANT_NAME_KEY);
     } else {
       window.localStorage.removeItem(SHARED_TOKEN_KEY);
@@ -206,9 +254,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       new CustomEvent(SHARED_AUTH_EVENT, {
         detail: {
           accessToken: state.accessToken ?? null,
-          tenantId: isSuperAdmin ? null : state.user?.tenantId ?? null,
-          tenantCode: isSuperAdmin ? null : state.user?.tenantCode ?? null,
-          tenantName: isSuperAdmin ? null : state.user?.tenantName ?? null,
+          tenantId: isSuperAdmin ? null : (state.user?.tenantId ?? null),
+          tenantCode: isSuperAdmin ? null : (state.user?.tenantCode ?? null),
+          tenantName: isSuperAdmin ? null : (state.user?.tenantName ?? null),
           roles: state.user?.roles ?? [],
         },
       }),
@@ -219,7 +267,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       login: async (email, password, remember = false, mfaCode) => {
-        const hideLoading = globalLoading.show();
         setState((current) => ({ ...current, loading: true }));
         try {
           const response = await authApi.login({ email, password, mfaCode });
@@ -227,7 +274,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setState((current) => ({ ...current, loading: false }));
             return { requiresMfa: true };
           }
-          const profile = await authApi.getMyProfile(response.accessToken).catch(() => null);
+          const profile = await authApi
+            .getMyProfile(response.accessToken)
+            .catch(() => null);
           persistState(
             createAuthenticatedState(
               response.accessToken,
@@ -238,8 +287,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   ...profile?.profile,
                   email: profile?.email ?? response.user.email,
                   tenantId: profile?.tenantId ?? response.user.tenantId ?? null,
-                  tenantCode: profile?.tenantCode ?? response.user.tenantCode ?? null,
-                  tenantName: profile?.tenantName ?? response.user.tenantName ?? null,
+                  tenantCode:
+                    profile?.tenantCode ?? response.user.tenantCode ?? null,
+                  tenantName:
+                    profile?.tenantName ?? response.user.tenantName ?? null,
                 },
               },
               remember,
@@ -249,12 +300,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           setState((current) => ({ ...current, loading: false }));
           throw error;
-        } finally {
-          hideLoading();
         }
       },
       logout: async () => {
-        const hideLoading = globalLoading.show();
         const token = state.accessToken;
         clearStoredAuth();
         setState({
@@ -269,11 +317,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (token) {
           await authApi.logout(token).catch(() => undefined);
         }
-        hideLoading();
       },
       refreshSession,
     }),
-    [globalLoading, persistState, refreshSession, state],
+    [persistState, refreshSession, state],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -282,7 +329,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }
