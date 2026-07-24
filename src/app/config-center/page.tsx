@@ -336,7 +336,7 @@ export default function ConfigCenterPage() {
         label="Refresh workspace"
         icon="pi pi-refresh"
         onClick={() => invalidateAll()}
-        className="dashboard-header__action dashboard-header__action--primary"
+        className="dashboard-header__action dashboard-header__action--ghost"
       />
       <Button
         data-testid="import-service-env-button"
@@ -345,7 +345,7 @@ export default function ConfigCenterPage() {
         severity="secondary"
         onClick={() => setImportOpen(true)}
         disabled={!canRunScopedActions}
-        className="dashboard-header__action dashboard-header__action--soft"
+        className="dashboard-header__action dashboard-header__action--primary"
       />
       <Button
         data-testid="export-service-env-button"

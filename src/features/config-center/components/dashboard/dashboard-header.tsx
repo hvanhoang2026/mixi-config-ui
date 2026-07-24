@@ -1,4 +1,3 @@
-import { StatCard } from '@w-iris/react';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
@@ -45,35 +44,37 @@ export function DashboardHeader({
   onSearchChange,
 }: Props) {
   const stats = [
-    ['Services', dashboard?.totalServices, 'pi pi-briefcase'],
-    ['Environments', dashboard?.totalEnvironments, 'pi pi-globe'],
-    ['Configs', dashboard?.totalConfigs, 'pi pi-sliders-h'],
+    ['Services', dashboard?.totalServices, 'Registered workloads'],
+    ['Environments', dashboard?.totalEnvironments, 'Deployment scopes'],
+    ['Config keys', dashboard?.totalConfigs, 'Governed values'],
   ] as const;
 
   return (
     <section className="dashboard-header" data-testid="dashboard-header">
+      <span className="dashboard-header__rail" aria-hidden="true">01 / CONTROL</span>
       <div data-testid="auto-dashboard-header-1-div" className="dashboard-header__top">
         <div data-testid="auto-dashboard-header-2-div" className="dashboard-header__copy">
-          <span data-testid="auto-dashboard-header-3-span" className="dashboard-header__eyebrow">Service Configuration Workspace</span>
-          <h1 data-testid="auto-dashboard-header-4-h1">Mixi Config Center</h1>
-          <p data-testid="auto-dashboard-header-5-p">Manage config by service scope. Import, export, runtime preview, and cache actions now run against the selected service and environment.</p>
+          <span data-testid="auto-dashboard-header-3-span" className="dashboard-header__eyebrow">Platform configuration ledger</span>
+          <h1 data-testid="auto-dashboard-header-4-h1">Configuration control</h1>
+          <p data-testid="auto-dashboard-header-5-p">Select an operational scope, review governed values, and publish changes without losing service context.</p>
           {loading ? (
             <div data-testid="auto-dashboard-header-6-div" className="dashboard-header__scope-note">
               <Skeleton width="16rem" height="1rem" />
             </div>
           ) : projectName ? (
-            <div data-testid="auto-dashboard-header-7-div" className="dashboard-header__scope-note">Project metadata: {projectName}</div>
+            <div data-testid="auto-dashboard-header-7-div" className="dashboard-header__scope-note"><span>Current project</span><strong>{projectName}</strong></div>
           ) : null}
         </div>
 
         <div data-testid="auto-dashboard-header-8-div" className="dashboard-header__tools">
           <div data-testid="auto-dashboard-header-9-div" className="dashboard-header__scope-grid">
             <div data-testid="auto-dashboard-header-10-div" className="dashboard-header__scope-field">
-              <span data-testid="auto-dashboard-header-11-span">Service</span>
+              <label data-testid="auto-dashboard-header-11-span" htmlFor="workspace-service">Service</label>
               {loading ? (
                 <Skeleton height="2.75rem" borderRadius="12px" />
               ) : (
                 <Dropdown
+                  inputId="workspace-service"
                   optionLabel="name"
                   optionValue="id"
                   options={services}
@@ -86,11 +87,12 @@ export function DashboardHeader({
               )}
             </div>
             <div data-testid="auto-dashboard-header-12-div" className="dashboard-header__scope-field">
-              <span data-testid="auto-dashboard-header-13-span">Environment</span>
+              <label data-testid="auto-dashboard-header-13-span" htmlFor="workspace-environment">Environment</label>
               {loading ? (
                 <Skeleton height="2.75rem" borderRadius="12px" />
               ) : (
                 <Dropdown
+                  inputId="workspace-environment"
                   optionLabel="name"
                   optionValue="id"
                   options={environments}
@@ -109,6 +111,7 @@ export function DashboardHeader({
               <Skeleton width="100%" height="1.1rem" />
             ) : (
               <InputText
+                aria-label="Search configuration keys"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
                 data-testid="config-search-input"
@@ -129,14 +132,19 @@ export function DashboardHeader({
       </div>
 
       <div data-testid="auto-dashboard-header-18-div" className="dashboard-header__stats">
-        {stats.map(([title, value, icon]) =>
+        {stats.map(([title, value, context], index) =>
           loading ? (
             <div data-testid="auto-dashboard-header-19-div" key={title} className="stat-card stat-card--skeleton">
               <Skeleton width="6rem" height="0.95rem" />
               <Skeleton width="4.5rem" height="2rem" />
             </div>
           ) : (
-            <StatCard key={title} label={title} value={value ?? 0} icon={<i data-testid="auto-dashboard-header-20-i" className={icon} aria-hidden="true" />} />
+            <article key={title} className="stat-card">
+              <span className="stat-card__index">{String(index + 1).padStart(2, '0')}</span>
+              <span className="stat-card__label">{title}</span>
+              <strong className="stat-card__value">{value ?? 0}</strong>
+              <span className="stat-card__context">{context}</span>
+            </article>
           ),
         )}
       </div>
