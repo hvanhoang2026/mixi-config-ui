@@ -1,6 +1,6 @@
 const DEFAULT_AUTH_API_BASE_URL = "http://localhost:3001/api";
-const PRODUCTION_AUTH_API_BASE_URL = "https://w-auth-ten.vercel.app/api";
-const DEFAULT_CONFIG_API_BASE_URL = "http://localhost:3031";
+const PRODUCTION_AUTH_API_BASE_URL = "https://w-gateway.vercel.app/auth";
+const DEFAULT_CONFIG_API_BASE_URL = "https://w-gateway.vercel.app/config";
 
 function readHttpUrl(
   name: string,

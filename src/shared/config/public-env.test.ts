@@ -10,7 +10,7 @@ describe("resolvePublicEnv", () => {
     });
 
     expect(`${env.authApiBaseUrl}/users/me`).toBe(
-      "https://w-auth-ten.vercel.app/api/users/me",
+      "https://w-gateway.vercel.app/auth/users/me",
     );
   });
 
