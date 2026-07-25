@@ -14,6 +14,7 @@ import {
 } from '@w-iris/react';
 import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
+import { authApi } from '../../features/auth/authApi';
 import { API_BASE, api } from '../../features/config-center/api';
 import { publicEnv } from '../../shared/config/public-env';
 import { Button } from 'primereact/button';
@@ -39,7 +40,7 @@ const emptyEnvironment: EnvironmentForm = { name: '', code: '', description: '' 
 
 export default function ConfigCenterPage() {
   const router = useRouter();
-  const { initialized, isAuthenticated, user, logout, updateUser } = useAuth();
+  const { initialized, isAuthenticated, accessToken, user, logout, updateUser } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<ConfigSection>('config');
@@ -72,6 +73,11 @@ export default function ConfigCenterPage() {
     queryKey: ['history', activeConfigId],
     queryFn: () => api<HistoryItem[]>(`/configs/${activeConfigId}/history`),
     enabled: initialized && isAuthenticated && !!activeConfigId && historyOpen,
+  });
+  const mfaStatus = useQuery({
+    queryKey: ['auth', 'mfa-status', user?.id],
+    queryFn: () => authApi.getMfaStatus(accessToken!),
+    enabled: initialized && isAuthenticated && !!accessToken && activeAccountPage === 'security',
   });
 
   const projectOptions = useMemo(() => projects.data ?? [], [projects.data]);
@@ -437,8 +443,12 @@ export default function ConfigCenterPage() {
           <MixiAccountPages
             page={activeAccountPage}
             user={shellUser}
+            mfaEnabled={mfaStatus.data?.enabled ?? false}
             authApiBaseUrl={publicEnv.authApiBaseUrl}
             ecmApiBaseUrl={publicEnv.ecmApiBaseUrl}
+            onMfaEnabledChange={(enabled) => {
+              queryClient.setQueryData(['auth', 'mfa-status', user?.id], { enabled });
+            }}
             onUserUpdated={({ role, ...updates }) =>
               updateUser({
                 ...updates,

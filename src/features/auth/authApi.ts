@@ -287,6 +287,11 @@ export const authApi = {
       tenantName?: string | null;
       profile?: Partial<AuthUser> | null;
     }>(`${AUTH_BASE_URL}/users/me`, accessToken),
+  getMfaStatus: (accessToken: string) =>
+    requestWithAuth<{ enabled: boolean }>(
+      `${AUTH_BASE_URL}/auth/mfa/status`,
+      accessToken,
+    ),
 };
 
 export { AUTH_REFRESHED_EVENT };
