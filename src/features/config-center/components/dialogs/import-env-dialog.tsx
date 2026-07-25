@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -23,8 +24,19 @@ export function ImportEnvDialog({
   onHide,
   onImport,
 }: Props) {
+  const [importing, setImporting] = useState(false);
+
+  const submitImport = async () => {
+    setImporting(true);
+    try {
+      await onImport();
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
-    <Dialog data-testid="import-env-dialog" visible={visible} onHide={onHide} header="Import Service ENV" style={{ width: 'min(760px, 95vw)' }}>
+    <Dialog data-testid="import-env-dialog" visible={visible} onHide={() => !importing && onHide()} header="Import Service ENV" style={{ width: 'min(760px, 95vw)' }}>
       <div data-testid="auto-import-env-dialog-1-div" className="mb-3">
         <div data-testid="auto-import-env-dialog-2-div" className="text-900 font-semibold">Target scope</div>
         <div data-testid="auto-import-env-dialog-3-div" className="text-600 text-sm mt-1">
@@ -34,8 +46,16 @@ export function ImportEnvDialog({
       </div>
       <InputTextarea data-testid="import-env-textarea" value={value} onChange={(event) => onChange(event.target.value)} rows={16} className="w-full" />
       <div data-testid="auto-import-env-dialog-4-div" className="mt-3 flex justify-content-end gap-2">
-        <Button data-testid="import-env-close-button" label="Close" severity="secondary" onClick={onHide} />
-        <Button data-testid="import-env-submit-button" label="Import" onClick={onImport} />
+        <Button data-testid="import-env-close-button" label="Close" severity="secondary" onClick={onHide} disabled={importing} />
+        <Button
+          data-testid="import-env-submit-button"
+          label={importing ? 'Importing...' : 'Import'}
+          icon={importing ? undefined : 'pi pi-upload'}
+          loading={importing}
+          loadingIcon="pi pi-spinner pi-spin"
+          disabled={importing}
+          onClick={submitImport}
+        />
       </div>
     </Dialog>
   );

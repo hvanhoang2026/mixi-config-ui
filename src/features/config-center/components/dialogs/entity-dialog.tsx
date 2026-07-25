@@ -72,7 +72,8 @@ function FormFields({
   serviceOptions: Service[];
   environmentOptions: Environment[];
 }) {
-  const { register, handleSubmit, setValue, watch } = form;
+  const { register, handleSubmit, setValue, watch, formState } = form;
+  const saving = formState.isSubmitting;
 
   return (
     <form data-testid="auto-entity-dialog-1-form" onSubmit={handleSubmit((values) => onSubmit(values as FormValues))} className="grid">
@@ -96,8 +97,16 @@ function FormFields({
       {activeFields.includes('isSecret') && <CheckField label="Secret" checked={watch('isSecret')} onChange={(value) => setValue('isSecret', value)} />}
       {activeFields.includes('isRequired') && <CheckField label="Required" checked={watch('isRequired')} onChange={(value) => setValue('isRequired', value)} />}
       <div data-testid="auto-entity-dialog-2-div" className="col-12 flex justify-content-end gap-2 mt-3">
-        <Button type="button" data-testid="entity-cancel-button" label="Cancel" severity="secondary" onClick={onCancel} />
-        <Button type="submit" data-testid="entity-save-button" label="Save" />
+        <Button type="button" data-testid="entity-cancel-button" label="Cancel" severity="secondary" onClick={onCancel} disabled={saving} />
+        <Button
+          type="submit"
+          data-testid="entity-save-button"
+          label={saving ? 'Saving...' : 'Save'}
+          icon={saving ? undefined : 'pi pi-save'}
+          loading={saving}
+          loadingIcon="pi pi-spinner pi-spin"
+          disabled={saving}
+        />
       </div>
     </form>
   );
