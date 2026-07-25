@@ -42,6 +42,7 @@ interface AuthContextValue extends AuthState {
   ) => Promise<{ requiresMfa: boolean }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  updateUser: (updates: Partial<AuthUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -179,6 +180,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     }
   }, [persistState]);
+
+  const updateUser = useCallback((updates: Partial<AuthUser>) => {
+    setState((current) => {
+      if (!current.user) return current;
+
+      const next = {
+        ...current,
+        user: {
+          ...current.user,
+          ...updates,
+        },
+      };
+
+      if (next.accessToken && next.refreshToken) {
+        writeStoredAuth(
+          {
+            accessToken: next.accessToken,
+            refreshToken: next.refreshToken,
+            user: next.user,
+          },
+          next.remember,
+        );
+      }
+
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     refreshSession();
@@ -319,8 +347,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
       refreshSession,
+      updateUser,
     }),
-    [persistState, refreshSession, state],
+    [persistState, refreshSession, state, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

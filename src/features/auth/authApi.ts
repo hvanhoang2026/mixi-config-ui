@@ -66,11 +66,19 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
 export interface AuthUser {
   id: string;
   email: string;
-  fullName?: string;
+  fullName?: string | null;
   firstName?: string;
   lastName?: string;
   phone?: string | null;
   avatarUrl?: string | null;
+  bio?: string | null;
+  birthday?: string | null;
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  jobTitle?: string | null;
+  department?: string | null;
+  website?: string | null;
   tenantId?: string | null;
   tenantCode?: string | null;
   tenantName?: string | null;

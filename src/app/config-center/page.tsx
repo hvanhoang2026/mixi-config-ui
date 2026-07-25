@@ -39,7 +39,7 @@ const emptyEnvironment: EnvironmentForm = { name: '', code: '', description: '' 
 
 export default function ConfigCenterPage() {
   const router = useRouter();
-  const { initialized, isAuthenticated, user, logout } = useAuth();
+  const { initialized, isAuthenticated, user, logout, updateUser } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<ConfigSection>('config');
@@ -301,14 +301,14 @@ export default function ConfigCenterPage() {
     tenantName: user?.tenantName ?? 'Config Center workspace',
     fullName: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
     phone: user?.phone,
-    bio: undefined,
-    birthday: undefined,
-    address: undefined,
-    city: undefined,
-    country: undefined,
-    jobTitle: user?.roles?.[0] ?? 'SUPERADMIN',
-    department: 'Configuration',
-    website: undefined,
+    bio: user?.bio,
+    birthday: user?.birthday,
+    address: user?.address,
+    city: user?.city,
+    country: user?.country,
+    jobTitle: user?.jobTitle ?? user?.roles?.[0] ?? 'SUPERADMIN',
+    department: user?.department ?? 'Configuration',
+    website: user?.website,
   };
   const shellMenu: MixiAdminMenuItem[] = [
     {
@@ -439,6 +439,13 @@ export default function ConfigCenterPage() {
             user={shellUser}
             authApiBaseUrl={publicEnv.authApiBaseUrl}
             ecmApiBaseUrl={publicEnv.ecmApiBaseUrl}
+            onUserUpdated={({ role, ...updates }) =>
+              updateUser({
+                ...updates,
+                email: updates.email ?? user?.email,
+                roles: role ? [role] : user?.roles,
+              })
+            }
           />
         ) : (
           <>
