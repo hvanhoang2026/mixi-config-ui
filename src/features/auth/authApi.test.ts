@@ -1,5 +1,25 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { authApi } from "./authApi";
+import { authApi, normalizeAccountSettings } from "./authApi";
+
+describe("normalizeAccountSettings", () => {
+  it("extracts workspace preferences and notifications from the profile response", () => {
+    expect(
+      normalizeAccountSettings({
+        locale: "vi-VN",
+        timeZone: "Asia/Ho_Chi_Minh",
+        theme: "lara-dark-purple",
+        colorScheme: "dark",
+        notifications: { email: false, sms: true, inApp: true },
+      }),
+    ).toEqual({
+      locale: "vi-VN",
+      timeZone: "Asia/Ho_Chi_Minh",
+      theme: "lara-dark-purple",
+      colorScheme: "dark",
+      notifications: { email: false, sms: true, inApp: true },
+    });
+  });
+});
 
 describe("authApi.getMfaStatus", () => {
   afterEach(() => {

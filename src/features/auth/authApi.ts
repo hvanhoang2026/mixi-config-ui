@@ -96,6 +96,26 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
+export interface AccountSettings {
+  locale?: string;
+  timeZone?: string;
+  theme?: string;
+  colorScheme?: "light" | "dark";
+  notifications?: Record<string, boolean | undefined>;
+}
+
+export function normalizeAccountSettings(
+  profile?: Partial<AuthUser> | null,
+): AccountSettings {
+  return {
+    locale: profile?.locale ?? undefined,
+    timeZone: profile?.timeZone ?? undefined,
+    theme: profile?.theme ?? undefined,
+    colorScheme: profile?.colorScheme ?? undefined,
+    notifications: profile?.notifications ?? undefined,
+  };
+}
+
 export interface MfaRequiredResponse {
   requiresMfa: true;
   message?: string;
@@ -297,6 +317,20 @@ export const authApi = {
       `${AUTH_BASE_URL}/auth/mfa/status`,
       accessToken,
     ),
+  updateMySettings: async (accessToken: string, data: AccountSettings) => {
+    const response = await requestWithAuth<{
+      profile?: Partial<AuthUser> | null;
+    }>(
+      `${AUTH_BASE_URL}/users/me/settings`,
+      accessToken,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      },
+    );
+    return { profile: normalizeAccountSettings(response.profile) };
+  },
 };
 
 export { AUTH_REFRESHED_EVENT };

@@ -14,7 +14,7 @@ import {
 } from '@w-iris/react';
 import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
-import { authApi } from '../../features/auth/authApi';
+import { authApi, normalizeAccountSettings, type AccountSettings } from '../../features/auth/authApi';
 import { API_BASE, api } from '../../features/config-center/api';
 import { publicEnv } from '../../shared/config/public-env';
 import { Button } from 'primereact/button';
@@ -32,6 +32,12 @@ import type {
   ProjectForm,
   ServiceForm,
 } from '../../features/config-center/form-types';
+import {
+  toConfigForm,
+  toEnvironmentForm,
+  toProjectForm,
+  toServiceForm,
+} from '../../features/config-center/form-payloads';
 import { useCrud } from '../../features/config-center/hooks/use-crud';
 import type { Config, Environment, HistoryItem, Project, Service } from '../../features/config-center/types';
 
@@ -79,6 +85,12 @@ export default function ConfigCenterPage() {
     queryFn: () => authApi.getMfaStatus(accessToken!),
     enabled: initialized && isAuthenticated && !!accessToken && activeAccountPage === 'security',
   });
+  const accountSettingsKey = ['auth', 'account-settings', user?.id] as const;
+  const accountSettings = useQuery({
+    queryKey: accountSettingsKey,
+    queryFn: async () => normalizeAccountSettings((await authApi.getMyProfile(accessToken!)).profile),
+    enabled: initialized && isAuthenticated && !!accessToken && activeAccountPage === 'settings',
+  });
 
   const projectOptions = useMemo(() => projects.data ?? [], [projects.data]);
   const serviceOptions = useMemo(() => services.data ?? [], [services.data]);
@@ -120,10 +132,10 @@ export default function ConfigCenterPage() {
 
   useEffect(() => {
     if (!editTarget?.item) return;
-    if (editTarget.type === 'project') projectForm.reset(editTarget.item as Project);
-    if (editTarget.type === 'service') serviceForm.reset(editTarget.item as Service);
-    if (editTarget.type === 'environment') environmentForm.reset(editTarget.item as Environment);
-    if (editTarget.type === 'config') configForm.reset(editTarget.item as Config);
+    if (editTarget.type === 'project') projectForm.reset(toProjectForm(editTarget.item));
+    if (editTarget.type === 'service') serviceForm.reset(toServiceForm(editTarget.item));
+    if (editTarget.type === 'environment') environmentForm.reset(toEnvironmentForm(editTarget.item));
+    if (editTarget.type === 'config') configForm.reset(toConfigForm(editTarget.item));
   }, [editTarget, projectForm, serviceForm, environmentForm, configForm]);
 
   useEffect(() => {
@@ -181,16 +193,16 @@ export default function ConfigCenterPage() {
     const id = editTarget.item?.id;
     switch (editTarget.type) {
       case 'project':
-        await saveEntity(mutations.project, values as ProjectForm, id);
+        await saveEntity(mutations.project, toProjectForm(values), id);
         break;
       case 'service':
-        await saveEntity(mutations.service, values as ServiceForm, id);
+        await saveEntity(mutations.service, toServiceForm(values), id);
         break;
       case 'environment':
-        await saveEntity(mutations.environment, values as EnvironmentForm, id);
+        await saveEntity(mutations.environment, toEnvironmentForm(values), id);
         break;
       case 'config':
-        await saveEntity(mutations.config, values as ConfigForm, id);
+        await saveEntity(mutations.config, toConfigForm(values), id);
         break;
     }
     resetForm(editTarget.type);
@@ -449,11 +461,21 @@ export default function ConfigCenterPage() {
               theme: user?.theme ?? undefined,
               colorScheme: user?.colorScheme ?? undefined,
               notifications: user?.notifications ?? undefined,
+              ...accountSettings.data,
             }}
-            activeTheme={user?.theme ?? undefined}
+            activeTheme={accountSettings.data?.theme ?? user?.theme ?? undefined}
             mfaEnabled={mfaStatus.data?.enabled ?? false}
             authApiBaseUrl={publicEnv.authApiBaseUrl}
             ecmApiBaseUrl={publicEnv.ecmApiBaseUrl}
+            api={{
+              updateMySettings: async (token, nextSettings) => {
+                const response = await authApi.updateMySettings(token, nextSettings);
+                const savedSettings = response.profile ?? nextSettings;
+                queryClient.setQueryData(accountSettingsKey, savedSettings);
+                updateUser(savedSettings);
+                return { profile: savedSettings };
+              },
+            }}
             onMfaEnabledChange={(enabled) => {
               queryClient.setQueryData(['auth', 'mfa-status', user?.id], { enabled });
             }}
@@ -464,7 +486,13 @@ export default function ConfigCenterPage() {
                 roles: role ? [role] : user?.roles,
               })
             }
-            onSettingsUpdated={(updates) => updateUser(updates)}
+            onSettingsUpdated={(updates) => {
+              queryClient.setQueryData<AccountSettings>(accountSettingsKey, (current = {}) => ({
+                ...current,
+                ...updates,
+              }));
+              updateUser(updates);
+            }}
           />
         ) : (
           <>
