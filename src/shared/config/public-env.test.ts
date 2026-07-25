@@ -27,5 +27,6 @@ describe("resolvePublicEnv", () => {
 
     expect(env.authApiBaseUrl).toBe("https://w-gateway.vercel.app/auth");
     expect(env.configApiBaseUrl).toBe("https://w-gateway.vercel.app/config");
+    expect(env.ecmApiBaseUrl).toBe("https://w-gateway.vercel.app/ecm");
   });
 });

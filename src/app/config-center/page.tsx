@@ -15,6 +15,7 @@ import {
 import { AuthGuard } from '../../features/auth/auth-guard';
 import { useAuth } from '../../features/auth/AuthProvider';
 import { API_BASE, api } from '../../features/config-center/api';
+import { publicEnv } from '../../shared/config/public-env';
 import { Button } from 'primereact/button';
 import { DashboardHeader } from '../../features/config-center/components/dashboard/dashboard-header';
 import { EntityDialog } from '../../features/config-center/components/dialogs/entity-dialog';
@@ -433,7 +434,12 @@ export default function ConfigCenterPage() {
         }
       >
         {activeAccountPage ? (
-          <MixiAccountPages page={activeAccountPage} user={shellUser} />
+          <MixiAccountPages
+            page={activeAccountPage}
+            user={shellUser}
+            authApiBaseUrl={publicEnv.authApiBaseUrl}
+            ecmApiBaseUrl={publicEnv.ecmApiBaseUrl}
+          />
         ) : (
           <>
             <DashboardHeader

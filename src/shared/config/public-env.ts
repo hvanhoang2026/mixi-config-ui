@@ -36,6 +36,7 @@ export function resolvePublicEnv({
   return Object.freeze({
     authApiBaseUrl: `${baseUrl}/auth`,
     configApiBaseUrl: `${baseUrl}/config`,
+    ecmApiBaseUrl: `${baseUrl}/ecm`,
   });
 }
 
