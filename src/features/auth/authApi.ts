@@ -79,6 +79,11 @@ export interface AuthUser {
   jobTitle?: string | null;
   department?: string | null;
   website?: string | null;
+  locale?: string | null;
+  timeZone?: string | null;
+  theme?: string | null;
+  colorScheme?: "light" | "dark" | null;
+  notifications?: Record<string, boolean | undefined> | null;
   tenantId?: string | null;
   tenantCode?: string | null;
   tenantName?: string | null;

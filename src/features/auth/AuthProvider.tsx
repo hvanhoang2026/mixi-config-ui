@@ -48,6 +48,7 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null);
 const SHARED_AUTH_EVENT = "mixi:auth";
 const SHARED_TOKEN_KEY = "mixi.shared.accessToken";
+const SHARED_PROFILE_KEY = "mixi.shared.profile";
 const SHARED_TENANT_ID_KEY = "mixi.shared.tenantId";
 const SHARED_TENANT_CODE_KEY = "mixi.shared.tenantCode";
 const SHARED_TENANT_NAME_KEY = "mixi.shared.tenantName";
@@ -251,6 +252,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isSuperAdmin = state.user?.roles?.includes("SUPERADMIN") ?? false;
     if (state.accessToken) {
       window.localStorage.setItem(SHARED_TOKEN_KEY, state.accessToken);
+      if (state.user) {
+        window.localStorage.setItem(
+          SHARED_PROFILE_KEY,
+          JSON.stringify(state.user),
+        );
+      }
       window.localStorage.setItem(
         SHARED_ROLES_KEY,
         JSON.stringify(state.user?.roles ?? []),
@@ -272,6 +279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else window.localStorage.removeItem(SHARED_TENANT_NAME_KEY);
     } else {
       window.localStorage.removeItem(SHARED_TOKEN_KEY);
+      window.localStorage.removeItem(SHARED_PROFILE_KEY);
       window.localStorage.removeItem(SHARED_TENANT_ID_KEY);
       window.localStorage.removeItem(SHARED_TENANT_CODE_KEY);
       window.localStorage.removeItem(SHARED_TENANT_NAME_KEY);

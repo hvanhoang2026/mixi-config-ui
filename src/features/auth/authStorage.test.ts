@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isTokenExpired, readStoredAuth } from "./authStorage";
+import { isTokenExpired, readStoredAuth, writeStoredAuth } from "./authStorage";
 
 const STORAGE_KEY = "mixi-config-auth";
 
@@ -27,5 +27,32 @@ describe("authStorage", () => {
 
     const payload = window.btoa(JSON.stringify({ exp: 1 }));
     expect(isTokenExpired(`header.${payload}.signature`)).toBe(true);
+  });
+
+  it("persists account settings with the authenticated user", () => {
+    writeStoredAuth(
+      {
+        accessToken: "access-token",
+        refreshToken: "refresh-token",
+        user: {
+          id: "user-1",
+          email: "user@example.com",
+          locale: "vi-VN",
+          timeZone: "Asia/Ho_Chi_Minh",
+          theme: "lara-dark-purple",
+          colorScheme: "dark",
+          notifications: { email: false, sms: true, inApp: true },
+        },
+      },
+      false,
+    );
+
+    expect(readStoredAuth()?.user).toMatchObject({
+      locale: "vi-VN",
+      timeZone: "Asia/Ho_Chi_Minh",
+      theme: "lara-dark-purple",
+      colorScheme: "dark",
+      notifications: { email: false, sms: true, inApp: true },
+    });
   });
 });

@@ -443,6 +443,14 @@ export default function ConfigCenterPage() {
           <MixiAccountPages
             page={activeAccountPage}
             user={shellUser}
+            settings={{
+              locale: user?.locale ?? undefined,
+              timeZone: user?.timeZone ?? undefined,
+              theme: user?.theme ?? undefined,
+              colorScheme: user?.colorScheme ?? undefined,
+              notifications: user?.notifications ?? undefined,
+            }}
+            activeTheme={user?.theme ?? undefined}
             mfaEnabled={mfaStatus.data?.enabled ?? false}
             authApiBaseUrl={publicEnv.authApiBaseUrl}
             ecmApiBaseUrl={publicEnv.ecmApiBaseUrl}
@@ -456,6 +464,7 @@ export default function ConfigCenterPage() {
                 roles: role ? [role] : user?.roles,
               })
             }
+            onSettingsUpdated={(updates) => updateUser(updates)}
           />
         ) : (
           <>
