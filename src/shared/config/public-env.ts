@@ -1,6 +1,4 @@
-const DEFAULT_AUTH_API_BASE_URL = "http://localhost:3001/api";
-const PRODUCTION_AUTH_API_BASE_URL = "https://w-gateway.vercel.app/auth";
-const DEFAULT_CONFIG_API_BASE_URL = "https://w-gateway.vercel.app/config";
+const DEFAULT_GATEWAY_URL = "https://w-gateway.vercel.app";
 
 function readHttpUrl(
   name: string,
@@ -24,32 +22,21 @@ function readHttpUrl(
 }
 
 export function resolvePublicEnv({
-  nodeEnv,
-  authApiBaseUrl,
-  configApiBaseUrl,
+  gatewayUrl,
 }: {
-  nodeEnv: string | undefined;
-  authApiBaseUrl: string | undefined;
-  configApiBaseUrl: string | undefined;
+  gatewayUrl: string | undefined;
 }) {
+  const baseUrl = readHttpUrl(
+    "W_API_PROXY_TARGET",
+    gatewayUrl,
+    DEFAULT_GATEWAY_URL,
+  );
   return Object.freeze({
-    authApiBaseUrl: readHttpUrl(
-      "NEXT_PUBLIC_AUTH_API_BASE_URL",
-      authApiBaseUrl,
-      nodeEnv === "production"
-        ? PRODUCTION_AUTH_API_BASE_URL
-        : DEFAULT_AUTH_API_BASE_URL,
-    ),
-    configApiBaseUrl: readHttpUrl(
-      "NEXT_PUBLIC_CONFIG_API_BASE_URL",
-      configApiBaseUrl,
-      DEFAULT_CONFIG_API_BASE_URL,
-    ),
+    authApiBaseUrl: `${baseUrl}/auth`,
+    configApiBaseUrl: `${baseUrl}/config`,
   });
 }
 
 export const publicEnv = resolvePublicEnv({
-  nodeEnv: process.env.NODE_ENV,
-  authApiBaseUrl: process.env.NEXT_PUBLIC_AUTH_API_BASE_URL,
-  configApiBaseUrl: process.env.NEXT_PUBLIC_CONFIG_API_BASE_URL,
+  gatewayUrl: process.env.W_API_PROXY_TARGET,
 });

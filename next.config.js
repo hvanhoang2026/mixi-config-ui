@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    W_API_PROXY_TARGET:
+      process.env.W_API_PROXY_TARGET || "https://w-gateway.vercel.app",
+  },
   distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   async headers() {
