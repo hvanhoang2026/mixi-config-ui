@@ -5,20 +5,22 @@ function readHttpUrl(
   value: string | undefined,
   fallback?: string,
 ) {
-  const candidate = value?.trim() || fallback;
-  if (!candidate) {
-    throw new Error(`${name} is required.`);
+  const candidates = [value?.trim(), fallback].filter(
+    (candidate): candidate is string => Boolean(candidate),
+  );
+
+  for (const candidate of candidates) {
+    try {
+      const url = new URL(candidate);
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        return url.toString().replace(/\/$/, "");
+      }
+    } catch {
+      // Try the safe default when a deployment variable is malformed.
+    }
   }
 
-  try {
-    const url = new URL(candidate);
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      throw new Error("unsupported protocol");
-    }
-    return url.toString().replace(/\/$/, "");
-  } catch {
-    throw new Error(`${name} must be a valid HTTP(S) URL.`);
-  }
+  throw new Error(`${name} must be a valid HTTP(S) URL.`);
 }
 
 export function resolvePublicEnv({

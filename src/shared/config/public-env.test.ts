@@ -19,4 +19,13 @@ describe("resolvePublicEnv", () => {
 
     expect(env.authApiBaseUrl).toBe("https://w-gateway.vercel.app/auth");
   });
+
+  it("uses the safe gateway when the deployment variable is malformed", () => {
+    const env = resolvePublicEnv({
+      gatewayUrl: "W_API_PROXY_TARGET=https://w-gateway.vercel.app",
+    });
+
+    expect(env.authApiBaseUrl).toBe("https://w-gateway.vercel.app/auth");
+    expect(env.configApiBaseUrl).toBe("https://w-gateway.vercel.app/config");
+  });
 });
