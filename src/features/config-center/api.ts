@@ -6,11 +6,16 @@ import { publicEnv } from "../../shared/config/public-env";
 
 export const API_BASE = publicEnv.configApiBaseUrl;
 
-export async function api<T>(path: string, init?: RequestInit): Promise<T> {
+export async function api<T>(
+  path: string,
+  init?: RequestInit,
+  timeoutMs?: number,
+): Promise<T> {
   const stored = readStoredAuth();
   return requestWithAuth<T>(
     `${API_BASE}${path}`,
     stored?.accessToken ?? null,
     init,
+    timeoutMs,
   );
 }

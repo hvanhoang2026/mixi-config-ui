@@ -47,12 +47,13 @@ function readErrorMessage(value: unknown, fallback: string) {
   return fallback;
 }
 
-async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+) {
   const controller = new AbortController();
-  const timeout = window.setTimeout(
-    () => controller.abort(),
-    REQUEST_TIMEOUT_MS,
-  );
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(input, {
       ...init,
@@ -213,6 +214,7 @@ export async function requestWithAuth<T>(
   input: string,
   accessToken: string | null,
   init?: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS,
 ): Promise<T> {
   let effectiveToken: string | null = accessToken;
 
@@ -228,6 +230,7 @@ export async function requestWithAuth<T>(
     const response = await fetchWithTimeout(
       input,
       withBearerToken(init, effectiveToken),
+      timeoutMs,
     );
     if (!response.ok) {
       let message = response.statusText || "Request failed";
@@ -261,6 +264,7 @@ export async function requestWithAuth<T>(
     const retried = await fetchWithTimeout(
       input,
       withBearerToken(init, refreshedToken),
+      timeoutMs,
     );
     if (!retried.ok) {
       if (retried.status === 401) {
@@ -320,15 +324,11 @@ export const authApi = {
   updateMySettings: async (accessToken: string, data: AccountSettings) => {
     const response = await requestWithAuth<{
       profile?: Partial<AuthUser> | null;
-    }>(
-      `${AUTH_BASE_URL}/users/me/settings`,
-      accessToken,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      },
-    );
+    }>(`${AUTH_BASE_URL}/users/me/settings`, accessToken, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
     return { profile: normalizeAccountSettings(response.profile) };
   },
 };

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AdminUserMenu,
   MixiAccountPages,
@@ -11,17 +11,21 @@ import {
   createMixiAccountMenuItems,
   type MixiAccountPagesProps,
   type MixiAdminMenuItem,
-} from '@w-iris/react';
-import { AuthGuard } from '../../features/auth/auth-guard';
-import { useAuth } from '../../features/auth/AuthProvider';
-import { authApi, normalizeAccountSettings, type AccountSettings } from '../../features/auth/authApi';
-import { API_BASE, api } from '../../features/config-center/api';
-import { publicEnv } from '../../shared/config/public-env';
-import { Button } from 'primereact/button';
-import { DashboardHeader } from '../../features/config-center/components/dashboard/dashboard-header';
-import { EntityDialog } from '../../features/config-center/components/dialogs/entity-dialog';
-import { ImportEnvDialog } from '../../features/config-center/components/dialogs/import-env-dialog';
-import { EntityTabs } from '../../features/config-center/components/entities/entity-tabs';
+} from "@w-iris/react";
+import { AuthGuard } from "../../features/auth/auth-guard";
+import { useAuth } from "../../features/auth/AuthProvider";
+import {
+  authApi,
+  normalizeAccountSettings,
+  type AccountSettings,
+} from "../../features/auth/authApi";
+import { API_BASE, api } from "../../features/config-center/api";
+import { publicEnv } from "../../shared/config/public-env";
+import { Button } from "primereact/button";
+import { DashboardHeader } from "../../features/config-center/components/dashboard/dashboard-header";
+import { EntityDialog } from "../../features/config-center/components/dialogs/entity-dialog";
+import { ImportEnvDialog } from "../../features/config-center/components/dialogs/import-env-dialog";
+import { EntityTabs } from "../../features/config-center/components/entities/entity-tabs";
 import type {
   ConfigSection,
   ConfigForm,
@@ -31,65 +35,102 @@ import type {
   EnvironmentForm,
   ProjectForm,
   ServiceForm,
-} from '../../features/config-center/form-types';
+} from "../../features/config-center/form-types";
 import {
   toConfigForm,
   toEnvironmentForm,
   toProjectForm,
   toServiceForm,
-} from '../../features/config-center/form-payloads';
-import { useCrud } from '../../features/config-center/hooks/use-crud';
-import type { Config, Environment, HistoryItem, Project, Service } from '../../features/config-center/types';
+} from "../../features/config-center/form-payloads";
+import { useCrud } from "../../features/config-center/hooks/use-crud";
+import type {
+  Config,
+  Environment,
+  HistoryItem,
+  Project,
+  Service,
+} from "../../features/config-center/types";
 
-const emptyProject: ProjectForm = { name: '', code: '', description: '' };
-const emptyEnvironment: EnvironmentForm = { name: '', code: '', description: '' };
+const emptyProject: ProjectForm = { name: "", code: "", description: "" };
+const emptyEnvironment: EnvironmentForm = {
+  name: "",
+  code: "",
+  description: "",
+};
+const BULK_UPSERT_TIMEOUT_MS = 120_000;
 
 export default function ConfigCenterPage() {
   const router = useRouter();
-  const { initialized, isAuthenticated, accessToken, user, logout, updateUser } = useAuth();
+  const {
+    initialized,
+    isAuthenticated,
+    accessToken,
+    user,
+    logout,
+    updateUser,
+  } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<ConfigSection>('config');
+  const [activeSection, setActiveSection] = useState<ConfigSection>("config");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
-  const [search, setSearch] = useState('');
-  const [selectedServiceId, setSelectedServiceId] = useState('');
-  const [selectedEnvironmentId, setSelectedEnvironmentId] = useState('');
-  const [envText, setEnvText] = useState('DB_HOST=localhost\nDB_PORT=5432\nJWT_SECRET=abc123');
-  const [runtimeText, setRuntimeText] = useState('');
-  const [activeAccountPage, setActiveAccountPage] = useState<MixiAccountPagesProps['page'] | null>(null);
+  const [search, setSearch] = useState("");
+  const [selectedServiceId, setSelectedServiceId] = useState("");
+  const [selectedEnvironmentId, setSelectedEnvironmentId] = useState("");
+  const [envText, setEnvText] = useState(
+    "DB_HOST=localhost\nDB_PORT=5432\nJWT_SECRET=abc123",
+  );
+  const [runtimeText, setRuntimeText] = useState("");
+  const [activeAccountPage, setActiveAccountPage] = useState<
+    MixiAccountPagesProps["page"] | null
+  >(null);
 
   useEffect(() => {
-    const account = new URLSearchParams(window.location.search).get('account');
-    if (account === 'profile' || account === 'settings' || account === 'security') {
+    const account = new URLSearchParams(window.location.search).get("account");
+    if (
+      account === "profile" ||
+      account === "settings" ||
+      account === "security"
+    ) {
       setActiveAccountPage(account);
     }
   }, []);
 
-  const projects = useCrud<Project>('projects', '/projects');
-  const services = useCrud<Service>('services', '/services');
-  const environments = useCrud<Environment>('environments', '/environments');
+  const projects = useCrud<Project>("projects", "/projects");
+  const services = useCrud<Service>("services", "/services");
+  const environments = useCrud<Environment>("environments", "/environments");
   const dashboard = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: () => api<Record<string, number>>('/dashboard'),
+    queryKey: ["dashboard"],
+    queryFn: () => api<Record<string, number>>("/dashboard"),
     enabled: initialized && isAuthenticated,
   });
   const history = useQuery({
-    queryKey: ['history', activeConfigId],
+    queryKey: ["history", activeConfigId],
     queryFn: () => api<HistoryItem[]>(`/configs/${activeConfigId}/history`),
     enabled: initialized && isAuthenticated && !!activeConfigId && historyOpen,
   });
   const mfaStatus = useQuery({
-    queryKey: ['auth', 'mfa-status', user?.id],
+    queryKey: ["auth", "mfa-status", user?.id],
     queryFn: () => authApi.getMfaStatus(accessToken!),
-    enabled: initialized && isAuthenticated && !!accessToken && activeAccountPage === 'security',
+    enabled:
+      initialized &&
+      isAuthenticated &&
+      !!accessToken &&
+      activeAccountPage === "security",
   });
-  const accountSettingsKey = ['auth', 'account-settings', user?.id] as const;
+  const accountSettingsKey = ["auth", "account-settings", user?.id] as const;
   const accountSettings = useQuery({
     queryKey: accountSettingsKey,
-    queryFn: async () => normalizeAccountSettings((await authApi.getMyProfile(accessToken!)).profile),
-    enabled: initialized && isAuthenticated && !!accessToken && activeAccountPage === 'settings',
+    queryFn: async () =>
+      normalizeAccountSettings(
+        (await authApi.getMyProfile(accessToken!)).profile,
+      ),
+    enabled:
+      initialized &&
+      isAuthenticated &&
+      !!accessToken &&
+      activeAccountPage === "settings",
   });
 
   const projectOptions = useMemo(() => projects.data ?? [], [projects.data]);
@@ -98,16 +139,24 @@ export default function ConfigCenterPage() {
     () => environments.data ?? [],
     [environments.data],
   );
-  const selectedService = serviceOptions.find((service) => service.id === selectedServiceId) ?? serviceOptions[0];
-  const selectedEnvironment = environmentOptions.find((environment) => environment.id === selectedEnvironmentId) ?? environmentOptions[0];
-  const selectedProject = projectOptions.find((project) => project.id === selectedService?.projectId);
+  const selectedService =
+    serviceOptions.find((service) => service.id === selectedServiceId) ??
+    serviceOptions[0];
+  const selectedEnvironment =
+    environmentOptions.find(
+      (environment) => environment.id === selectedEnvironmentId,
+    ) ?? environmentOptions[0];
+  const selectedProject = projectOptions.find(
+    (project) => project.id === selectedService?.projectId,
+  );
   const configs = useQuery({
-    queryKey: ['configs', selectedService?.id, selectedEnvironment?.id, search],
+    queryKey: ["configs", selectedService?.id, selectedEnvironment?.id, search],
     queryFn: () => {
       const query = new URLSearchParams();
-      if (selectedEnvironment?.id) query.set('environmentId', selectedEnvironment.id);
+      if (selectedEnvironment?.id)
+        query.set("environmentId", selectedEnvironment.id);
       return api<Config[]>(
-        `/configs/service/${selectedService?.id}${query.toString() ? `?${query.toString()}` : ''}`,
+        `/configs/service/${selectedService?.id}${query.toString() ? `?${query.toString()}` : ""}`,
       );
     },
     enabled: initialized && isAuthenticated && !!selectedService?.id,
@@ -115,7 +164,7 @@ export default function ConfigCenterPage() {
       const normalizedSearch = search.trim().toLowerCase();
       if (!normalizedSearch) return items;
       return items.filter((item) =>
-        [item.key, item.value, item.description ?? ''].some((value) =>
+        [item.key, item.value, item.description ?? ""].some((value) =>
           value.toLowerCase().includes(normalizedSearch),
         ),
       );
@@ -124,44 +173,71 @@ export default function ConfigCenterPage() {
   const configItems = useMemo(() => configs.data ?? [], [configs.data]);
 
   const projectForm = useForm<ProjectForm>({ defaultValues: emptyProject });
-  const serviceForm = useForm<ServiceForm>({ defaultValues: { projectId: '', name: '', code: '', type: 'backend', description: '' } });
-  const environmentForm = useForm<EnvironmentForm>({ defaultValues: emptyEnvironment });
+  const serviceForm = useForm<ServiceForm>({
+    defaultValues: {
+      projectId: "",
+      name: "",
+      code: "",
+      type: "backend",
+      description: "",
+    },
+  });
+  const environmentForm = useForm<EnvironmentForm>({
+    defaultValues: emptyEnvironment,
+  });
   const configForm = useForm<ConfigForm>({
-    defaultValues: { projectId: '', serviceId: '', environmentId: '', key: '', value: '', description: '', isSecret: false, isRequired: false },
+    defaultValues: {
+      projectId: "",
+      serviceId: "",
+      environmentId: "",
+      key: "",
+      value: "",
+      description: "",
+      isSecret: false,
+      isRequired: false,
+    },
   });
 
   useEffect(() => {
     if (!editTarget?.item) return;
-    if (editTarget.type === 'project') projectForm.reset(toProjectForm(editTarget.item));
-    if (editTarget.type === 'service') serviceForm.reset(toServiceForm(editTarget.item));
-    if (editTarget.type === 'environment') environmentForm.reset(toEnvironmentForm(editTarget.item));
-    if (editTarget.type === 'config') configForm.reset(toConfigForm(editTarget.item));
+    if (editTarget.type === "project")
+      projectForm.reset(toProjectForm(editTarget.item));
+    if (editTarget.type === "service")
+      serviceForm.reset(toServiceForm(editTarget.item));
+    if (editTarget.type === "environment")
+      environmentForm.reset(toEnvironmentForm(editTarget.item));
+    if (editTarget.type === "config")
+      configForm.reset(toConfigForm(editTarget.item));
   }, [editTarget, projectForm, serviceForm, environmentForm, configForm]);
 
   useEffect(() => {
-    if (!selectedServiceId && serviceOptions[0]) setSelectedServiceId(serviceOptions[0].id);
+    if (!selectedServiceId && serviceOptions[0])
+      setSelectedServiceId(serviceOptions[0].id);
   }, [selectedServiceId, serviceOptions]);
 
   useEffect(() => {
-    if (!selectedEnvironmentId && environmentOptions[0]) setSelectedEnvironmentId(environmentOptions[0].id);
+    if (!selectedEnvironmentId && environmentOptions[0])
+      setSelectedEnvironmentId(environmentOptions[0].id);
   }, [selectedEnvironmentId, environmentOptions]);
 
   useEffect(() => {
-    if (!selectedService && selectedServiceId) setSelectedServiceId(serviceOptions[0]?.id ?? '');
+    if (!selectedService && selectedServiceId)
+      setSelectedServiceId(serviceOptions[0]?.id ?? "");
   }, [selectedService, selectedServiceId, serviceOptions]);
 
   useEffect(() => {
-    if (!selectedEnvironment && selectedEnvironmentId) setSelectedEnvironmentId(environmentOptions[0]?.id ?? '');
+    if (!selectedEnvironment && selectedEnvironmentId)
+      setSelectedEnvironmentId(environmentOptions[0]?.id ?? "");
   }, [selectedEnvironment, selectedEnvironmentId, environmentOptions]);
 
   useEffect(() => {
-    configForm.setValue('projectId', selectedProject?.id ?? '');
-    configForm.setValue('serviceId', selectedService?.id ?? '');
-    configForm.setValue('environmentId', selectedEnvironment?.id ?? '');
+    configForm.setValue("projectId", selectedProject?.id ?? "");
+    configForm.setValue("serviceId", selectedService?.id ?? "");
+    configForm.setValue("environmentId", selectedEnvironment?.id ?? "");
   }, [configForm, selectedEnvironment, selectedProject, selectedService]);
 
   useEffect(() => {
-    if (activeSection !== 'runtime-history') return;
+    if (activeSection !== "runtime-history") return;
 
     const firstConfig = configItems[0];
     if (!firstConfig) {
@@ -169,39 +245,48 @@ export default function ConfigCenterPage() {
       return;
     }
 
-    const activeConfigStillVisible = configItems.some((config) => config.id === activeConfigId);
+    const activeConfigStillVisible = configItems.some(
+      (config) => config.id === activeConfigId,
+    );
     if (!activeConfigId || !activeConfigStillVisible) {
       loadHistory(firstConfig.id);
     }
   }, [activeConfigId, activeSection, configItems]);
 
   const mutations = {
-    project: useEntityMutations<ProjectForm>('projects', '/projects'),
-    service: useEntityMutations<ServiceForm>('services', '/services'),
-    environment: useEntityMutations<EnvironmentForm>('environments', '/environments'),
-    config: useEntityMutations<ConfigForm>('configs', '/configs'),
+    project: useEntityMutations<ProjectForm>("projects", "/projects"),
+    service: useEntityMutations<ServiceForm>("services", "/services"),
+    environment: useEntityMutations<EnvironmentForm>(
+      "environments",
+      "/environments",
+    ),
+    config: useEntityMutations<ConfigForm>("configs", "/configs"),
   };
 
   async function invalidateAll() {
-    await Promise.all(['projects', 'services', 'environments', 'configs', 'dashboard'].map(
-      (key) => queryClient.invalidateQueries({ queryKey: [key] }),
-    ));
+    await Promise.all(
+      ["projects", "services", "environments", "configs", "dashboard"].map(
+        (key) => queryClient.invalidateQueries({ queryKey: [key] }),
+      ),
+    );
   }
 
-  async function submitForm(values: ProjectForm | ServiceForm | EnvironmentForm | ConfigForm) {
+  async function submitForm(
+    values: ProjectForm | ServiceForm | EnvironmentForm | ConfigForm,
+  ) {
     if (!editTarget) return;
     const id = editTarget.item?.id;
     switch (editTarget.type) {
-      case 'project':
+      case "project":
         await saveEntity(mutations.project, toProjectForm(values), id);
         break;
-      case 'service':
+      case "service":
         await saveEntity(mutations.service, toServiceForm(values), id);
         break;
-      case 'environment':
+      case "environment":
         await saveEntity(mutations.environment, toEnvironmentForm(values), id);
         break;
-      case 'config':
+      case "config":
         await saveEntity(mutations.config, toConfigForm(values), id);
         break;
     }
@@ -211,19 +296,27 @@ export default function ConfigCenterPage() {
   }
 
   function resetForm(type: EntityType) {
-    if (type === 'project') projectForm.reset(emptyProject);
-    if (type === 'service') serviceForm.reset({ projectId: selectedProject?.id ?? projectOptions[0]?.id ?? '', name: '', code: '', type: 'backend', description: '' });
-    if (type === 'environment') environmentForm.reset(emptyEnvironment);
-    if (type === 'config') configForm.reset({
-      projectId: selectedProject?.id ?? '',
-      serviceId: selectedService?.id ?? '',
-      environmentId: selectedEnvironment?.id ?? '',
-      key: '',
-      value: '',
-      description: '',
-      isSecret: false,
-      isRequired: false,
-    });
+    if (type === "project") projectForm.reset(emptyProject);
+    if (type === "service")
+      serviceForm.reset({
+        projectId: selectedProject?.id ?? projectOptions[0]?.id ?? "",
+        name: "",
+        code: "",
+        type: "backend",
+        description: "",
+      });
+    if (type === "environment") environmentForm.reset(emptyEnvironment);
+    if (type === "config")
+      configForm.reset({
+        projectId: selectedProject?.id ?? "",
+        serviceId: selectedService?.id ?? "",
+        environmentId: selectedEnvironment?.id ?? "",
+        key: "",
+        value: "",
+        description: "",
+        isSecret: false,
+        isRequired: false,
+      });
   }
 
   function addEntity(type: EntityType) {
@@ -238,38 +331,45 @@ export default function ConfigCenterPage() {
 
   async function saveConfigValue(config: Config, value: string) {
     const updated = await api<Config>(`/configs/${config.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         projectId: config.projectId,
         serviceId: config.serviceId,
         environmentId: config.environmentId,
         key: config.key,
         value,
-        description: config.description ?? '',
+        description: config.description ?? "",
         isSecret: config.isSecret,
         isRequired: config.isRequired,
       }),
     });
 
-    queryClient.setQueriesData<Config[]>({ queryKey: ['configs'] }, (current) =>
-      current?.map((item) => (item.id === updated.id ? updated : item)) ?? current,
+    queryClient.setQueriesData<Config[]>(
+      { queryKey: ["configs"] },
+      (current) =>
+        current?.map((item) => (item.id === updated.id ? updated : item)) ??
+        current,
     );
   }
 
   async function bulkSaveConfigs(lines: Array<{ key: string; value: string }>) {
     if (!selectedService || !selectedEnvironment) return;
 
-    await api('/configs/bulk-upsert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    await api(
+      "/configs/bulk-upsert",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           projectId: selectedProject?.id ?? selectedService.projectId,
           serviceId: selectedService.id,
           environmentId: selectedEnvironment.id,
-        entries: lines,
-      }),
-    });
+          entries: lines,
+        }),
+      },
+      BULK_UPSERT_TIMEOUT_MS,
+    );
 
     await invalidateAll();
   }
@@ -277,7 +377,7 @@ export default function ConfigCenterPage() {
   function loadHistory(configId: string) {
     setActiveConfigId(configId);
     setHistoryOpen(true);
-    setActiveSection('runtime-history');
+    setActiveSection("runtime-history");
   }
 
   async function loadRuntime() {
@@ -292,19 +392,27 @@ export default function ConfigCenterPage() {
   }
 
   const contentMenu = [
-    { key: 'service', label: 'Services', icon: 'pi pi-briefcase' },
-    { key: 'environment', label: 'Environments', icon: 'pi pi-globe' },
-    { key: 'config', label: 'Service Configs', icon: 'pi pi-sliders-h' },
-    { key: 'runtime-history', label: 'Runtime & History', icon: 'pi pi-history' },
-    { key: 'project', label: 'Projects', icon: 'pi pi-folder' },
-  ] as const satisfies ReadonlyArray<{ key: ConfigSection; label: string; icon: string }>;
+    { key: "service", label: "Services", icon: "pi pi-briefcase" },
+    { key: "environment", label: "Environments", icon: "pi pi-globe" },
+    { key: "config", label: "Service Configs", icon: "pi pi-sliders-h" },
+    {
+      key: "runtime-history",
+      label: "Runtime & History",
+      icon: "pi pi-history",
+    },
+    { key: "project", label: "Projects", icon: "pi pi-folder" },
+  ] as const satisfies ReadonlyArray<{
+    key: ConfigSection;
+    label: string;
+    icon: string;
+  }>;
 
   const canRunScopedActions = !!selectedService && !!selectedEnvironment;
   const accountPaths = useMemo(
     () => ({
-      profile: '/config-center?account=profile',
-      settings: '/config-center?account=settings',
-      security: '/config-center?account=security',
+      profile: "/config-center?account=profile",
+      settings: "/config-center?account=settings",
+      security: "/config-center?account=security",
     }),
     [],
   );
@@ -312,37 +420,52 @@ export default function ConfigCenterPage() {
     ? accountPaths[activeAccountPage]
     : `/config-center/${activeSection}`;
   const shellUser = {
-    name: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
+    name:
+      user?.fullName ||
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.email,
     email: user?.email,
-    role: user?.roles?.[0] ?? 'SUPERADMIN',
+    role: user?.roles?.[0] ?? "SUPERADMIN",
     avatarUrl: user?.avatarUrl ?? undefined,
-    tenantName: user?.tenantName ?? 'Config Center workspace',
-    fullName: user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email,
+    tenantName: user?.tenantName ?? "Config Center workspace",
+    fullName:
+      user?.fullName ||
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.email,
     phone: user?.phone,
     bio: user?.bio,
     birthday: user?.birthday,
     address: user?.address,
     city: user?.city,
     country: user?.country,
-    jobTitle: user?.jobTitle ?? user?.roles?.[0] ?? 'SUPERADMIN',
-    department: user?.department ?? 'Configuration',
+    jobTitle: user?.jobTitle ?? user?.roles?.[0] ?? "SUPERADMIN",
+    department: user?.department ?? "Configuration",
     website: user?.website,
   };
   const shellMenu: MixiAdminMenuItem[] = [
     {
-      label: 'Workspace',
-      icon: 'pi pi-fw pi-sliders-h',
+      label: "Workspace",
+      icon: "pi pi-fw pi-sliders-h",
       items: [
-        { label: 'Config Center', icon: 'pi pi-fw pi-sliders-h', href: '/config-center/config' },
-        { label: 'Mixi Admin', icon: 'pi pi-fw pi-arrow-up-right', url: 'http://localhost:3000/main', target: '_blank' },
+        {
+          label: "Config Center",
+          icon: "pi pi-fw pi-sliders-h",
+          href: "/config-center/config",
+        },
+        {
+          label: "Mixi Admin",
+          icon: "pi pi-fw pi-arrow-up-right",
+          url: "http://localhost:3000/main",
+          target: "_blank",
+        },
       ],
     },
     {
-      label: 'Content',
-      icon: 'pi pi-fw pi-folder-open',
+      label: "Content",
+      icon: "pi pi-fw pi-folder-open",
       items: contentMenu.map((item) => ({
         label: item.label,
-        icon: `pi pi-fw ${item.icon.replace('pi ', '')}`,
+        icon: `pi pi-fw ${item.icon.replace("pi ", "")}`,
         href: `/config-center/${item.key}`,
       })),
     },
@@ -373,11 +496,13 @@ export default function ConfigCenterPage() {
         outlined
         onClick={async () => {
           const query = new URLSearchParams({
-            projectId: selectedProject?.id ?? '',
-            serviceId: selectedService?.id ?? '',
-            environmentId: selectedEnvironment?.id ?? '',
+            projectId: selectedProject?.id ?? "",
+            serviceId: selectedService?.id ?? "",
+            environmentId: selectedEnvironment?.id ?? "",
           }).toString();
-          setRuntimeText(await api<string>(`/configs/export-env${query ? `?${query}` : ''}`));
+          setRuntimeText(
+            await api<string>(`/configs/export-env${query ? `?${query}` : ""}`),
+          );
         }}
         disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--ghost"
@@ -388,16 +513,16 @@ export default function ConfigCenterPage() {
         icon="pi pi-sync"
         outlined
         onClick={async () => {
-          await api('/configs/reload-cache', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          await api("/configs/reload-cache", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              projectId: selectedProject?.id ?? '',
-              serviceId: selectedService?.id ?? '',
-              environmentId: selectedEnvironment?.id ?? '',
+              projectId: selectedProject?.id ?? "",
+              serviceId: selectedService?.id ?? "",
+              environmentId: selectedEnvironment?.id ?? "",
             }),
           });
-          await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+          await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
         }}
         disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--ghost"
@@ -415,17 +540,27 @@ export default function ConfigCenterPage() {
         menu={shellMenu}
         activePath={activePath}
         onNavigate={(href) => {
-          const account = new URL(href, window.location.origin).searchParams.get('account');
-          if (account === 'profile' || account === 'settings' || account === 'security') {
-            window.history.pushState(null, '', href);
+          const account = new URL(
+            href,
+            window.location.origin,
+          ).searchParams.get("account");
+          if (
+            account === "profile" ||
+            account === "settings" ||
+            account === "security"
+          ) {
+            window.history.pushState(null, "", href);
             setActiveAccountPage(account);
             return;
           }
 
           setActiveAccountPage(null);
-          const nextSection = href.replace('/config-center/', '') as ConfigSection;
+          const nextSection = href.replace(
+            "/config-center/",
+            "",
+          ) as ConfigSection;
           if (contentMenu.some((item) => item.key === nextSection)) {
-            window.history.pushState(null, '', href);
+            window.history.pushState(null, "", href);
             setActiveSection(nextSection);
             return;
           }
@@ -434,19 +569,23 @@ export default function ConfigCenterPage() {
         user={
           <AdminUserMenu
             user={shellUser}
-            items={createMixiAccountMenuItems(
-              (href) => {
-                const account = new URL(href, window.location.origin).searchParams.get('account');
-                if (account === 'profile' || account === 'settings' || account === 'security') {
-                  window.history.pushState(null, '', href);
-                  setActiveAccountPage(account);
-                }
-              },
-              accountPaths,
-            )}
+            items={createMixiAccountMenuItems((href) => {
+              const account = new URL(
+                href,
+                window.location.origin,
+              ).searchParams.get("account");
+              if (
+                account === "profile" ||
+                account === "settings" ||
+                account === "security"
+              ) {
+                window.history.pushState(null, "", href);
+                setActiveAccountPage(account);
+              }
+            }, accountPaths)}
             onLogout={async () => {
               await logout();
-              router.replace('/login');
+              router.replace("/login");
             }}
           />
         }
@@ -463,13 +602,18 @@ export default function ConfigCenterPage() {
               notifications: user?.notifications ?? undefined,
               ...accountSettings.data,
             }}
-            activeTheme={accountSettings.data?.theme ?? user?.theme ?? undefined}
+            activeTheme={
+              accountSettings.data?.theme ?? user?.theme ?? undefined
+            }
             mfaEnabled={mfaStatus.data?.enabled ?? false}
             authApiBaseUrl={publicEnv.authApiBaseUrl}
             ecmApiBaseUrl={publicEnv.ecmApiBaseUrl}
             api={{
               updateMySettings: async (token, nextSettings) => {
-                const response = await authApi.updateMySettings(token, nextSettings);
+                const response = await authApi.updateMySettings(
+                  token,
+                  nextSettings,
+                );
                 const savedSettings = response.profile ?? nextSettings;
                 queryClient.setQueryData(accountSettingsKey, savedSettings);
                 updateUser(savedSettings);
@@ -477,7 +621,9 @@ export default function ConfigCenterPage() {
               },
             }}
             onMfaEnabledChange={(enabled) => {
-              queryClient.setQueryData(['auth', 'mfa-status', user?.id], { enabled });
+              queryClient.setQueryData(["auth", "mfa-status", user?.id], {
+                enabled,
+              });
             }}
             onUserUpdated={({ role, ...updates }) =>
               updateUser({
@@ -487,10 +633,13 @@ export default function ConfigCenterPage() {
               })
             }
             onSettingsUpdated={(updates) => {
-              queryClient.setQueryData<AccountSettings>(accountSettingsKey, (current = {}) => ({
-                ...current,
-                ...updates,
-              }));
+              queryClient.setQueryData<AccountSettings>(
+                accountSettingsKey,
+                (current = {}) => ({
+                  ...current,
+                  ...updates,
+                }),
+              );
               updateUser(updates);
             }}
           />
@@ -498,12 +647,19 @@ export default function ConfigCenterPage() {
           <>
             <DashboardHeader
               dashboard={dashboard.data}
-              loading={initialized && isAuthenticated && (dashboard.isLoading || projects.isLoading || services.isLoading || environments.isLoading)}
+              loading={
+                initialized &&
+                isAuthenticated &&
+                (dashboard.isLoading ||
+                  projects.isLoading ||
+                  services.isLoading ||
+                  environments.isLoading)
+              }
               projectName={selectedProject?.name}
               services={serviceOptions}
               environments={environmentOptions}
-              selectedServiceId={selectedService?.id ?? ''}
-              selectedEnvironmentId={selectedEnvironment?.id ?? ''}
+              selectedServiceId={selectedService?.id ?? ""}
+              selectedEnvironmentId={selectedEnvironment?.id ?? ""}
               search={search}
               actions={contentActions}
               onServiceChange={setSelectedServiceId}
@@ -517,25 +673,38 @@ export default function ConfigCenterPage() {
               environments={environmentOptions}
               configs={configItems}
               apiBaseUrl={API_BASE}
-              selectedServiceId={selectedService?.id ?? ''}
-              selectedEnvironmentId={selectedEnvironment?.id ?? ''}
+              selectedServiceId={selectedService?.id ?? ""}
+              selectedEnvironmentId={selectedEnvironment?.id ?? ""}
               activeSection={activeSection}
               loading={{
-                project: initialized && isAuthenticated ? projects.isLoading : false,
-                service: initialized && isAuthenticated ? services.isLoading : false,
-                environment: initialized && isAuthenticated ? environments.isLoading : false,
-                config: initialized && isAuthenticated ? configs.isLoading : false,
+                project:
+                  initialized && isAuthenticated ? projects.isLoading : false,
+                service:
+                  initialized && isAuthenticated ? services.isLoading : false,
+                environment:
+                  initialized && isAuthenticated
+                    ? environments.isLoading
+                    : false,
+                config:
+                  initialized && isAuthenticated ? configs.isLoading : false,
               }}
               runtimeText={runtimeText}
               history={history.data ?? []}
-              runtimeLoading={initialized && isAuthenticated && (services.isLoading || environments.isLoading || configs.isLoading || history.isLoading)}
+              runtimeLoading={
+                initialized &&
+                isAuthenticated &&
+                (services.isLoading ||
+                  environments.isLoading ||
+                  configs.isLoading ||
+                  history.isLoading)
+              }
               onAdd={addEntity}
               onEdit={(type: EntityType, item: EntityItem) => {
-                if (type === 'service') {
+                if (type === "service") {
                   const service = item as Service;
                   setSelectedServiceId(service.id);
                 }
-                if (type === 'config') {
+                if (type === "config") {
                   const config = item as Config;
                   setSelectedServiceId(config.serviceId);
                   setSelectedEnvironmentId(config.environmentId);
@@ -558,7 +727,12 @@ export default function ConfigCenterPage() {
           activeType={editTarget?.type}
           onHide={() => setEditTarget(null)}
           onSubmit={submitForm}
-          forms={{ project: projectForm, service: serviceForm, environment: environmentForm, config: configForm }}
+          forms={{
+            project: projectForm,
+            service: serviceForm,
+            environment: environmentForm,
+            config: configForm,
+          }}
           projectOptions={projectOptions}
           serviceOptions={serviceOptions}
           environmentOptions={environmentOptions}
@@ -573,18 +747,18 @@ export default function ConfigCenterPage() {
           onChange={setEnvText}
           onHide={() => setImportOpen(false)}
           onImport={async () => {
-            await api('/configs/import-env', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+            await api("/configs/import-env", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 content: envText,
-                projectId: selectedProject?.id ?? '',
-                serviceId: selectedService?.id ?? '',
-                environmentId: selectedEnvironment?.id ?? '',
+                projectId: selectedProject?.id ?? "",
+                serviceId: selectedService?.id ?? "",
+                environmentId: selectedEnvironment?.id ?? "",
               }),
             });
             setImportOpen(false);
-            await queryClient.invalidateQueries({ queryKey: ['configs'] });
+            await queryClient.invalidateQueries({ queryKey: ["configs"] });
           }}
         />
       </MixiAdminShell>
@@ -606,16 +780,28 @@ async function saveEntity<T>(
 
 function useEntityMutations<T>(queryKey: string, path: string) {
   const queryClient = useQueryClient();
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: [queryKey] });
-  const request = (url: string, method: string, body?: T) => api(url, {
-    method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: [queryKey] });
+  const request = (url: string, method: string, body?: T) =>
+    api(url, {
+      method,
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
 
   return {
-    create: useMutation({ mutationFn: (body: T) => request(path, 'POST', body), onSuccess: invalidate }),
-    update: useMutation({ mutationFn: ({ id, body }: { id: string; body: T }) => request(`${path}/${id}`, 'PUT', body), onSuccess: invalidate }),
-    remove: useMutation({ mutationFn: (id: string) => request(`${path}/${id}`, 'DELETE'), onSuccess: invalidate }),
+    create: useMutation({
+      mutationFn: (body: T) => request(path, "POST", body),
+      onSuccess: invalidate,
+    }),
+    update: useMutation({
+      mutationFn: ({ id, body }: { id: string; body: T }) =>
+        request(`${path}/${id}`, "PUT", body),
+      onSuccess: invalidate,
+    }),
+    remove: useMutation({
+      mutationFn: (id: string) => request(`${path}/${id}`, "DELETE"),
+      onSuccess: invalidate,
+    }),
   };
 }
