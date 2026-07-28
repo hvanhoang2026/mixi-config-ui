@@ -2002,3 +2002,33 @@ body {
     display: none;
   }
 }
+.pi.pi-hourglass,
+.pi.pi-spinner.pi-spin {
+  transform-origin: center;
+  animation: mixi-hourglass-flip 1.6s ease-in-out infinite;
+}
+
+.pi.pi-spinner.pi-spin::before {
+  content: "\e9fe";
+}
+
+@keyframes mixi-hourglass-flip {
+  0%,
+  40% {
+    transform: rotate(0deg);
+  }
+  50%,
+  90% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi.pi-hourglass,
+  .pi.pi-spinner.pi-spin {
+    animation: none;
+  }
+}
