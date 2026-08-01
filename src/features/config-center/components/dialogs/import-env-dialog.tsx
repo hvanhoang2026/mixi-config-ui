@@ -52,7 +52,7 @@ export function ImportEnvDialog({
           label={importing ? 'Importing...' : 'Import'}
           icon={importing ? undefined : 'pi pi-upload'}
           loading={importing}
-          loadingIcon="pi pi-spinner pi-spin"
+          loadingIcon="pi pi-hourglass"
           disabled={importing}
           onClick={submitImport}
         />

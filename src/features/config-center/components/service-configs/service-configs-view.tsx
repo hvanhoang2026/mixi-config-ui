@@ -363,7 +363,7 @@ export function ServiceConfigsView({
                             <i data-testid="auto-service-configs-view-44-i"
                               className={
                                 isSaving
-                                  ? 'pi pi-spinner pi-spin service-configs__loading-icon'
+                                   ? 'pi pi-hourglass service-configs__loading-icon'
                                   : isSaved
                                     ? 'pi pi-check'
                                     : 'pi pi-save'
@@ -395,7 +395,7 @@ export function ServiceConfigsView({
                               icon="pi pi-trash"
                               text
                               severity="danger"
-                              loading={deletingConfigId === row.id} loadingIcon="pi pi-spinner pi-spin"
+                              loading={deletingConfigId === row.id} loadingIcon="pi pi-hourglass"
                               disabled={savingConfigId !== null || deletingConfigId !== null}
                               onClick={() => deleteConfig(row.id)}
                             />
@@ -427,7 +427,7 @@ export function ServiceConfigsView({
               icon="pi pi-save"
               data-testid="save-bulk-config-button"
               label={bulkSaving ? 'Saving...' : 'Save bulk'}
-              loading={bulkSaving} loadingIcon="pi pi-spinner pi-spin"
+              loading={bulkSaving} loadingIcon="pi pi-hourglass"
               disabled={loading || bulkSaving || savingConfigId !== null || deletingConfigId !== null}
               onClick={saveBulkConfigs}
             />

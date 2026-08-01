@@ -104,7 +104,7 @@ function FormFields({
           label={saving ? 'Saving...' : 'Save'}
           icon={saving ? undefined : 'pi pi-save'}
           loading={saving}
-          loadingIcon="pi pi-spinner pi-spin"
+          loadingIcon="pi pi-hourglass"
           disabled={saving}
         />
       </div>
