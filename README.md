@@ -1,7 +1,10 @@
 # Mixi Config UI
 
 Giao diện quản trị cấu hình theo project, service và environment, xây dựng bằng
-Next.js App Router, React Query, PrimeReact và `@w-iris/react`.
+Next.js App Router, React Query, Ant Design Pro patterns và `@w-iris/react`.
+
+Migration details and implementation status are documented in
+[`docs/migration/antd-pro-implementation.md`](docs/migration/antd-pro-implementation.md).
 
 ## Chạy local
 

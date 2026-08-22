@@ -1,12 +1,17 @@
-import { Column, DataTable } from '@w-iris/react';
-import type { DataTableProps } from 'primereact/datatable';
-import { Skeleton } from 'primereact/skeleton';
-import type { Config, Environment, HistoryItem, Project, Service } from '../../types';
-import type { ConfigSection, EntityItem, EntityType } from '../../form-types';
-import { ActionButtons } from '../shared/action-buttons';
-import { CrudHeader } from '../shared/crud-header';
-import { RuntimeHistoryPanel } from '../runtime-history/runtime-history-panel';
-import { ServiceConfigsView } from '../service-configs/service-configs-view';
+import { Column, DataTable, type DataTableProps } from "@w-iris/react";
+import { Skeleton } from "../../../../components/ui/skeleton";
+import type {
+  Config,
+  Environment,
+  HistoryItem,
+  Project,
+  Service,
+} from "../../types";
+import type { ConfigSection, EntityItem, EntityType } from "../../form-types";
+import { ActionButtons } from "../shared/action-buttons";
+import { CrudHeader } from "../shared/crud-header";
+import { RuntimeHistoryPanel } from "../runtime-history/runtime-history-panel";
+import { ServiceConfigsView } from "../service-configs/service-configs-view";
 
 type Props = {
   projects: Project[];
@@ -30,7 +35,9 @@ type Props = {
   onSelectService: (serviceId: string) => void;
   onSelectEnvironment: (environmentId: string) => void;
   onSaveConfigValue: (config: Config, value: string) => Promise<void>;
-  onBulkSaveConfigs: (lines: Array<{ key: string; value: string }>) => Promise<void>;
+  onBulkSaveConfigs: (
+    lines: Array<{ key: string; value: string }>,
+  ) => Promise<void>;
 };
 
 export function EntityTabs(props: Props) {
@@ -44,25 +51,40 @@ export function EntityTabs(props: Props) {
     />
   );
 
-  if (props.activeSection === 'project') {
+  if (props.activeSection === "project") {
     return (
-      <section data-testid="auto-entity-tabs-1-section" className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('project')} actions={props.actions} />
-        <EntityDataTable value={props.projects} loading={props.loading.project} loadingIcon="pi pi-hourglass">
+      <section
+        data-testid="auto-entity-tabs-1-section"
+        className="content-panel"
+      >
+        <CrudHeader
+          onAdd={() => props.onAdd("project")}
+          actions={props.actions}
+        />
+        <EntityDataTable value={props.projects} loading={props.loading.project}>
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
           <Column field="description" header="Description" filter />
-          <Column header="Actions" body={(row: Project) => actions('project', row)} />
+          <Column
+            header="Actions"
+            body={(row: Project) => actions("project", row)}
+          />
         </EntityDataTable>
       </section>
     );
   }
 
-  if (props.activeSection === 'service') {
+  if (props.activeSection === "service") {
     return (
-      <section data-testid="auto-entity-tabs-2-section" className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('service')} actions={props.actions} />
-        <EntityDataTable value={props.services} loading={props.loading.service} loadingIcon="pi pi-hourglass">
+      <section
+        data-testid="auto-entity-tabs-2-section"
+        className="content-panel"
+      >
+        <CrudHeader
+          onAdd={() => props.onAdd("service")}
+          actions={props.actions}
+        />
+        <EntityDataTable value={props.services} loading={props.loading.service}>
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
           <Column field="type" header="Type" filter sortable />
@@ -72,30 +94,46 @@ export function EntityTabs(props: Props) {
             filter
             sortable
             body={(row: Service) =>
-              props.projects.find((project) => project.id === row.projectId)?.name ?? row.projectId
+              props.projects.find((project) => project.id === row.projectId)
+                ?.name ?? row.projectId
             }
           />
-          <Column header="Actions" body={(row: Service) => actions('service', row)} />
+          <Column
+            header="Actions"
+            body={(row: Service) => actions("service", row)}
+          />
         </EntityDataTable>
       </section>
     );
   }
 
-  if (props.activeSection === 'environment') {
+  if (props.activeSection === "environment") {
     return (
-      <section data-testid="auto-entity-tabs-3-section" className="content-panel">
-        <CrudHeader onAdd={() => props.onAdd('environment')} actions={props.actions} />
-        <EntityDataTable value={props.environments} loading={props.loading.environment} loadingIcon="pi pi-hourglass">
+      <section
+        data-testid="auto-entity-tabs-3-section"
+        className="content-panel"
+      >
+        <CrudHeader
+          onAdd={() => props.onAdd("environment")}
+          actions={props.actions}
+        />
+        <EntityDataTable
+          value={props.environments}
+          loading={props.loading.environment}
+        >
           <Column field="name" header="Name" filter sortable />
           <Column field="code" header="Code" filter sortable />
           <Column field="description" header="Description" filter />
-          <Column header="Actions" body={(row: Environment) => actions('environment', row)} />
+          <Column
+            header="Actions"
+            body={(row: Environment) => actions("environment", row)}
+          />
         </EntityDataTable>
       </section>
     );
   }
 
-  if (props.activeSection === 'config') {
+  if (props.activeSection === "config") {
     return (
       <ServiceConfigsView
         services={props.services}
@@ -107,9 +145,9 @@ export function EntityTabs(props: Props) {
         loading={props.loading.service || props.loading.config}
         onSelectService={props.onSelectService}
         onSelectEnvironment={props.onSelectEnvironment}
-        onAddConfig={() => props.onAdd('config')}
-        onEditConfig={(config) => props.onEdit('config', config)}
-        onDeleteConfig={(configId) => props.onDelete('config', configId)}
+        onAddConfig={() => props.onAdd("config")}
+        onEditConfig={(config) => props.onEdit("config", config)}
+        onDeleteConfig={(configId) => props.onDelete("config", configId)}
         onSaveConfigValue={props.onSaveConfigValue}
         onBulkSave={props.onBulkSaveConfigs}
         onHistory={props.onHistory}
@@ -118,10 +156,16 @@ export function EntityTabs(props: Props) {
   }
 
   return (
-    <section data-testid="auto-entity-tabs-4-section" className="content-panel" id="runtime">
+    <section
+      data-testid="auto-entity-tabs-4-section"
+      className="content-panel"
+      id="runtime"
+    >
       <RuntimeHistoryPanel
         apiBaseUrl={props.apiBaseUrl}
-        selectedService={props.services.find((service) => service.id === props.selectedServiceId)}
+        selectedService={props.services.find(
+          (service) => service.id === props.selectedServiceId,
+        )}
         selectedEnvironment={props.environments.find(
           (environment) => environment.id === props.selectedEnvironmentId,
         )}
@@ -130,7 +174,9 @@ export function EntityTabs(props: Props) {
         history={props.history}
         loading={props.runtimeLoading}
         onLoadRuntime={props.onLoadRuntime}
-        onLoadHistory={() => props.configs[0] && props.onHistory(props.configs[0].id)}
+        onLoadHistory={() =>
+          props.configs[0] && props.onHistory(props.configs[0].id)
+        }
       />
     </section>
   );
@@ -139,7 +185,7 @@ export function EntityTabs(props: Props) {
 function EntityDataTable<T extends { id: string }>({
   children,
   ...props
-}: DataTableProps<T[]> & { children: React.ReactNode }) {
+}: DataTableProps<T> & { children: React.ReactNode }) {
   if (props.loading) {
     return <EntityTableSkeleton />;
   }
@@ -166,7 +212,11 @@ function EntityTableSkeleton() {
   return (
     <div data-testid="auto-entity-tabs-5-div" className="entity-table-skeleton">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div data-testid="auto-entity-tabs-6-div" key={index} className="entity-table-skeleton__row">
+        <div
+          data-testid="auto-entity-tabs-6-div"
+          key={index}
+          className="entity-table-skeleton__row"
+        >
           <Skeleton width="22%" height="1rem" />
           <Skeleton width="18%" height="1rem" />
           <Skeleton width="26%" height="1rem" />

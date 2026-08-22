@@ -110,4 +110,3 @@ Dừng rollout và quay về artifact trước đó khi có một trong các đi
 
 Rollback UI không thay thế rollback API/schema. Nếu contract đã thay đổi, phải
 khôi phục contract tương thích trước khi chuyển traffic về artifact cũ.
-

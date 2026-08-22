@@ -21,7 +21,13 @@ import {
 } from "../../features/auth/authApi";
 import { API_BASE, api } from "../../features/config-center/api";
 import { publicEnv } from "../../shared/config/public-env";
-import { Button } from "primereact/button";
+import { AntdButton as Button } from "@w-iris/react";
+import {
+  DownloadOutlined,
+  ReloadOutlined,
+  SyncOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { DashboardHeader } from "../../features/config-center/components/dashboard/dashboard-header";
 import { EntityDialog } from "../../features/config-center/components/dialogs/entity-dialog";
 import { ImportEnvDialog } from "../../features/config-center/components/dialogs/import-env-dialog";
@@ -392,15 +398,15 @@ export default function ConfigCenterPage() {
   }
 
   const contentMenu = [
-    { key: "service", label: "Services", icon: "pi pi-briefcase" },
-    { key: "environment", label: "Environments", icon: "pi pi-globe" },
-    { key: "config", label: "Service Configs", icon: "pi pi-sliders-h" },
+    { key: "service", label: "Services", icon: "cloud" },
+    { key: "environment", label: "Environments", icon: "database" },
+    { key: "config", label: "Service Configs", icon: "config" },
     {
       key: "runtime-history",
       label: "Runtime & History",
-      icon: "pi pi-history",
+      icon: "logs",
     },
-    { key: "project", label: "Projects", icon: "pi pi-folder" },
+    { key: "project", label: "Projects", icon: "ecm" },
   ] as const satisfies ReadonlyArray<{
     key: ConfigSection;
     label: string;
@@ -410,9 +416,9 @@ export default function ConfigCenterPage() {
   const canRunScopedActions = !!selectedService && !!selectedEnvironment;
   const accountPaths = useMemo(
     () => ({
-      profile: "/config-center?account=profile",
-      settings: "/config-center?account=settings",
-      security: "/config-center?account=security",
+      profile: "/profile",
+      settings: "/settings",
+      security: "/security",
     }),
     [],
   );
@@ -445,16 +451,16 @@ export default function ConfigCenterPage() {
   const shellMenu: MixiAdminMenuItem[] = [
     {
       label: "Workspace",
-      icon: "pi pi-fw pi-sliders-h",
+      icon: "config",
       items: [
         {
           label: "Config Center",
-          icon: "pi pi-fw pi-sliders-h",
+          icon: "config",
           href: "/config-center/config",
         },
         {
           label: "Mixi Admin",
-          icon: "pi pi-fw pi-arrow-up-right",
+          icon: "cloud",
           url: "http://localhost:3000/main",
           target: "_blank",
         },
@@ -462,10 +468,10 @@ export default function ConfigCenterPage() {
     },
     {
       label: "Content",
-      icon: "pi pi-fw pi-folder-open",
+      icon: "ecm",
       items: contentMenu.map((item) => ({
         label: item.label,
-        icon: `pi pi-fw ${item.icon.replace("pi ", "")}`,
+        icon: item.icon,
         href: `/config-center/${item.key}`,
       })),
     },
@@ -476,14 +482,14 @@ export default function ConfigCenterPage() {
       <Button
         data-testid="refresh-workspace-button"
         label="Refresh workspace"
-        icon="pi pi-refresh"
+        icon={<ReloadOutlined />}
         onClick={() => invalidateAll()}
         className="dashboard-header__action dashboard-header__action--ghost"
       />
       <Button
         data-testid="import-service-env-button"
         label="Import service ENV"
-        icon="pi pi-upload"
+        icon={<UploadOutlined />}
         severity="secondary"
         onClick={() => setImportOpen(true)}
         disabled={!canRunScopedActions}
@@ -492,8 +498,8 @@ export default function ConfigCenterPage() {
       <Button
         data-testid="export-service-env-button"
         label="Export service ENV"
-        icon="pi pi-download"
-        outlined
+        icon={<DownloadOutlined />}
+        variant="outlined"
         onClick={async () => {
           const query = new URLSearchParams({
             projectId: selectedProject?.id ?? "",
@@ -510,8 +516,8 @@ export default function ConfigCenterPage() {
       <Button
         data-testid="reload-cache-button"
         label="Reload Cache"
-        icon="pi pi-sync"
-        outlined
+        icon={<SyncOutlined />}
+        variant="outlined"
         onClick={async () => {
           await api("/configs/reload-cache", {
             method: "POST",
@@ -570,6 +576,14 @@ export default function ConfigCenterPage() {
           <AdminUserMenu
             user={shellUser}
             items={createMixiAccountMenuItems((href) => {
+              if (
+                href === accountPaths.profile ||
+                href === accountPaths.settings ||
+                href === accountPaths.security
+              ) {
+                router.push(href);
+                return;
+              }
               const account = new URL(
                 href,
                 window.location.origin,

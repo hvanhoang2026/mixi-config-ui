@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, type ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from './AuthProvider';
+import { useEffect, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "./AuthProvider";
 
 type Props = {
   children: ReactNode;
@@ -17,7 +17,7 @@ export function AuthGuard({ children }: Props) {
     if (!initialized) return;
     if (isAuthenticated) return;
 
-    const next = pathname ? `?next=${encodeURIComponent(pathname)}` : '';
+    const next = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
     router.replace(`/login${next}`);
   }, [initialized, isAuthenticated, pathname, router]);
 

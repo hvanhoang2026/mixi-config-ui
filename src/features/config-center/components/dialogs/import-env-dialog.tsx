@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
-import { InputTextarea } from 'primereact/inputtextarea';
+import { useState } from "react";
+import {
+  AntdButton as Button,
+  AntdModal as Dialog,
+  AntdTextArea as InputTextarea,
+} from "@w-iris/react";
+import { UploadOutlined } from "@ant-design/icons";
 
 type Props = {
   visible: boolean;
@@ -36,26 +39,65 @@ export function ImportEnvDialog({
   };
 
   return (
-    <Dialog data-testid="import-env-dialog" visible={visible} onHide={() => !importing && onHide()} header="Import Service ENV" style={{ width: 'min(760px, 95vw)' }}>
-      <div data-testid="auto-import-env-dialog-1-div" className="mb-3">
-        <div data-testid="auto-import-env-dialog-2-div" className="text-900 font-semibold">Target scope</div>
-        <div data-testid="auto-import-env-dialog-3-div" className="text-600 text-sm mt-1">
-          {serviceName ? `${serviceName} / ${environmentName ?? 'No environment'}` : 'No service selected'}
-          {projectName ? ` / ${projectName}` : ''}
+    <Dialog
+      data-testid="import-env-dialog"
+      visible={visible}
+      footer={null}
+      onHide={() => !importing && onHide()}
+      header="Import Service ENV"
+      style={{ width: "min(760px, 95vw)" }}
+    >
+      <div
+        data-testid="auto-import-env-dialog-1-div"
+        className="import-env__scope"
+      >
+        <div
+          data-testid="auto-import-env-dialog-2-div"
+          className="import-env__scope-title"
+        >
+          Target scope
+        </div>
+        <div
+          data-testid="auto-import-env-dialog-3-div"
+          className="import-env__scope-copy"
+        >
+          {serviceName
+            ? `${serviceName} / ${environmentName ?? "No environment"}`
+            : "No service selected"}
+          {projectName ? ` / ${projectName}` : ""}
         </div>
       </div>
-      <InputTextarea data-testid="import-env-textarea" value={value} onChange={(event) => onChange(event.target.value)} rows={16} className="w-full" />
-      <div data-testid="auto-import-env-dialog-4-div" className="mt-3 flex justify-content-end gap-2">
-        <Button data-testid="import-env-close-button" label="Close" severity="secondary" onClick={onHide} disabled={importing} />
+      <InputTextarea
+        data-testid="import-env-textarea"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        rows={16}
+        className="ui-full-width"
+      />
+      <div
+        data-testid="auto-import-env-dialog-4-div"
+        className="import-env__actions"
+      >
         <Button
+          type="default"
+          htmlType="button"
+          data-testid="import-env-close-button"
+          onClick={onHide}
+          disabled={importing}
+        >
+          Close
+        </Button>
+        <Button
+          type="primary"
+          htmlType="button"
           data-testid="import-env-submit-button"
-          label={importing ? 'Importing...' : 'Import'}
-          icon={importing ? undefined : 'pi pi-upload'}
           loading={importing}
-          loadingIcon="pi pi-hourglass"
+          icon={importing ? undefined : <UploadOutlined />}
           disabled={importing}
           onClick={submitImport}
-        />
+        >
+          {importing ? "Importing..." : "Import"}
+        </Button>
       </div>
     </Dialog>
   );

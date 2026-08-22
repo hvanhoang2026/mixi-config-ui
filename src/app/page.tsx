@@ -1,1 +1,1 @@
-export { default } from './config-center/page';
+export { default } from "./config-center/page";

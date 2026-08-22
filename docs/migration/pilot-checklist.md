@@ -50,4 +50,3 @@
 - [ ] Desktop/tablet/mobile visual review.
 - [ ] Không còn PrimeReact import trong slice đã migrate.
 - [ ] Rollback trên preview đã được diễn tập.
-

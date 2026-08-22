@@ -1,5 +1,6 @@
-import { Button } from 'primereact/button';
-import type { EntityItem, EntityType } from '../../form-types';
+import { AntdButton as Button } from "@w-iris/react";
+import { DeleteOutlined, EditOutlined, HistoryOutlined } from "@ant-design/icons";
+import type { EntityItem, EntityType } from "../../form-types";
 
 type Props = {
   type: EntityType;
@@ -9,17 +10,35 @@ type Props = {
   onHistory?: (configId: string) => void;
 };
 
-export function ActionButtons({ type, row, onEdit, onDelete, onHistory }: Props) {
+export function ActionButtons({
+  type,
+  row,
+  onEdit,
+  onDelete,
+  onHistory,
+}: Props) {
   return (
-    <div data-testid="auto-action-buttons-1-div" className="flex gap-2">
-      <Button data-testid={`edit-${type}-${row.id}`} size="small" icon="pi pi-pencil" text onClick={() => onEdit(type, row)} />
-      {type === 'config' && onHistory && (
-        <Button data-testid={`history-config-${row.id}`} size="small" icon="pi pi-history" text onClick={() => onHistory(row.id)} />
+    <div data-testid="auto-action-buttons-1-div" className="config-row-actions">
+      <Button
+        data-testid={`edit-${type}-${row.id}`}
+        size="small"
+        icon={<EditOutlined />}
+        text
+        onClick={() => onEdit(type, row)}
+      />
+      {type === "config" && onHistory && (
+        <Button
+          data-testid={`history-config-${row.id}`}
+          size="small"
+          icon={<HistoryOutlined />}
+          text
+          onClick={() => onHistory(row.id)}
+        />
       )}
       <Button
         size="small"
         data-testid={`delete-${type}-${row.id}`}
-        icon="pi pi-trash"
+        icon={<DeleteOutlined />}
         text
         severity="danger"
         onClick={() => onDelete(type, row.id)}

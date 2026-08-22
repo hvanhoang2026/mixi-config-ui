@@ -36,17 +36,17 @@ Mục tiêu của pilot:
 
 ## 3. Hiện trạng đã xác nhận
 
-| Hạng mục | Hiện trạng |
-|---|---|
-| Framework | Next.js 14 App Router |
-| React | 18.3.1 |
-| Data | TanStack React Query 5 |
-| Form | React Hook Form |
-| UI | PrimeReact 10.9.x, PrimeFlex, PrimeIcons |
-| Shared UI | `@w-iris/react` 0.1.15, `@w-iris/themes` |
-| Test | Vitest, Testing Library, Playwright |
+| Hạng mục        | Hiện trạng                                         |
+| --------------- | -------------------------------------------------- |
+| Framework       | Next.js 14 App Router                              |
+| React           | 18.3.1                                             |
+| Data            | TanStack React Query 5                             |
+| Form            | React Hook Form                                    |
+| UI              | PrimeReact 10.9.x, PrimeFlex, PrimeIcons           |
+| Shared UI       | `@w-iris/react` 0.1.15, `@w-iris/themes`           |
+| Test            | Vitest, Testing Library, Playwright                |
 | Quality scripts | lint, typecheck, test, E2E, build, standards check |
-| Git | branch `main`, clean tại thời điểm lập tài liệu |
+| Git             | branch `main`, clean tại thời điểm lập tài liệu    |
 
 Các điểm PrimeReact được phát hiện ở layout, shell, config-center page và các
 feature component. `@w-iris/react` cũng khai báo phụ thuộc PrimeReact/PrimeFlex;
@@ -150,20 +150,20 @@ validation state; đồng thời cập nhật test trước khi chuyển slice t
 
 ## 6. Component mapping sơ bộ
 
-| PrimeReact | Ant Design/Pro |
-|---|---|
-| `Button` | `Button` |
-| `InputText` | `Input` |
-| `InputTextarea` | `Input.TextArea` |
-| `Dropdown` | `Select` |
-| `Checkbox` | `Checkbox` |
-| `Dialog` | `Modal` |
-| `OverlayPanel` | `Popover` hoặc `Dropdown` |
-| `DataTable` / wrapper `@w-iris/react` | `Table` hoặc `ProTable` |
-| `Skeleton` | `Skeleton` |
-| PrimeIcons | `@ant-design/icons` |
-| Toast/feedback | `message`/`notification` |
-| Sidebar | `Drawer` hoặc `ProLayout` sider |
+| PrimeReact                            | Ant Design/Pro                  |
+| ------------------------------------- | ------------------------------- |
+| `Button`                              | `Button`                        |
+| `InputText`                           | `Input`                         |
+| `InputTextarea`                       | `Input.TextArea`                |
+| `Dropdown`                            | `Select`                        |
+| `Checkbox`                            | `Checkbox`                      |
+| `Dialog`                              | `Modal`                         |
+| `OverlayPanel`                        | `Popover` hoặc `Dropdown`       |
+| `DataTable` / wrapper `@w-iris/react` | `Table` hoặc `ProTable`         |
+| `Skeleton`                            | `Skeleton`                      |
+| PrimeIcons                            | `@ant-design/icons`             |
+| Toast/feedback                        | `message`/`notification`        |
+| Sidebar                               | `Drawer` hoặc `ProLayout` sider |
 
 Mapping không được làm máy móc. Đặc biệt cần giữ server-side contract, filter,
 pagination, row action, mutation concurrency và optimistic rollback của bảng.
@@ -192,15 +192,14 @@ npm run standards:check
 
 ## 8. Rủi ro và quyết định cần ghi nhận
 
-| Rủi ro | Cách xử lý |
-|---|---|
-| React 18 không khớp version mới nhất của Ant Design Pro | chốt version qua spike, không nâng React trong pilot |
-| `@w-iris/react` kéo PrimeReact | giữ compatibility layer hoặc lập kế hoạch nâng package riêng |
-| CSS PrimeReact và Ant Design cùng tồn tại | scope provider/style, migration route-by-route |
-| Copy cả `ant-design-pro` tạo coupling lớn | chỉ dùng pattern, dependency và wrapper cần thiết |
-| auth/menu bị thay đổi khi đổi shell | test route/permission và giữ API auth hiện tại |
-| rollback không tương thích asset/cache | phát hành artifact immutable, kiểm thử rollback preview |
+| Rủi ro                                                  | Cách xử lý                                                   |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| React 18 không khớp version mới nhất của Ant Design Pro | chốt version qua spike, không nâng React trong pilot         |
+| `@w-iris/react` kéo PrimeReact                          | giữ compatibility layer hoặc lập kế hoạch nâng package riêng |
+| CSS PrimeReact và Ant Design cùng tồn tại               | scope provider/style, migration route-by-route               |
+| Copy cả `ant-design-pro` tạo coupling lớn               | chỉ dùng pattern, dependency và wrapper cần thiết            |
+| auth/menu bị thay đổi khi đổi shell                     | test route/permission và giữ API auth hiện tại               |
+| rollback không tương thích asset/cache                  | phát hành artifact immutable, kiểm thử rollback preview      |
 
 Các quyết định có ảnh hưởng lâu dài phải ghi thành ADR trong
 `docs/migration/adr/`.
-
