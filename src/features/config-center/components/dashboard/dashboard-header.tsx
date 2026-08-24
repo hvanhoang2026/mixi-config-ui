@@ -1,7 +1,4 @@
-import {
-  AntdInput as InputText,
-  AntdSelect as Dropdown,
-} from "@w-iris/react";
+import { AntdInput as InputText, AntdSelect as Dropdown } from "@w-iris/react";
 import { SearchOutlined } from "@ant-design/icons";
 import { Skeleton } from "../../../../components/ui/skeleton";
 

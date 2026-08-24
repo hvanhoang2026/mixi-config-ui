@@ -1,21 +1,6 @@
 "use client";
 
 import {
-  ArrowLeftOutlined,
-  ArrowRightOutlined,
-  CheckOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  HistoryOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  SaveOutlined,
-  SettingOutlined,
-  SyncOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
   AntdButton,
   AntdCheckbox,
   AntdInput,
@@ -26,35 +11,14 @@ import {
 import { Skeleton as AntSkeleton } from "antd";
 import React, { type CSSProperties, type ReactNode } from "react";
 
-const ICONS: Record<string, ReactNode> = {
-  "pi pi-arrow-left": <ArrowLeftOutlined aria-hidden="true" />,
-  "pi pi-arrow-right": <ArrowRightOutlined aria-hidden="true" />,
-  "pi pi-check": <CheckOutlined aria-hidden="true" />,
-  "pi pi-cog": <SettingOutlined aria-hidden="true" />,
-  "pi pi-download": <DownloadOutlined aria-hidden="true" />,
-  "pi pi-history": <HistoryOutlined aria-hidden="true" />,
-  "pi pi-pencil": <EditOutlined aria-hidden="true" />,
-  "pi pi-plus": <PlusOutlined aria-hidden="true" />,
-  "pi pi-refresh": <ReloadOutlined aria-hidden="true" />,
-  "pi pi-save": <SaveOutlined aria-hidden="true" />,
-  "pi pi-sync": <SyncOutlined aria-hidden="true" />,
-  "pi pi-trash": <DeleteOutlined aria-hidden="true" />,
-  "pi pi-upload": <UploadOutlined aria-hidden="true" />,
-};
-
 type AdapterProps = {
-  icon?: ReactNode | string;
+  icon?: ReactNode;
   children?: ReactNode;
   [key: string]: unknown;
 };
 
 export function Button({ icon, ...props }: AdapterProps) {
-  return (
-    <AntdButton
-      {...props}
-      icon={typeof icon === "string" ? ICONS[icon] : icon}
-    />
-  );
+  return <AntdButton {...props} icon={icon} />;
 }
 
 export const Checkbox = AntdCheckbox;

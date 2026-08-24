@@ -1,13 +1,18 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { PlusOutlined } from "@ant-design/icons";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Button, Skeleton } from "./antd-adapter";
 
 describe("Ant Design migration adapter", () => {
-  it("maps legacy icon names to Ant icons and preserves button behavior", () => {
+  it("renders Ant icons and preserves button behavior", () => {
     const onClick = vi.fn();
     const { container } = render(
-      <Button label="Add config" icon="pi pi-plus" onClick={onClick} />,
+      <Button
+        label="Add config"
+        icon={<PlusOutlined aria-hidden="true" />}
+        onClick={onClick}
+      />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Add config" }));
