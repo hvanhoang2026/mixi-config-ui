@@ -6,7 +6,7 @@
 
 ## Context
 
-The application used PrimeReact, PrimeFlex, PrimeIcons, a local Sakai-inspired
+The application used Ant Design, Ant Design layout, @ant-design/icons, a local Ant Design Pro-inspired
 shell, and an older `@w-iris/react` package. The updated w-iris foundation now
 provides Ant Design providers, an Ant Design Pro shell, account pages, forms,
 tables, feedback, and shared Mixi navigation patterns.
@@ -27,7 +27,7 @@ and demo assets are not copied into the Next.js application.
 
 ## Consequences
 
-- PrimeReact, PrimeFlex, PrimeIcons, and `@w-iris/themes` can be removed.
+- Ant Design, Ant Design layout, @ant-design/icons, and `@w-iris/themes` can be removed.
 - Existing route, API, auth, query, and form contracts remain stable.
 - Feature CSS must target semantic product classes and Ant Design states.
 - The compatibility adapter must not accumulate business logic and should be

@@ -274,7 +274,7 @@ a {
   border: 1px solid #e5e7eb;
 }
 
-.app-topbar__search .p-inputtext {
+.app-topbar__search .ant-input {
   border: 0;
   background: transparent;
   padding: 0;
@@ -364,7 +364,7 @@ a {
   margin-top: 0.5rem;
 }
 
-.app-topbar__panel .p-overlaypanel-content {
+.app-topbar__panel .ant-popover-inner {
   padding: 0;
 }
 
@@ -595,7 +595,7 @@ a {
   background: #f8fafc;
 }
 
-.dashboard-header__search .p-inputtext {
+.dashboard-header__search .ant-input {
   width: 100%;
   border: 0;
   background: transparent;
@@ -626,7 +626,7 @@ a {
   font-weight: 600;
 }
 
-.dashboard-header__action .p-button-label {
+.dashboard-header__action .ant-btn > span {
   font-weight: 600;
 }
 
@@ -759,11 +759,11 @@ a {
   overflow: visible;
 }
 
-.service-configs__add-button .p-button-icon {
+.service-configs__add-button .anticon {
   font-size: 0.9rem;
 }
 
-.service-configs__add-button .p-button-label {
+.service-configs__add-button .ant-btn > span {
   font-size: 0.95rem;
   font-weight: 700;
   flex: 0 0 auto;
@@ -910,12 +910,12 @@ a {
   border-bottom: 0;
 }
 
-.service-configs__table .p-datatable-thead > tr > th {
+.service-configs__table .ant-table-thead > tr > th {
   background: #f8fafc;
   color: #334155;
 }
 
-.service-configs__table .p-datatable-tbody > tr > td {
+.service-configs__table .ant-table-tbody > tr > td {
   vertical-align: middle;
 }
 
@@ -1265,10 +1265,6 @@ a {
   padding: 2rem;
 }
 
-.sakai-login {
-  background: #f8fafc;
-}
-
 .auth-page__container {
   display: flex;
   flex-direction: column;
@@ -1322,7 +1318,7 @@ a {
   box-shadow: none;
 }
 
-.auth-page__card .p-card-body {
+.auth-page__card .ant-card-body {
   padding: 3rem 2.75rem;
 }
 
@@ -1343,28 +1339,28 @@ a {
   margin-bottom: 1rem;
 }
 
-.auth-page__form .p-inputtext,
-.auth-page__form .p-password-input {
+.auth-page__form .ant-input,
+.auth-page__form .ant-input {
   padding: 1rem;
 }
 
-.auth-page__password.p-password,
-.auth-page__password.p-component,
-.auth-page__password .p-password-input {
+.auth-page__password.ant-input-password,
+.auth-page__password.ant-input-affix-wrapper,
+.auth-page__password .ant-input {
   width: 100%;
 }
 
-.auth-page__password.p-password,
-.auth-page__password.p-component {
+.auth-page__password.ant-input-password,
+.auth-page__password.ant-input-affix-wrapper {
   display: flex;
 }
 
-.auth-page__password .p-icon-field,
-.auth-page__password .p-input-icon-right {
+.auth-page__password .ant-input-affix-wrapper,
+.auth-page__password .ant-input-affix-wrapper {
   width: 100%;
 }
 
-.auth-page__password .p-password-input {
+.auth-page__password .ant-input {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -1518,7 +1514,7 @@ a {
     padding: 1rem;
   }
 
-  .auth-page__card .p-card-body {
+  .auth-page__card .ant-card-body {
     padding: 1rem;
   }
 
@@ -1665,7 +1661,7 @@ body {
   color: #afd0c8;
 }
 
-.dashboard-header .p-dropdown,
+.dashboard-header .ant-select,
 .dashboard-header__search {
   min-height: 2.9rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -1674,14 +1670,14 @@ body {
   color: #f5faf7;
 }
 
-.dashboard-header .p-dropdown-label,
-.dashboard-header .p-dropdown-trigger,
+.dashboard-header .ant-select-selector,
+.dashboard-header .ant-select-arrow,
 .dashboard-header__search,
-.dashboard-header__search .p-inputtext {
+.dashboard-header__search .ant-input {
   color: #f5faf7;
 }
 
-.dashboard-header__search .p-inputtext::placeholder {
+.dashboard-header__search .ant-input::placeholder {
   color: #b9ccc7;
 }
 
@@ -1824,7 +1820,7 @@ body {
 }
 
 .service-configs__config-table th,
-.service-configs__table .p-datatable-thead > tr > th {
+.service-configs__table .ant-table-thead > tr > th {
   background: #edf1ec;
   color: #4d5d59;
   font: 700 0.68rem var(--mono);
@@ -1843,7 +1839,7 @@ body {
   color: #dbe8e3;
 }
 
-.p-button {
+.ant-btn {
   border-radius: var(--radius-md);
   transition:
     background-color 160ms ease,
@@ -1852,15 +1848,15 @@ body {
     box-shadow 160ms ease;
 }
 
-.p-inputtext,
-.p-dropdown,
-.p-dialog,
-.p-card {
+.ant-input,
+.ant-select,
+.ant-modal-content,
+.ant-card {
   border-radius: var(--radius-md);
 }
 
-.p-inputtext:enabled:focus,
-.p-dropdown:not(.p-disabled).p-focus {
+.ant-input:enabled:focus,
+.ant-select:not(.ant-select-disabled).ant-select-focused {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px rgba(17, 103, 94, 0.14);
 }
@@ -1966,7 +1962,7 @@ body {
   transform: translateY(-2px);
 }
 
-[data-testid="auto-ProfilePage-6-button"] .p-avatar {
+[data-testid="auto-ProfilePage-6-button"] .ant-avatar {
   border: 0.25rem solid #ffffff;
   background: #dcebe6;
   color: var(--brand);
@@ -1984,7 +1980,7 @@ body {
   font-size: 0.95rem;
 }
 
-[data-testid="auto-ProfilePage-13-div"] .p-tag {
+[data-testid="auto-ProfilePage-13-div"] .ant-tag {
   border: 1px solid rgba(17, 103, 94, 0.12);
   border-radius: 999px;
   font-size: 0.72rem;
@@ -2022,7 +2018,7 @@ body {
   margin-top: 0.5rem;
 }
 
-[data-testid="auto-ProfilePage-25-div"] .p-button {
+[data-testid="auto-ProfilePage-25-div"] .ant-btn {
   min-height: 2.7rem;
   border-radius: 0.65rem;
   font-weight: 700;
@@ -2036,26 +2032,26 @@ body {
   box-shadow: 0 0.5rem 1.5rem rgba(25, 48, 43, 0.045);
 }
 
-[data-testid="auto-ProfilePage-27-div"] .p-tabview-nav {
+[data-testid="auto-ProfilePage-27-div"] .ant-tabs-nav {
   gap: 0.25rem;
   padding: 0 1.25rem;
   border-color: #e8efec;
   background: #fbfdfc;
 }
 
-[data-testid="auto-ProfilePage-27-div"] .p-tabview-nav-link {
+[data-testid="auto-ProfilePage-27-div"] .ant-tabs-tab {
   padding: 1rem 1.1rem;
   border-width: 0 0 2px;
   color: var(--muted);
   font-weight: 650;
 }
 
-[data-testid="auto-ProfilePage-27-div"] .p-highlight .p-tabview-nav-link {
+[data-testid="auto-ProfilePage-27-div"] .ant-tabs-tab-active .ant-tabs-tab {
   border-color: var(--brand);
   color: var(--brand);
 }
 
-[data-testid="auto-ProfilePage-27-div"] .p-tabview-panels {
+[data-testid="auto-ProfilePage-27-div"] .ant-tabs-content-holder {
   padding: clamp(1.25rem, 3vw, 2rem);
 }
 
@@ -2065,8 +2061,8 @@ body {
   font-weight: 750;
 }
 
-[data-testid="auto-ProfilePage-27-div"] .wi-profile-input .p-inputtext,
-[data-testid="auto-ProfilePage-27-div"] .p-inputtextarea {
+[data-testid="auto-ProfilePage-27-div"] .wi-profile-input .ant-input,
+[data-testid="auto-ProfilePage-27-div"] .ant-input {
   min-height: 2.75rem;
   border-color: #d8e3de;
   border-radius: 0.65rem;
@@ -2075,13 +2071,13 @@ body {
 
 [data-testid="auto-ProfilePage-27-div"]
   .wi-profile-input
-  .p-inputtext:enabled:focus,
-[data-testid="auto-ProfilePage-27-div"] .p-inputtextarea:enabled:focus {
+  .ant-input:enabled:focus,
+[data-testid="auto-ProfilePage-27-div"] .ant-input:enabled:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px rgba(17, 103, 94, 0.12);
 }
 
-[data-testid="auto-ProfilePage-27-div"] .p-panel {
+[data-testid="auto-ProfilePage-27-div"] .ant-card {
   border: 1px solid #dfe8e4;
   border-radius: 0.75rem;
   box-shadow: none;
@@ -2154,7 +2150,7 @@ body {
 }
 
 [data-testid="login-page"] .wi-admin-auth-card__icon,
-[data-testid="login-page"] .wi-admin-auth-form .p-button {
+[data-testid="login-page"] .wi-admin-auth-form .ant-btn {
   background: var(--brand);
   border-color: var(--brand);
 }
@@ -2279,19 +2275,18 @@ body {
     width: 100%;
   }
 
-  [data-testid="auto-ProfilePage-27-div"] .p-tabview-nav {
+  [data-testid="auto-ProfilePage-27-div"] .ant-tabs-nav {
     overflow-x: auto;
     padding-inline: 0.5rem;
   }
 
-  [data-testid="auto-ProfilePage-27-div"] .p-tabview-nav-link {
+  [data-testid="auto-ProfilePage-27-div"] .ant-tabs-tab {
     padding-inline: 0.75rem;
     white-space: nowrap;
   }
 }
 
-/* Ant Design migration adapters. Keep feature layout semantic and independent
-   from PrimeFlex utility classes. */
+/* Ant Design adapters keep feature layout semantic and token-driven. */
 .ui-full-width {
   width: 100%;
 }

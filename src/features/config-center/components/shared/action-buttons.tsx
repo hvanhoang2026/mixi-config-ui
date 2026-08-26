@@ -1,5 +1,9 @@
 import { AntdButton as Button } from "@w-iris/react";
-import { DeleteOutlined, EditOutlined, HistoryOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  HistoryOutlined,
+} from "@ant-design/icons";
 import type { EntityItem, EntityType } from "../../form-types";
 
 type Props = {

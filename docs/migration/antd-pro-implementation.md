@@ -2,7 +2,7 @@
 
 ## Outcome
 
-`mixi-config-ui` is migrated from PrimeReact/Sakai UI primitives to the Ant
+`mixi-config-ui` is migrated from legacy UI stack UI primitives to the Ant
 Design implementation provided by `@w-iris/react`. Routes, authentication,
 authorization, API contracts, React Query keys, and React Hook Form payloads
 remain unchanged.
@@ -35,7 +35,7 @@ Next.js route
 | Previous UI                   | Target implementation                | Notes                                               |
 | ----------------------------- | ------------------------------------ | --------------------------------------------------- |
 | `WPrimeProvider`              | `AntdProvider`                       | English Ant locale and shared theme tokens          |
-| Sakai shell                   | `MixiAdminShell`                     | Typed menu and active-route behavior preserved      |
+| legacy shell                   | `MixiAdminShell`                     | Typed menu and active-route behavior preserved      |
 | Prime user overlay            | `AdminUserMenu`                      | Profile, settings, security, and logout preserved   |
 | Prime account pages           | `MixiAccountPages`                   | New Ant Design profile/settings/security pages      |
 | `Button`                      | adapter -> `AntdButton`              | Ant icons and pending state                         |
@@ -44,7 +44,7 @@ Next.js route
 | `Dialog`                      | `AntdModal`                          | Existing visibility contract preserved temporarily  |
 | `DataTable` / `Column`        | Ant table wrapper in `@w-iris/react` | Row keys and pagination preserved                   |
 | Prime skeleton                | Ant Design skeleton adapter          | Final-geometry placeholders preserved               |
-| PrimeIcons                    | `@ant-design/icons`                  | No icon-font runtime dependency                     |
+| @ant-design/icons                    | `@ant-design/icons`                  | No icon-font runtime dependency                     |
 
 ## Delivery plan and status
 
@@ -61,7 +61,7 @@ Next.js route
 - [x] Add compatible Ant Design, icons, and Pro Components dependencies.
 - [x] Replace `WPrimeProvider` with `AntdProvider`.
 - [x] Set the document language and component locale to English.
-- [x] Remove `@w-iris/themes`, PrimeReact, PrimeFlex, and PrimeIcons dependencies.
+- [x] Remove `@w-iris/themes`, Ant Design, Ant Design layout, and @ant-design/icons dependencies.
 
 ### Phase 2 — Shared shell and account experience
 
@@ -70,7 +70,7 @@ Next.js route
 - [x] Use shared profile, settings, and security pages.
 - [x] Expose `/profile`, `/settings`, and `/security` aliases without duplicating
       shared account UI.
-- [x] Remove the unused local Sakai shell implementation.
+- [x] Remove the unused local legacy shell implementation.
 - [ ] Add browser assertions for account navigation and mobile sider behavior.
 
 ### Phase 3 — Config Center vertical slice
