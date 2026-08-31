@@ -99,7 +99,7 @@ function FormFields({
   serviceOptions: Service[];
   environmentOptions: Environment[];
 }) {
-  const { register, handleSubmit, setValue, watch, formState } = form;
+  const { handleSubmit, setValue, watch, formState } = form;
   const saving = formState.isSubmitting;
 
   return (
@@ -155,7 +155,8 @@ function FormFields({
           input={
             <InputText
               data-testid="entity-name"
-              {...register("name")}
+              value={watch("name") ?? ""}
+              onChange={(e: any) => setValue("name", e.target.value, { shouldDirty: true })}
               className="ui-full-width"
             />
           }
@@ -167,7 +168,8 @@ function FormFields({
           input={
             <InputText
               data-testid="entity-code"
-              {...register("code")}
+              value={watch("code") ?? ""}
+              onChange={(e: any) => setValue("code", e.target.value, { shouldDirty: true })}
               className="ui-full-width"
             />
           }
@@ -179,7 +181,8 @@ function FormFields({
           input={
             <InputText
               data-testid="entity-key"
-              {...register("key")}
+              value={watch("key") ?? ""}
+              onChange={(e: any) => setValue("key", e.target.value, { shouldDirty: true })}
               className="ui-full-width"
             />
           }
@@ -191,7 +194,8 @@ function FormFields({
           input={
             <InputText
               data-testid="entity-value"
-              {...register("value")}
+              value={watch("value") ?? ""}
+              onChange={(e: any) => setValue("value", e.target.value, { shouldDirty: true })}
               className="ui-full-width"
             />
           }
@@ -203,7 +207,8 @@ function FormFields({
           input={
             <InputTextarea
               data-testid="entity-description"
-              {...register("description")}
+              value={watch("description") ?? ""}
+              onChange={(e: any) => setValue("description", e.target.value, { shouldDirty: true })}
               rows={4}
               className="ui-full-width"
             />
