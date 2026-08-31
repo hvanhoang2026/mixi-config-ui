@@ -8,7 +8,7 @@ describe("resolvePublicEnv", () => {
     });
 
     expect(`${env.authApiBaseUrl}/users/me`).toBe(
-      "https://w-gateway.vercel.app/auth/users/me",
+      "https://w-gateway-phi.vercel.app/auth/users/me",
     );
   });
 
@@ -17,16 +17,16 @@ describe("resolvePublicEnv", () => {
       gatewayUrl: undefined,
     });
 
-    expect(env.authApiBaseUrl).toBe("https://w-gateway.vercel.app/auth");
+    expect(env.authApiBaseUrl).toBe("https://w-gateway-phi.vercel.app/auth");
   });
 
   it("uses the safe gateway when the deployment variable is malformed", () => {
     const env = resolvePublicEnv({
-      gatewayUrl: "W_API_PROXY_TARGET=https://w-gateway.vercel.app",
+      gatewayUrl: "W_API_PROXY_TARGET=https://w-gateway-phi.vercel.app",
     });
 
-    expect(env.authApiBaseUrl).toBe("https://w-gateway.vercel.app/auth");
-    expect(env.configApiBaseUrl).toBe("https://w-gateway.vercel.app/config");
-    expect(env.ecmApiBaseUrl).toBe("https://w-gateway.vercel.app/ecm");
+    expect(env.authApiBaseUrl).toBe("https://w-gateway-phi.vercel.app/auth");
+    expect(env.configApiBaseUrl).toBe("https://w-gateway-phi.vercel.app/config");
+    expect(env.ecmApiBaseUrl).toBe("https://w-gateway-phi.vercel.app/ecm");
   });
 });

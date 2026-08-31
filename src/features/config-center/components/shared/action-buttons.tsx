@@ -1,7 +1,9 @@
+import { Modal } from "antd";
 import { AntdButton as Button } from "@w-iris/react";
 import {
   DeleteOutlined,
   EditOutlined,
+  ExclamationCircleOutlined,
   HistoryOutlined,
 } from "@ant-design/icons";
 import type { EntityItem, EntityType } from "../../form-types";
@@ -21,6 +23,20 @@ export function ActionButtons({
   onDelete,
   onHistory,
 }: Props) {
+  const confirmDelete = () => {
+    const name = (row as { name?: string; code?: string; key?: string }).name ?? (row as { code?: string }).code ?? (row as { key?: string }).key ?? row.id;
+    Modal.confirm({
+      title: `Xác nhận xóa ${type}?`,
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc muốn xóa "${name}"? Hành động này không thể hoàn tác.`,
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      centered: true,
+      onOk: () => onDelete(type, row.id),
+    });
+  };
+
   return (
     <div data-testid="auto-action-buttons-1-div" className="config-row-actions">
       <Button
@@ -45,7 +61,7 @@ export function ActionButtons({
         icon={<DeleteOutlined />}
         text
         severity="danger"
-        onClick={() => onDelete(type, row.id)}
+        onClick={confirmDelete}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-const DEFAULT_GATEWAY_URL = "https://w-gateway.vercel.app";
+const DEFAULT_GATEWAY_URL = "https://w-gateway-phi.vercel.app";
 
 function readHttpUrl(
   name: string,

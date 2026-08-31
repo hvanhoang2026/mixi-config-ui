@@ -1,6 +1,7 @@
-import { AntdInput as InputText, AntdSelect as Dropdown } from "@w-iris/react";
-import { SearchOutlined } from "@ant-design/icons";
-import { Skeleton } from "../../../../components/ui/skeleton";
+"use client";
+
+import { Card, Col, Input, Row, Select, Skeleton, Space, Statistic, Typography } from "antd";
+import { AppstoreOutlined, CloudServerOutlined, DeploymentUnitOutlined, SearchOutlined } from "@ant-design/icons";
 
 type Dashboard = {
   totalProjects?: number;
@@ -43,189 +44,127 @@ export function DashboardHeader({
   onEnvironmentChange,
   onSearchChange,
 }: Props) {
-  const stats = [
-    ["Services", dashboard?.totalServices, "Registered workloads"],
-    ["Environments", dashboard?.totalEnvironments, "Deployment scopes"],
-    ["Config keys", dashboard?.totalConfigs, "Governed values"],
-  ] as const;
-
   return (
-    <section className="dashboard-header" data-testid="dashboard-header">
-      <span className="dashboard-header__rail" aria-hidden="true">
-        01 / CONTROL
-      </span>
-      <div
-        data-testid="auto-dashboard-header-1-div"
-        className="dashboard-header__top"
-      >
-        <div
-          data-testid="auto-dashboard-header-2-div"
-          className="dashboard-header__copy"
-        >
-          <span
-            data-testid="auto-dashboard-header-3-span"
-            className="dashboard-header__eyebrow"
-          >
+    <Card
+      data-testid="dashboard-header"
+      style={{ borderRadius: 12 }}
+      styles={{ body: { padding: 24 } }}
+    >
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={10}>
+          <Typography.Text type="secondary" style={{ fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
             Platform configuration ledger
-          </span>
-          <h1 data-testid="auto-dashboard-header-4-h1">
+          </Typography.Text>
+          <Typography.Title level={3} style={{ margin: "8px 0 8px", fontSize: 28 }}>
             Configuration control
-          </h1>
-          <p data-testid="auto-dashboard-header-5-p">
-            Select an operational scope, review governed values, and publish
-            changes without losing service context.
-          </p>
+          </Typography.Title>
+          <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
+            Select an operational scope, review governed values, and publish changes without losing service context.
+          </Typography.Paragraph>
           {loading ? (
-            <div
-              data-testid="auto-dashboard-header-6-div"
-              className="dashboard-header__scope-note"
-            >
-              <Skeleton width="16rem" height="1rem" />
-            </div>
+            <Skeleton.Input active size="small" style={{ width: 160 }} />
           ) : projectName ? (
-            <div
-              data-testid="auto-dashboard-header-7-div"
-              className="dashboard-header__scope-note"
-            >
-              <span>Current project</span>
-              <strong>{projectName}</strong>
-            </div>
+            <Typography.Text type="secondary">
+              Current project: <Typography.Text strong>{projectName}</Typography.Text>
+            </Typography.Text>
           ) : null}
-        </div>
+        </Col>
 
-        <div
-          data-testid="auto-dashboard-header-8-div"
-          className="dashboard-header__tools"
-        >
-          <div
-            data-testid="auto-dashboard-header-9-div"
-            className="dashboard-header__scope-grid"
-          >
-            <div
-              data-testid="auto-dashboard-header-10-div"
-              className="dashboard-header__scope-field"
-            >
-              <label
-                data-testid="auto-dashboard-header-11-span"
-                htmlFor="workspace-service"
-              >
-                Service
-              </label>
-              {loading ? (
-                <Skeleton height="2.75rem" borderRadius="12px" />
-              ) : (
-                <Dropdown
-                  inputId="workspace-service"
-                  optionLabel="name"
-                  optionValue="id"
-                  options={services}
-                  value={selectedServiceId}
-                  onChange={(event: { value: unknown }) =>
-                    onServiceChange(String(event.value))
-                  }
-                  placeholder="Select service"
-                  data-testid="service-selector"
-                  className="ui-full-width"
-                />
-              )}
-            </div>
-            <div
-              data-testid="auto-dashboard-header-12-div"
-              className="dashboard-header__scope-field"
-            >
-              <label
-                data-testid="auto-dashboard-header-13-span"
-                htmlFor="workspace-environment"
-              >
-                Environment
-              </label>
-              {loading ? (
-                <Skeleton height="2.75rem" borderRadius="12px" />
-              ) : (
-                <Dropdown
-                  inputId="workspace-environment"
-                  optionLabel="name"
-                  optionValue="id"
-                  options={environments}
-                  value={selectedEnvironmentId}
-                  onChange={(event: { value: unknown }) =>
-                    onEnvironmentChange(String(event.value))
-                  }
-                  placeholder="Select environment"
-                  data-testid="environment-selector"
-                  className="ui-full-width"
-                />
-              )}
-            </div>
-          </div>
-          <div
-            data-testid="auto-dashboard-header-14-div"
-            className="dashboard-header__search"
-          >
-            <SearchOutlined
-              data-testid="auto-dashboard-header-15-i"
-              aria-hidden="true"
-            />
+        <Col xs={24} lg={14}>
+          <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Typography.Text strong style={{ fontSize: 12 }}>
+                  Service
+                </Typography.Text>
+                {loading ? (
+                  <Skeleton.Input active block style={{ height: 32, marginTop: 4 }} />
+                ) : (
+                  <Select
+                    placeholder="Select service"
+                    value={selectedServiceId || undefined}
+                    onChange={onServiceChange}
+                    options={services.map((s) => ({ label: s.name, value: s.id }))}
+                    style={{ width: "100%", marginTop: 4 }}
+                    suffixIcon={<CloudServerOutlined />}
+                    data-testid="service-selector"
+                  />
+                )}
+              </Col>
+              <Col span={12}>
+                <Typography.Text strong style={{ fontSize: 12 }}>
+                  Environment
+                </Typography.Text>
+                {loading ? (
+                  <Skeleton.Input active block style={{ height: 32, marginTop: 4 }} />
+                ) : (
+                  <Select
+                    placeholder="Select environment"
+                    value={selectedEnvironmentId || undefined}
+                    onChange={onEnvironmentChange}
+                    options={environments.map((e) => ({ label: e.name, value: e.id }))}
+                    style={{ width: "100%", marginTop: 4 }}
+                    suffixIcon={<DeploymentUnitOutlined />}
+                    data-testid="environment-selector"
+                  />
+                )}
+              </Col>
+            </Row>
+
             {loading ? (
-              <Skeleton width="100%" height="1.1rem" />
+              <Skeleton.Input active block style={{ height: 32 }} />
             ) : (
-              <InputText
-                aria-label="Search configuration keys"
-                value={search}
-                onChange={(event: { target: { value: string } }) =>
-                  onSearchChange(event.target.value)
-                }
-                data-testid="config-search-input"
+              <Input
+                prefix={<SearchOutlined />}
                 placeholder="Search service config keys"
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                allowClear
+                data-testid="config-search-input"
+                aria-label="Search configuration keys"
               />
             )}
-          </div>
-          {loading ? (
-            <div
-              data-testid="auto-dashboard-header-16-div"
-              className="dashboard-header__actions dashboard-header__actions--skeleton"
-            >
-              <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
-              <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
-              <Skeleton width="10rem" height="2.75rem" borderRadius="10px" />
-            </div>
-          ) : actions ? (
-            <div
-              data-testid="auto-dashboard-header-17-div"
-              className="dashboard-header__actions"
-            >
-              {actions}
-            </div>
-          ) : null}
-        </div>
-      </div>
 
-      <div
-        data-testid="auto-dashboard-header-18-div"
-        className="dashboard-header__stats"
-      >
-        {stats.map(([title, value, context], index) =>
+            {loading ? (
+              <Space>
+                <Skeleton.Button active />
+                <Skeleton.Button active />
+                <Skeleton.Button active />
+              </Space>
+            ) : actions ? (
+              <Space wrap>{actions}</Space>
+            ) : null}
+          </Space>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        {[
+          { title: "Services", value: dashboard?.totalServices, suffix: "Registered workloads", icon: <CloudServerOutlined /> },
+          { title: "Environments", value: dashboard?.totalEnvironments, suffix: "Deployment scopes", icon: <DeploymentUnitOutlined /> },
+          { title: "Config keys", value: dashboard?.totalConfigs, suffix: "Governed values", icon: <AppstoreOutlined /> },
+        ].map((stat) =>
           loading ? (
-            <div
-              data-testid="auto-dashboard-header-19-div"
-              key={title}
-              className="stat-card stat-card--skeleton"
-            >
-              <Skeleton width="6rem" height="0.95rem" />
-              <Skeleton width="4.5rem" height="2rem" />
-            </div>
+            <Col key={stat.title} xs={24} sm={8}>
+              <Card size="small">
+                <Skeleton active paragraph={{ rows: 1 }} />
+              </Card>
+            </Col>
           ) : (
-            <article key={title} className="stat-card">
-              <span className="stat-card__index">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <span className="stat-card__label">{title}</span>
-              <strong className="stat-card__value">{value ?? 0}</strong>
-              <span className="stat-card__context">{context}</span>
-            </article>
+            <Col key={stat.title} xs={24} sm={8}>
+              <Card size="small" hoverable>
+                <Statistic
+                  title={stat.title}
+                  value={stat.value ?? 0}
+                  prefix={stat.icon}
+                  suffix={<Typography.Text type="secondary" style={{ fontSize: 12 }}>{stat.suffix}</Typography.Text>}
+                  valueStyle={{ fontSize: 28 }}
+                />
+              </Card>
+            </Col>
           ),
         )}
-      </div>
-    </section>
+      </Row>
+    </Card>
   );
 }
