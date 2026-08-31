@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mixi-logo-title">
+  <title id="mixi-logo-title">Mixi</title>
+  <path d="M121 97C193 36 310 26 394 79C427 100 455 130 474 166H307C260 166 216 188 188 226L121 97Z" fill="#D15A8B" />
+  <path d="M488 191C507 276 478 367 412 424C371 459 319 480 265 484L348 340C371 300 375 252 356 210L488 191Z" fill="#E695BB" />
+  <path d="M236 477C148 467 72 410 38 329C12 267 14 196 42 137L126 282C149 322 188 350 233 357L236 477Z" fill="#EDCADB" />
+  <path d="M256 326L185 259C139 216 167 157 216 157C237 157 251 168 256 180C264 168 278 157 298 157C347 157 375 216 329 259L256 326Z" fill="#E69ABA" stroke="#D15A8B" stroke-width="12" stroke-linejoin="round" />
+</svg>

@@ -21,7 +21,7 @@ Replace:
 ## Required Environment Variables
 
 ```env
-MIXI_CONFIG_API_URL=https://w-gateway.vercel.app/config
+MIXI_CONFIG_API_URL=https://w-gateway-phi.vercel.app/config
 MIXI_CONFIG_TOKEN=<service-access-token>
 MIXI_SERVICE_CODE=<service-code>
 MIXI_ENVIRONMENT_CODE=<environment-code>

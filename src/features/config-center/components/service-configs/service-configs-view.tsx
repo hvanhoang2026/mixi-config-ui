@@ -8,6 +8,7 @@ import {
   CodeOutlined,
   DeleteOutlined,
   EditOutlined,
+  ExclamationCircleOutlined,
   GlobalOutlined,
   HistoryOutlined,
   LoadingOutlined,
@@ -16,6 +17,7 @@ import {
   SettingOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
+import { Modal } from "antd";
 import {
   AntdButton as Button,
   AntdInput as InputText,
@@ -520,7 +522,18 @@ export function ServiceConfigsView({
                                 savingConfigId !== null ||
                                 deletingConfigId !== null
                               }
-                              onClick={() => deleteConfig(row.id)}
+                              onClick={() =>
+                                Modal.confirm({
+                                  title: "Xác nhận xóa config?",
+                                  icon: <ExclamationCircleOutlined />,
+                                  content: `Bạn có chắc muốn xóa key "${row.key}"?`,
+                                  okText: "Xóa",
+                                  okType: "danger",
+                                  cancelText: "Hủy",
+                                  centered: true,
+                                  onOk: () => deleteConfig(row.id),
+                                })
+                              }
                             />
                           </div>
                         </td>

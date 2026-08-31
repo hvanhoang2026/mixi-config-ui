@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,8 +24,16 @@ import { API_BASE, api } from "../../features/config-center/api";
 import { publicEnv } from "../../shared/config/public-env";
 import { AntdButton as Button } from "@w-iris/react";
 import {
+  AppstoreOutlined,
+  CloudServerOutlined,
+  DashboardOutlined,
+  DeploymentUnitOutlined,
   DownloadOutlined,
+  HistoryOutlined,
+  ProjectOutlined,
   ReloadOutlined,
+  SettingOutlined,
+  SlidersOutlined,
   SyncOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -65,6 +74,17 @@ const emptyEnvironment: EnvironmentForm = {
 };
 const BULK_UPSERT_TIMEOUT_MS = 120_000;
 
+function submenuLabel(label: string, icon: ReactNode) {
+  return (
+    <span className="mixi-config-submenu-label">
+      <span className="mixi-config-submenu-label__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span>{label}</span>
+    </span>
+  ) as unknown as string;
+}
+
 export default function ConfigCenterPage() {
   const router = useRouter();
   const {
@@ -77,7 +97,7 @@ export default function ConfigCenterPage() {
   } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<ConfigSection>("config");
+  const [activeSection, setActiveSection] = useState<ConfigSection>("dashboard");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
@@ -398,19 +418,36 @@ export default function ConfigCenterPage() {
   }
 
   const contentMenu = [
-    { key: "service", label: "Services", icon: "cloud" },
-    { key: "environment", label: "Environments", icon: "database" },
-    { key: "config", label: "Service Configs", icon: "config" },
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: <DashboardOutlined />,
+    },
+    {
+      key: "service",
+      label: "Services",
+      icon: <CloudServerOutlined />,
+    },
+    {
+      key: "environment",
+      label: "Environments",
+      icon: <DeploymentUnitOutlined />,
+    },
+    {
+      key: "config",
+      label: "Service Configs",
+      icon: <SlidersOutlined />,
+    },
     {
       key: "runtime-history",
       label: "Runtime & History",
-      icon: "logs",
+      icon: <HistoryOutlined />,
     },
-    { key: "project", label: "Projects", icon: "ecm" },
+    { key: "project", label: "Projects", icon: <ProjectOutlined /> },
   ] as const satisfies ReadonlyArray<{
     key: ConfigSection;
     label: string;
-    icon: string;
+    icon: ReactNode;
   }>;
 
   const canRunScopedActions = !!selectedService && !!selectedEnvironment;
@@ -454,13 +491,11 @@ export default function ConfigCenterPage() {
       icon: "config",
       items: [
         {
-          label: "Config Center",
-          icon: "config",
+          label: submenuLabel("Config Center", <SettingOutlined />),
           href: "/config-center/config",
         },
         {
-          label: "Mixi Admin",
-          icon: "cloud",
+          label: submenuLabel("Mixi Admin", <AppstoreOutlined />),
           url: "http://localhost:3000/main",
           target: "_blank",
         },
@@ -470,8 +505,7 @@ export default function ConfigCenterPage() {
       label: "Content",
       icon: "ecm",
       items: contentMenu.map((item) => ({
-        label: item.label,
-        icon: item.icon,
+        label: submenuLabel(item.label, item.icon),
         href: `/config-center/${item.key}`,
       })),
     },
@@ -540,6 +574,9 @@ export default function ConfigCenterPage() {
     <AuthGuard>
       <MixiAdminShell
         brand="MIXI CONFIG"
+        logo={
+          <Image src="/mixi-logo.svg" alt="" width={32} height={32} priority />
+        }
         brandHref="/config-center"
         homeHref="/config-center"
         pageTitle="Config Center"
@@ -657,83 +694,81 @@ export default function ConfigCenterPage() {
               updateUser(updates);
             }}
           />
+        ) : activeSection === "dashboard" ? (
+          <DashboardHeader
+            dashboard={dashboard.data}
+            loading={
+              initialized &&
+              isAuthenticated &&
+              (dashboard.isLoading ||
+                projects.isLoading ||
+                services.isLoading ||
+                environments.isLoading)
+            }
+            projectName={selectedProject?.name}
+            services={serviceOptions}
+            environments={environmentOptions}
+            selectedServiceId={selectedService?.id ?? ""}
+            selectedEnvironmentId={selectedEnvironment?.id ?? ""}
+            search={search}
+            actions={contentActions}
+            onServiceChange={setSelectedServiceId}
+            onEnvironmentChange={setSelectedEnvironmentId}
+            onSearchChange={setSearch}
+          />
         ) : (
-          <>
-            <DashboardHeader
-              dashboard={dashboard.data}
-              loading={
-                initialized &&
-                isAuthenticated &&
-                (dashboard.isLoading ||
-                  projects.isLoading ||
-                  services.isLoading ||
-                  environments.isLoading)
+          <EntityTabs
+            projects={projectOptions}
+            services={serviceOptions}
+            environments={environmentOptions}
+            configs={configItems}
+            apiBaseUrl={API_BASE}
+            selectedServiceId={selectedService?.id ?? ""}
+            selectedEnvironmentId={selectedEnvironment?.id ?? ""}
+            activeSection={activeSection}
+            loading={{
+              project:
+                initialized && isAuthenticated ? projects.isLoading : false,
+              service:
+                initialized && isAuthenticated ? services.isLoading : false,
+              environment:
+                initialized && isAuthenticated
+                  ? environments.isLoading
+                  : false,
+              config:
+                initialized && isAuthenticated ? configs.isLoading : false,
+            }}
+            runtimeText={runtimeText}
+            history={history.data ?? []}
+            runtimeLoading={
+              initialized &&
+              isAuthenticated &&
+              (services.isLoading ||
+                environments.isLoading ||
+                configs.isLoading ||
+                history.isLoading)
+            }
+            onAdd={addEntity}
+            onEdit={(type: EntityType, item: EntityItem) => {
+              if (type === "service") {
+                const service = item as Service;
+                setSelectedServiceId(service.id);
               }
-              projectName={selectedProject?.name}
-              services={serviceOptions}
-              environments={environmentOptions}
-              selectedServiceId={selectedService?.id ?? ""}
-              selectedEnvironmentId={selectedEnvironment?.id ?? ""}
-              search={search}
-              actions={contentActions}
-              onServiceChange={setSelectedServiceId}
-              onEnvironmentChange={setSelectedEnvironmentId}
-              onSearchChange={setSearch}
-            />
-
-            <EntityTabs
-              projects={projectOptions}
-              services={serviceOptions}
-              environments={environmentOptions}
-              configs={configItems}
-              apiBaseUrl={API_BASE}
-              selectedServiceId={selectedService?.id ?? ""}
-              selectedEnvironmentId={selectedEnvironment?.id ?? ""}
-              activeSection={activeSection}
-              loading={{
-                project:
-                  initialized && isAuthenticated ? projects.isLoading : false,
-                service:
-                  initialized && isAuthenticated ? services.isLoading : false,
-                environment:
-                  initialized && isAuthenticated
-                    ? environments.isLoading
-                    : false,
-                config:
-                  initialized && isAuthenticated ? configs.isLoading : false,
-              }}
-              runtimeText={runtimeText}
-              history={history.data ?? []}
-              runtimeLoading={
-                initialized &&
-                isAuthenticated &&
-                (services.isLoading ||
-                  environments.isLoading ||
-                  configs.isLoading ||
-                  history.isLoading)
+              if (type === "config") {
+                const config = item as Config;
+                setSelectedServiceId(config.serviceId);
+                setSelectedEnvironmentId(config.environmentId);
               }
-              onAdd={addEntity}
-              onEdit={(type: EntityType, item: EntityItem) => {
-                if (type === "service") {
-                  const service = item as Service;
-                  setSelectedServiceId(service.id);
-                }
-                if (type === "config") {
-                  const config = item as Config;
-                  setSelectedServiceId(config.serviceId);
-                  setSelectedEnvironmentId(config.environmentId);
-                }
-                setEditTarget({ type, item });
-              }}
-              onDelete={deleteEntity}
-              onSelectService={setSelectedServiceId}
-              onSelectEnvironment={setSelectedEnvironmentId}
-              onSaveConfigValue={saveConfigValue}
-              onBulkSaveConfigs={bulkSaveConfigs}
-              onHistory={loadHistory}
-              onLoadRuntime={loadRuntime}
-            />
-          </>
+              setEditTarget({ type, item });
+            }}
+            onDelete={deleteEntity}
+            onSelectService={setSelectedServiceId}
+            onSelectEnvironment={setSelectedEnvironmentId}
+            onSaveConfigValue={saveConfigValue}
+            onBulkSaveConfigs={bulkSaveConfigs}
+            onHistory={loadHistory}
+            onLoadRuntime={loadRuntime}
+          />
         )}
 
         <EntityDialog

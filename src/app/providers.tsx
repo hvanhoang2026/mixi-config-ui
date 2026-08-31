@@ -18,7 +18,7 @@ export function Providers({ children }: { children: ReactNode }) {
       }),
   );
   return (
-    <AntdProvider>
+    <AntdProvider themeColor="#11675e" pageStyle="comfortable">
       <QueryClientProvider client={client}>
         <AuthProvider>{children}</AuthProvider>
       </QueryClientProvider>

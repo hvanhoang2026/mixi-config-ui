@@ -27,7 +27,6 @@ export function LoginFormCard() {
         teamName="Mixi Config"
         loading={loading}
         forgotPasswordHref="/login"
-        registerHref="/register"
         rememberStorageKey={REMEMBER_CREDENTIALS_KEY}
         onSubmit={async ({ email, password, remember, mfaCode }) => {
           return login(email, password, remember, mfaCode);
