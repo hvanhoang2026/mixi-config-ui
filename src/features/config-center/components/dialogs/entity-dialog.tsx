@@ -279,14 +279,19 @@ function SelectField({
         options={options.map((o) => ({ label: o.name, value: o.id }))}
         placeholder={placeholder}
         showSearch
-        filterOption={(input, option) =>
-          (option?.label as string).toLowerCase().includes(input.toLowerCase())
-        }
+        filterOption={(input, option) => {
+          const label = String(option?.label ?? "").toLowerCase();
+          const val = String(option?.value ?? "").toLowerCase();
+          const search = input.toLowerCase();
+          return label.includes(search) || val.includes(search);
+        }}
         optionFilterProp="label"
         allowClear
+        autoClearSearchValue={false}
         className="ui-full-width"
         getPopupContainer={() => document.body}
         notFoundContent="Không tìm thấy"
+        open={undefined}
       />
     </div>
   );
