@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { AutoComplete } from "antd";
 import { FormField } from "@w-iris/react";
@@ -270,22 +270,39 @@ function SelectField({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
-  const displayValue = options.find((o) => o.id === value)?.name ?? value ?? "";
+  const [inputValue, setInputValue] = useState(
+    () => options.find((o) => o.id === value)?.name ?? "",
+  );
+
+  useEffect(() => {
+    setInputValue(options.find((o) => o.id === value)?.name ?? "");
+  }, [value, options]);
+
   return (
     <div data-testid="auto-entity-dialog-3-div" className="entity-form__field">
       <AutoComplete
         data-testid={testId}
-        value={displayValue}
+        value={inputValue}
         options={options.map((o) => ({ value: o.name, label: o.name }))}
         onSelect={(val) => {
           const opt = options.find((o) => o.name === val);
-          if (opt) onChange(opt.id);
+          if (opt) {
+            setInputValue(val);
+            onChange(opt.id);
+          }
         }}
         onChange={(val) => {
+          setInputValue(val);
           if (!val) onChange("");
           else {
-            const opt = options.find((o) => o.name === val);
+            const opt = options.find((o) => o.name.toLowerCase() === val.toLowerCase());
             if (opt) onChange(opt.id);
+          }
+        }}
+        onBlur={() => {
+          const matched = options.find((o) => o.name === inputValue);
+          if (!matched && inputValue) {
+            setInputValue(options.find((o) => o.id === value)?.name ?? "");
           }
         }}
         placeholder={placeholder}
