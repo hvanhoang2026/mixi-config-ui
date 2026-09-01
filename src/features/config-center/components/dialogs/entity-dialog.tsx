@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
-import { Select } from "antd";
+import { AutoComplete } from "antd";
 import { FormField } from "@w-iris/react";
 import {
   AntdButton as Button,
@@ -270,28 +270,50 @@ function SelectField({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
+  const [inputValue, setInputValue] = useState(
+    () => options.find((o) => o.id === value)?.name ?? "",
+  );
+
+  useEffect(() => {
+    setInputValue(options.find((o) => o.id === value)?.name ?? "");
+  }, [value, options]);
+
   return (
     <div data-testid="auto-entity-dialog-3-div" className="entity-form__field">
-      <Select
+      <AutoComplete
         data-testid={testId}
-        value={value || undefined}
-        onChange={onChange}
-        options={options.map((o) => ({ label: o.name, value: o.id }))}
-        placeholder={placeholder}
-        showSearch
-        filterOption={(input, option) => {
-          const label = String(option?.label ?? "").toLowerCase();
-          const val = String(option?.value ?? "").toLowerCase();
-          const search = input.toLowerCase();
-          return label.includes(search) || val.includes(search);
+        value={inputValue}
+        options={options.map((o) => ({ value: o.name, label: o.name }))}
+        onSearch={(val) => {
+          setInputValue(val);
+          if (!val) onChange("");
         }}
-        optionFilterProp="label"
+        onSelect={(val) => {
+          const opt = options.find((o) => o.name === val);
+          if (opt) {
+            setInputValue(val);
+            onChange(opt.id);
+          }
+        }}
+        onChange={(val) => {
+          setInputValue(val);
+          if (!val) onChange("");
+        }}
+        onBlur={() => {
+          const matched = options.find((o) => o.name === inputValue);
+          if (!matched && inputValue) {
+            setInputValue(options.find((o) => o.id === value)?.name ?? "");
+          }
+        }}
+        placeholder={placeholder}
+        filterOption={(input, option) =>
+          (String(option?.value ?? "").toLowerCase().includes(input.toLowerCase()) ||
+            String(option?.label ?? "").toLowerCase().includes(input.toLowerCase()))
+        }
         allowClear
-        autoClearSearchValue={false}
-        className="ui-full-width"
         getPopupContainer={() => document.body}
+        className="ui-full-width"
         notFoundContent="Không tìm thấy"
-        open={undefined}
       />
     </div>
   );
