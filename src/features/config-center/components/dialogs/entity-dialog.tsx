@@ -291,6 +291,15 @@ function SelectField({
             onChange(opt.id);
           }
         }}
+        onSearch={(val) => {
+          setInputValue(val);
+          if (!val) onChange("");
+          else {
+            const opt = options.find((o) => o.name.toLowerCase() === val.toLowerCase());
+            if (opt) onChange(opt.id);
+            else if (val.length === 0) onChange("");
+          }
+        }}
         onChange={(val) => {
           setInputValue(val);
           if (!val) onChange("");
@@ -307,10 +316,12 @@ function SelectField({
         }}
         placeholder={placeholder}
         filterOption={(input, option) =>
-          (option?.value as string).toLowerCase().includes(input.toLowerCase())
+          (option?.label as string).toLowerCase().includes(input.toLowerCase())
         }
+        getPopupContainer={() => document.body}
         allowClear
         className="ui-full-width"
+        notFoundContent="Không tìm thấy"
       />
     </div>
   );
