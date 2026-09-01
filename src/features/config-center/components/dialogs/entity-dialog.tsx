@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
+import { AutoComplete } from "antd";
 import { FormField } from "@w-iris/react";
 import {
   AntdButton as Button,
   AntdCheckbox as Checkbox,
   AntdModal as Dialog,
-  AntdSelect as Dropdown,
   AntdInput as InputText,
   AntdTextArea as InputTextarea,
 } from "@w-iris/react";
@@ -270,16 +270,29 @@ function SelectField({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
+  const displayValue = options.find((o) => o.id === value)?.name ?? value ?? "";
   return (
     <div data-testid="auto-entity-dialog-3-div" className="entity-form__field">
-      <Dropdown
+      <AutoComplete
         data-testid={testId}
-        optionLabel="name"
-        optionValue="id"
-        options={options}
-        value={value}
-        onChange={(event: { value: unknown }) => onChange(String(event.value))}
+        value={displayValue}
+        options={options.map((o) => ({ value: o.name, label: o.name }))}
+        onSelect={(val) => {
+          const opt = options.find((o) => o.name === val);
+          if (opt) onChange(opt.id);
+        }}
+        onChange={(val) => {
+          if (!val) onChange("");
+          else {
+            const opt = options.find((o) => o.name === val);
+            if (opt) onChange(opt.id);
+          }
+        }}
         placeholder={placeholder}
+        filterOption={(input, option) =>
+          (option?.value as string).toLowerCase().includes(input.toLowerCase())
+        }
+        allowClear
         className="ui-full-width"
       />
     </div>

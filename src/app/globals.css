@@ -2287,6 +2287,10 @@ body {
   min-width: 0;
 }
 
+.entity-select-dropdown {
+  z-index: 2100 !important;
+}
+
 .entity-form__check {
   display: flex;
   align-items: center;
