@@ -1,6 +1,8 @@
-import { useEffect, useState, type ReactNode } from "react";
+"use client";
+
+import type { ReactNode } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
-import { AutoComplete } from "antd";
+import { Select } from "antd";
 import { FormField } from "@w-iris/react";
 import {
   AntdButton as Button,
@@ -113,7 +115,12 @@ function FormFields({
           testId="entity-project"
           options={projectOptions}
           value={watch("projectId")}
-          onChange={(value) => setValue("projectId", value)}
+          onChange={(value) =>
+            setValue("projectId", value, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
           placeholder="Project"
         />
       )}
@@ -122,7 +129,12 @@ function FormFields({
           testId="entity-service"
           options={serviceOptions}
           value={watch("serviceId")}
-          onChange={(value) => setValue("serviceId", value)}
+          onChange={(value) =>
+            setValue("serviceId", value, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
           placeholder="Service"
         />
       )}
@@ -131,7 +143,12 @@ function FormFields({
           testId="entity-environment"
           options={environmentOptions}
           value={watch("environmentId")}
-          onChange={(value) => setValue("environmentId", value)}
+          onChange={(value) =>
+            setValue("environmentId", value, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
           placeholder="Environment"
         />
       )}
@@ -144,7 +161,12 @@ function FormFields({
             { name: "Worker", id: "worker" },
           ]}
           value={watch("type")}
-          onChange={(value) => setValue("type", value)}
+          onChange={(value) =>
+            setValue("type", value, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
           testId="entity-type"
           placeholder="Type"
         />
@@ -270,50 +292,26 @@ function SelectField({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
-  const [inputValue, setInputValue] = useState(
-    () => options.find((o) => o.id === value)?.name ?? "",
-  );
-
-  useEffect(() => {
-    setInputValue(options.find((o) => o.id === value)?.name ?? "");
-  }, [value, options]);
-
   return (
     <div data-testid="auto-entity-dialog-3-div" className="entity-form__field">
-      <AutoComplete
+      <Select
         data-testid={testId}
-        value={inputValue}
-        options={options.map((o) => ({ value: o.name, label: o.name }))}
-        onSearch={(val) => {
-          setInputValue(val);
-          if (!val) onChange("");
-        }}
-        onSelect={(val) => {
-          const opt = options.find((o) => o.name === val);
-          if (opt) {
-            setInputValue(val);
-            onChange(opt.id);
-          }
-        }}
-        onChange={(val) => {
-          setInputValue(val);
-          if (!val) onChange("");
-        }}
-        onBlur={() => {
-          const matched = options.find((o) => o.name === inputValue);
-          if (!matched && inputValue) {
-            setInputValue(options.find((o) => o.id === value)?.name ?? "");
-          }
-        }}
+        value={value || undefined}
+        onChange={onChange}
+        options={options.map((o) => ({ label: o.name, value: o.id }))}
         placeholder={placeholder}
+        showSearch
         filterOption={(input, option) =>
-          (String(option?.value ?? "").toLowerCase().includes(input.toLowerCase()) ||
-            String(option?.label ?? "").toLowerCase().includes(input.toLowerCase()))
+          String(option?.label ?? "")
+            .toLowerCase()
+            .includes(input.toLowerCase())
         }
+        optionFilterProp="label"
         allowClear
         getPopupContainer={() => document.body}
-        className="ui-full-width"
+        popupClassName="entity-select-dropdown"
         notFoundContent="Không tìm thấy"
+        className="ui-full-width"
       />
     </div>
   );

@@ -257,10 +257,23 @@ export default function ConfigCenterPage() {
   }, [selectedEnvironment, selectedEnvironmentId, environmentOptions]);
 
   useEffect(() => {
-    configForm.setValue("projectId", selectedProject?.id ?? "");
-    configForm.setValue("serviceId", selectedService?.id ?? "");
-    configForm.setValue("environmentId", selectedEnvironment?.id ?? "");
-  }, [configForm, selectedEnvironment, selectedProject, selectedService]);
+    if (editTarget?.item) return;
+    configForm.setValue("projectId", selectedProject?.id ?? "", {
+      shouldDirty: false,
+    });
+    configForm.setValue("serviceId", selectedService?.id ?? "", {
+      shouldDirty: false,
+    });
+    configForm.setValue("environmentId", selectedEnvironment?.id ?? "", {
+      shouldDirty: false,
+    });
+  }, [
+    configForm,
+    selectedEnvironment,
+    selectedProject,
+    selectedService,
+    editTarget,
+  ]);
 
   useEffect(() => {
     if (activeSection !== "runtime-history") return;

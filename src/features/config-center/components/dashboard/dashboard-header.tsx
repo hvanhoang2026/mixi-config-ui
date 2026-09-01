@@ -93,6 +93,13 @@ export function DashboardHeader({
                       />
                     }
                     data-testid="service-selector"
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                    optionFilterProp="label"
+                    allowClear
+                    getPopupContainer={() => document.body}
                   />
                 )}
               </Col>
@@ -116,6 +123,13 @@ export function DashboardHeader({
                       />
                     }
                     data-testid="environment-selector"
+                    showSearch
+                    filterOption={(input, option) =>
+                      String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                    optionFilterProp="label"
+                    allowClear
+                    getPopupContainer={() => document.body}
                   />
                 )}
               </Col>

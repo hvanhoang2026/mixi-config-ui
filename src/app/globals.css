@@ -2287,8 +2287,12 @@ body {
   min-width: 0;
 }
 
-.entity-select-dropdown {
+.ant-select-dropdown.entity-select-dropdown,
+.ant-select-dropdown.entity-select-dropdown .ant-select-dropdown {
   z-index: 2100 !important;
+}
+.ant-select-dropdown {
+  z-index: 1050;
 }
 
 .entity-form__check {
