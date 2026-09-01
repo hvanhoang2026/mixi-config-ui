@@ -86,7 +86,12 @@ export function DashboardHeader({
                     onChange={onServiceChange}
                     options={services.map((s) => ({ label: s.name, value: s.id }))}
                     style={{ width: "100%", marginTop: 4 }}
-                    suffixIcon={<CloudServerOutlined />}
+                    suffixIcon={
+                      <CloudServerOutlined
+                        aria-hidden="true"
+                        style={{ pointerEvents: "none" }}
+                      />
+                    }
                     data-testid="service-selector"
                   />
                 )}
@@ -104,7 +109,12 @@ export function DashboardHeader({
                     onChange={onEnvironmentChange}
                     options={environments.map((e) => ({ label: e.name, value: e.id }))}
                     style={{ width: "100%", marginTop: 4 }}
-                    suffixIcon={<DeploymentUnitOutlined />}
+                    suffixIcon={
+                      <DeploymentUnitOutlined
+                        aria-hidden="true"
+                        style={{ pointerEvents: "none" }}
+                      />
+                    }
                     data-testid="environment-selector"
                   />
                 )}

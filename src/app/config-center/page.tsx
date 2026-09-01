@@ -492,7 +492,7 @@ export default function ConfigCenterPage() {
       items: [
         {
           label: submenuLabel("Config Center", <SettingOutlined />),
-          href: "/config-center/config",
+          href: "/config-center",
         },
         {
           label: submenuLabel("Mixi Admin", <AppstoreOutlined />),
