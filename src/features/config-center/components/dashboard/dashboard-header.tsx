@@ -1,7 +1,22 @@
 "use client";
 
-import { Card, Col, Input, Row, Select, Skeleton, Space, Statistic, Typography } from "antd";
-import { AppstoreOutlined, CloudServerOutlined, DeploymentUnitOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Col,
+  Input,
+  Row,
+  Select,
+  Skeleton,
+  Space,
+  Statistic,
+  Typography,
+} from "antd";
+import {
+  AppstoreOutlined,
+  CloudServerOutlined,
+  DeploymentUnitOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 
 type Dashboard = {
   totalProjects?: number;
@@ -52,20 +67,32 @@ export function DashboardHeader({
     >
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={10}>
-          <Typography.Text type="secondary" style={{ fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+          <Typography.Text
+            type="secondary"
+            style={{
+              fontSize: 12,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
             Platform configuration ledger
           </Typography.Text>
-          <Typography.Title level={3} style={{ margin: "8px 0 8px", fontSize: 28 }}>
+          <Typography.Title
+            level={3}
+            style={{ margin: "8px 0 8px", fontSize: 28 }}
+          >
             Configuration control
           </Typography.Title>
           <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
-            Select an operational scope, review governed values, and publish changes without losing service context.
+            Select an operational scope, review governed values, and publish
+            changes without losing service context.
           </Typography.Paragraph>
           {loading ? (
             <Skeleton.Input active size="small" style={{ width: 160 }} />
           ) : projectName ? (
             <Typography.Text type="secondary">
-              Current project: <Typography.Text strong>{projectName}</Typography.Text>
+              Current project:{" "}
+              <Typography.Text strong>{projectName}</Typography.Text>
             </Typography.Text>
           ) : null}
         </Col>
@@ -78,13 +105,20 @@ export function DashboardHeader({
                   Service
                 </Typography.Text>
                 {loading ? (
-                  <Skeleton.Input active block style={{ height: 32, marginTop: 4 }} />
+                  <Skeleton.Input
+                    active
+                    block
+                    style={{ height: 32, marginTop: 4 }}
+                  />
                 ) : (
                   <Select
                     placeholder="Select service"
                     value={selectedServiceId || undefined}
                     onChange={onServiceChange}
-                    options={services.map((s) => ({ label: s.name, value: s.id }))}
+                    options={services.map((s) => ({
+                      label: s.name,
+                      value: s.id,
+                    }))}
                     style={{ width: "100%", marginTop: 4 }}
                     suffixIcon={
                       <CloudServerOutlined
@@ -95,10 +129,11 @@ export function DashboardHeader({
                     data-testid="service-selector"
                     showSearch
                     filterOption={(input, option) =>
-                      String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                      String(option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
                     }
                     optionFilterProp="label"
-                    allowClear
                     getPopupContainer={() => document.body}
                   />
                 )}
@@ -108,13 +143,20 @@ export function DashboardHeader({
                   Environment
                 </Typography.Text>
                 {loading ? (
-                  <Skeleton.Input active block style={{ height: 32, marginTop: 4 }} />
+                  <Skeleton.Input
+                    active
+                    block
+                    style={{ height: 32, marginTop: 4 }}
+                  />
                 ) : (
                   <Select
                     placeholder="Select environment"
                     value={selectedEnvironmentId || undefined}
                     onChange={onEnvironmentChange}
-                    options={environments.map((e) => ({ label: e.name, value: e.id }))}
+                    options={environments.map((e) => ({
+                      label: e.name,
+                      value: e.id,
+                    }))}
                     style={{ width: "100%", marginTop: 4 }}
                     suffixIcon={
                       <DeploymentUnitOutlined
@@ -125,10 +167,11 @@ export function DashboardHeader({
                     data-testid="environment-selector"
                     showSearch
                     filterOption={(input, option) =>
-                      String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                      String(option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
                     }
                     optionFilterProp="label"
-                    allowClear
                     getPopupContainer={() => document.body}
                   />
                 )}
@@ -164,9 +207,24 @@ export function DashboardHeader({
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         {[
-          { title: "Services", value: dashboard?.totalServices, suffix: "Registered workloads", icon: <CloudServerOutlined /> },
-          { title: "Environments", value: dashboard?.totalEnvironments, suffix: "Deployment scopes", icon: <DeploymentUnitOutlined /> },
-          { title: "Config keys", value: dashboard?.totalConfigs, suffix: "Governed values", icon: <AppstoreOutlined /> },
+          {
+            title: "Services",
+            value: dashboard?.totalServices,
+            suffix: "Registered workloads",
+            icon: <CloudServerOutlined />,
+          },
+          {
+            title: "Environments",
+            value: dashboard?.totalEnvironments,
+            suffix: "Deployment scopes",
+            icon: <DeploymentUnitOutlined />,
+          },
+          {
+            title: "Config keys",
+            value: dashboard?.totalConfigs,
+            suffix: "Governed values",
+            icon: <AppstoreOutlined />,
+          },
         ].map((stat) =>
           loading ? (
             <Col key={stat.title} xs={24} sm={8}>
@@ -181,7 +239,11 @@ export function DashboardHeader({
                   title={stat.title}
                   value={stat.value ?? 0}
                   prefix={stat.icon}
-                  suffix={<Typography.Text type="secondary" style={{ fontSize: 12 }}>{stat.suffix}</Typography.Text>}
+                  suffix={
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      {stat.suffix}
+                    </Typography.Text>
+                  }
                   valueStyle={{ fontSize: 28 }}
                 />
               </Card>

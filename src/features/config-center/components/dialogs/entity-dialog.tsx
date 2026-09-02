@@ -178,7 +178,9 @@ function FormFields({
             <InputText
               data-testid="entity-name"
               value={watch("name") ?? ""}
-              onChange={(e: any) => setValue("name", e.target.value, { shouldDirty: true })}
+              onChange={(e: any) =>
+                setValue("name", e.target.value, { shouldDirty: true })
+              }
               className="ui-full-width"
             />
           }
@@ -191,7 +193,9 @@ function FormFields({
             <InputText
               data-testid="entity-code"
               value={watch("code") ?? ""}
-              onChange={(e: any) => setValue("code", e.target.value, { shouldDirty: true })}
+              onChange={(e: any) =>
+                setValue("code", e.target.value, { shouldDirty: true })
+              }
               className="ui-full-width"
             />
           }
@@ -204,7 +208,9 @@ function FormFields({
             <InputText
               data-testid="entity-key"
               value={watch("key") ?? ""}
-              onChange={(e: any) => setValue("key", e.target.value, { shouldDirty: true })}
+              onChange={(e: any) =>
+                setValue("key", e.target.value, { shouldDirty: true })
+              }
               className="ui-full-width"
             />
           }
@@ -217,7 +223,9 @@ function FormFields({
             <InputText
               data-testid="entity-value"
               value={watch("value") ?? ""}
-              onChange={(e: any) => setValue("value", e.target.value, { shouldDirty: true })}
+              onChange={(e: any) =>
+                setValue("value", e.target.value, { shouldDirty: true })
+              }
               className="ui-full-width"
             />
           }
@@ -230,7 +238,9 @@ function FormFields({
             <InputTextarea
               data-testid="entity-description"
               value={watch("description") ?? ""}
-              onChange={(e: any) => setValue("description", e.target.value, { shouldDirty: true })}
+              onChange={(e: any) =>
+                setValue("description", e.target.value, { shouldDirty: true })
+              }
               rows={4}
               className="ui-full-width"
             />
@@ -307,7 +317,6 @@ function SelectField({
             .includes(input.toLowerCase())
         }
         optionFilterProp="label"
-        allowClear
         getPopupContainer={() => document.body}
         popupClassName="entity-select-dropdown"
         notFoundContent="Không tìm thấy"
