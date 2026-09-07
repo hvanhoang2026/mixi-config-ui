@@ -24,7 +24,11 @@ export function ActionButtons({
   onHistory,
 }: Props) {
   const confirmDelete = () => {
-    const name = (row as { name?: string; code?: string; key?: string }).name ?? (row as { code?: string }).code ?? (row as { key?: string }).key ?? row.id;
+    const name =
+      (row as { name?: string; code?: string; key?: string }).name ??
+      (row as { code?: string }).code ??
+      (row as { key?: string }).key ??
+      row.id;
     Modal.confirm({
       title: `Xác nhận xóa ${type}?`,
       icon: <ExclamationCircleOutlined />,
