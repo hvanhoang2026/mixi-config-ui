@@ -1,4 +1,4 @@
-import { AntdButton as Button } from "@w-iris/react";
+import { Button } from "antd";
 import { DownloadOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Skeleton } from "../../../../components/ui/skeleton";
 import type { Config, Environment, HistoryItem, Service } from "../../types";
@@ -339,11 +339,12 @@ ${runtimeOutput}
             <Button
               data-testid="load-history-button"
               icon={<HistoryOutlined />}
-              label="Load history"
               size="small"
-              text
+              type="text"
               onClick={onLoadHistory}
-            />
+            >
+              Load history
+            </Button>
           </div>
           {loading ? (
             <div

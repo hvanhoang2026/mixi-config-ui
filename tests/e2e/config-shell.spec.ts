@@ -127,24 +127,14 @@ test("service form allows changing project and service type", async ({
   await page.goto("/config-center");
 
   const serviceSelector = page.getByTestId("service-selector");
-  const serviceBox = await serviceSelector.boundingBox();
-  expect(serviceBox).not.toBeNull();
-  await page.mouse.click(
-    serviceBox!.x + serviceBox!.width - 16,
-    serviceBox!.y + serviceBox!.height / 2,
-  );
+  await serviceSelector.click();
   await page.locator(".ant-select-item-option", { hasText: "ECM API" }).click();
   await expect(
     serviceSelector.locator(".ant-select-selection-item"),
   ).toHaveText("ECM API");
 
   const environmentSelector = page.getByTestId("environment-selector");
-  const environmentBox = await environmentSelector.boundingBox();
-  expect(environmentBox).not.toBeNull();
-  await page.mouse.click(
-    environmentBox!.x + environmentBox!.width - 16,
-    environmentBox!.y + environmentBox!.height / 2,
-  );
+  await environmentSelector.click();
   await page.locator(".ant-select-item-option", { hasText: "Staging" }).click();
   await expect(
     environmentSelector.locator(".ant-select-selection-item"),
@@ -168,4 +158,8 @@ test("service form allows changing project and service type", async ({
   await expect(type.locator(".ant-select-selection-item")).toHaveText(
     "Frontend",
   );
+
+  await page.reload();
+  await expect(page).toHaveURL(/\/config-center\/service$/);
+  await expect(page.getByTestId("entity-section-service")).toBeVisible();
 });

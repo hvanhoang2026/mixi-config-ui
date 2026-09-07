@@ -2285,6 +2285,18 @@ body {
 
 .entity-form__field {
   min-width: 0;
+  overflow: visible;
+}
+
+.ant-modal-content {
+  overflow: visible;
+}
+.ant-modal-body {
+  overflow: visible;
+}
+
+.ui-full-width {
+  width: 100%;
 }
 
 .ant-select-dropdown.entity-select-dropdown,
@@ -2292,7 +2304,10 @@ body {
   z-index: 2100 !important;
 }
 .ant-select-dropdown {
-  z-index: 1050;
+  z-index: 2050 !important;
+}
+.ant-select-dropdown-hidden {
+  display: none !important;
 }
 
 .entity-form__check {
@@ -2322,4 +2337,124 @@ body {
   margin-top: 0.25rem;
   color: var(--muted, #64748b);
   font-size: 0.875rem;
+}
+
+.auth-guard-loading {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  color: var(--brand, #0f766e);
+  background: #f6f8f7;
+}
+
+.loading-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ant Design workspace controls */
+.entity-form {
+  gap: 0;
+  padding-top: 0.5rem;
+}
+
+.entity-form .ant-form-item {
+  margin-bottom: 1rem;
+}
+
+.entity-form .ant-form-item-row {
+  display: block;
+}
+
+.entity-form .ant-form-item-label {
+  display: block;
+  padding: 0 0 0.375rem;
+  text-align: left;
+}
+
+.entity-form .ant-form-item-label > label {
+  height: auto;
+  color: #263633;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.entity-form .ant-form-item-control {
+  display: block;
+  width: 100%;
+}
+
+.ant-modal .ant-modal-title {
+  color: #17211f;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.ant-modal .ant-modal-content {
+  padding: 1.5rem;
+  border: 1px solid #dbe5e1;
+  box-shadow: 0 24px 64px rgba(20, 40, 36, 0.22);
+}
+
+.ant-select-dropdown {
+  padding: 0.375rem;
+  border: 1px solid #dbe5e1;
+  border-radius: 0.75rem;
+  background: #ffffff !important;
+  box-shadow: 0 14px 36px rgba(20, 40, 36, 0.18);
+}
+
+.ant-select-dropdown .ant-select-item {
+  min-height: 2.25rem;
+  border-radius: 0.5rem;
+}
+
+.ant-select-dropdown
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: #f0f7f5;
+}
+
+.ant-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  color: #0b5f57;
+  background: #e3f2ee;
+  font-weight: 650;
+}
+
+.service-configs__filters {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.7fr) minmax(14rem, 1fr);
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+  background: #f8faf9;
+}
+
+.service-configs__config-table .ant-table-wrapper {
+  min-width: 48rem;
+}
+
+.service-configs__config-table .ant-table-cell {
+  vertical-align: middle;
+}
+
+.service-configs__config-table .ant-btn.is-success {
+  color: #15803d;
+  background: #ecfdf3;
+}
+
+@media (max-width: 720px) {
+  .ant-modal {
+    max-width: calc(100vw - 1.5rem);
+    margin: 0.75rem auto;
+  }
+
+  .ant-modal .ant-modal-content {
+    padding: 1.25rem;
+  }
+
+  .service-configs__filters {
+    grid-template-columns: 1fr;
+  }
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,7 +22,7 @@ import {
 } from "../../features/auth/authApi";
 import { API_BASE, api } from "../../features/config-center/api";
 import { publicEnv } from "../../shared/config/public-env";
-import { AntdButton as Button } from "@w-iris/react";
+import { Button } from "antd";
 import {
   AppstoreOutlined,
   CloudServerOutlined,
@@ -73,6 +73,21 @@ const emptyEnvironment: EnvironmentForm = {
   description: "",
 };
 const BULK_UPSERT_TIMEOUT_MS = 120_000;
+const CONFIG_SECTIONS: readonly ConfigSection[] = [
+  "dashboard",
+  "service",
+  "environment",
+  "config",
+  "runtime-history",
+  "project",
+];
+
+function sectionFromPathname(pathname: string): ConfigSection {
+  const segment = pathname.split("/").filter(Boolean)[1];
+  return CONFIG_SECTIONS.includes(segment as ConfigSection)
+    ? (segment as ConfigSection)
+    : "dashboard";
+}
 
 function submenuLabel(label: string, icon: ReactNode) {
   return (
@@ -87,6 +102,7 @@ function submenuLabel(label: string, icon: ReactNode) {
 
 export default function ConfigCenterPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     initialized,
     isAuthenticated,
@@ -97,8 +113,9 @@ export default function ConfigCenterPage() {
   } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] =
-    useState<ConfigSection>("dashboard");
+  const [activeSection, setActiveSection] = useState<ConfigSection>(() =>
+    sectionFromPathname(pathname),
+  );
   const [historyOpen, setHistoryOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
@@ -123,6 +140,12 @@ export default function ConfigCenterPage() {
       setActiveAccountPage(account);
     }
   }, []);
+
+  useEffect(() => {
+    if (pathname.startsWith("/config-center")) {
+      setActiveSection(sectionFromPathname(pathname));
+    }
+  }, [pathname]);
 
   const projects = useCrud<Project>("projects", "/projects");
   const services = useCrud<Service>("services", "/services");
@@ -529,25 +552,25 @@ export default function ConfigCenterPage() {
     <>
       <Button
         data-testid="refresh-workspace-button"
-        label="Refresh workspace"
         icon={<ReloadOutlined />}
         onClick={() => invalidateAll()}
         className="dashboard-header__action dashboard-header__action--ghost"
-      />
+      >
+        Refresh workspace
+      </Button>
       <Button
         data-testid="import-service-env-button"
-        label="Import service ENV"
+        type="primary"
         icon={<UploadOutlined />}
-        severity="secondary"
         onClick={() => setImportOpen(true)}
         disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--primary"
-      />
+      >
+        Import service ENV
+      </Button>
       <Button
         data-testid="export-service-env-button"
-        label="Export service ENV"
         icon={<DownloadOutlined />}
-        variant="outlined"
         onClick={async () => {
           const query = new URLSearchParams({
             projectId: selectedProject?.id ?? "",
@@ -560,12 +583,12 @@ export default function ConfigCenterPage() {
         }}
         disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--ghost"
-      />
+      >
+        Export service ENV
+      </Button>
       <Button
         data-testid="reload-cache-button"
-        label="Reload Cache"
         icon={<SyncOutlined />}
-        variant="outlined"
         onClick={async () => {
           await api("/configs/reload-cache", {
             method: "POST",
@@ -580,7 +603,9 @@ export default function ConfigCenterPage() {
         }}
         disabled={!canRunScopedActions}
         className="dashboard-header__action dashboard-header__action--ghost"
-      />
+      >
+        Reload cache
+      </Button>
     </>
   );
 

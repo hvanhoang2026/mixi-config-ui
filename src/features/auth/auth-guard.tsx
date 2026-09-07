@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { LoadingIcon } from "../../components/ui/loading-icon";
 import { useAuth } from "./AuthProvider";
 
 type Props = {
@@ -21,7 +22,15 @@ export function AuthGuard({ children }: Props) {
     router.replace(`/login${next}`);
   }, [initialized, isAuthenticated, pathname, router]);
 
-  if (!initialized || !isAuthenticated) return null;
+  if (!initialized) {
+    return (
+      <div className="auth-guard-loading">
+        <LoadingIcon />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   return <>{children}</>;
 }

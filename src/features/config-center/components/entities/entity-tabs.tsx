@@ -1,4 +1,4 @@
-import { Column, DataTable, type DataTableProps } from "@w-iris/react";
+import { Table, Tag, type TableColumnsType } from "antd";
 import { Skeleton } from "../../../../components/ui/skeleton";
 import type {
   Config,
@@ -51,88 +51,6 @@ export function EntityTabs(props: Props) {
     />
   );
 
-  if (props.activeSection === "project") {
-    return (
-      <section
-        data-testid="auto-entity-tabs-1-section"
-        className="content-panel"
-      >
-        <CrudHeader
-          onAdd={() => props.onAdd("project")}
-          actions={props.actions}
-        />
-        <EntityDataTable value={props.projects} loading={props.loading.project}>
-          <Column field="name" header="Name" filter sortable />
-          <Column field="code" header="Code" filter sortable />
-          <Column field="description" header="Description" filter />
-          <Column
-            header="Actions"
-            body={(row: Project) => actions("project", row)}
-          />
-        </EntityDataTable>
-      </section>
-    );
-  }
-
-  if (props.activeSection === "service") {
-    return (
-      <section
-        data-testid="auto-entity-tabs-2-section"
-        className="content-panel"
-      >
-        <CrudHeader
-          onAdd={() => props.onAdd("service")}
-          actions={props.actions}
-        />
-        <EntityDataTable value={props.services} loading={props.loading.service}>
-          <Column field="name" header="Name" filter sortable />
-          <Column field="code" header="Code" filter sortable />
-          <Column field="type" header="Type" filter sortable />
-          <Column
-            field="projectId"
-            header="Project"
-            filter
-            sortable
-            body={(row: Service) =>
-              props.projects.find((project) => project.id === row.projectId)
-                ?.name ?? row.projectId
-            }
-          />
-          <Column
-            header="Actions"
-            body={(row: Service) => actions("service", row)}
-          />
-        </EntityDataTable>
-      </section>
-    );
-  }
-
-  if (props.activeSection === "environment") {
-    return (
-      <section
-        data-testid="auto-entity-tabs-3-section"
-        className="content-panel"
-      >
-        <CrudHeader
-          onAdd={() => props.onAdd("environment")}
-          actions={props.actions}
-        />
-        <EntityDataTable
-          value={props.environments}
-          loading={props.loading.environment}
-        >
-          <Column field="name" header="Name" filter sortable />
-          <Column field="code" header="Code" filter sortable />
-          <Column field="description" header="Description" filter />
-          <Column
-            header="Actions"
-            body={(row: Environment) => actions("environment", row)}
-          />
-        </EntityDataTable>
-      </section>
-    );
-  }
-
   if (props.activeSection === "config") {
     return (
       <ServiceConfigsView
@@ -155,68 +73,122 @@ export function EntityTabs(props: Props) {
     );
   }
 
-  return (
-    <section
-      data-testid="auto-entity-tabs-4-section"
-      className="content-panel"
-      id="runtime"
-    >
-      <RuntimeHistoryPanel
-        apiBaseUrl={props.apiBaseUrl}
-        selectedService={props.services.find(
-          (service) => service.id === props.selectedServiceId,
-        )}
-        selectedEnvironment={props.environments.find(
-          (environment) => environment.id === props.selectedEnvironmentId,
-        )}
-        configs={props.configs}
-        runtimeText={props.runtimeText}
-        history={props.history}
-        loading={props.runtimeLoading}
-        onLoadRuntime={props.onLoadRuntime}
-        onLoadHistory={() =>
-          props.configs[0] && props.onHistory(props.configs[0].id)
-        }
-      />
-    </section>
-  );
-}
-
-function EntityDataTable<T extends { id: string }>({
-  children,
-  ...props
-}: DataTableProps<T> & { children: React.ReactNode }) {
-  if (props.loading) {
-    return <EntityTableSkeleton />;
+  if (props.activeSection === "runtime-history") {
+    return (
+      <section className="content-panel" id="runtime">
+        <RuntimeHistoryPanel
+          apiBaseUrl={props.apiBaseUrl}
+          selectedService={props.services.find(
+            (service) => service.id === props.selectedServiceId,
+          )}
+          selectedEnvironment={props.environments.find(
+            (environment) => environment.id === props.selectedEnvironmentId,
+          )}
+          configs={props.configs}
+          runtimeText={props.runtimeText}
+          history={props.history}
+          loading={props.runtimeLoading}
+          onLoadRuntime={props.onLoadRuntime}
+          onLoadHistory={() =>
+            props.configs[0] && props.onHistory(props.configs[0].id)
+          }
+        />
+      </section>
+    );
   }
 
+  const section = props.activeSection as "project" | "service" | "environment";
+  const rows =
+    section === "project"
+      ? props.projects
+      : section === "service"
+        ? props.services
+        : props.environments;
+
+  const commonColumns: TableColumnsType<EntityItem> = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      sorter: (a, b) =>
+        String((a as { name?: string }).name ?? "").localeCompare(
+          String((b as { name?: string }).name ?? ""),
+        ),
+    },
+    {
+      title: "Code",
+      dataIndex: "code",
+      sorter: (a, b) =>
+        String((a as { code?: string }).code ?? "").localeCompare(
+          String((b as { code?: string }).code ?? ""),
+        ),
+    },
+  ];
+  const columns: TableColumnsType<EntityItem> = [
+    ...commonColumns,
+    ...(section === "service"
+      ? [
+          {
+            title: "Type",
+            dataIndex: "type",
+            render: (value: string) => <Tag color="cyan">{value}</Tag>,
+          },
+          {
+            title: "Project",
+            dataIndex: "projectId",
+            render: (projectId: string) =>
+              props.projects.find((project) => project.id === projectId)
+                ?.name ?? projectId,
+          },
+        ]
+      : [
+          {
+            title: "Description",
+            dataIndex: "description",
+            ellipsis: true,
+          },
+        ]),
+    {
+      title: "Actions",
+      key: "actions",
+      width: 132,
+      align: "right",
+      render: (_, row) => actions(section, row),
+    },
+  ];
+
   return (
-    <DataTable
-      {...props}
-      dataKey="id"
-      paginator
-      rows={10}
-      rowsPerPageOptions={[5, 10, 20, 50]}
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
-      currentPageReportTemplate="{first} - {last} of {totalRecords}"
-      filterDisplay="row"
-      responsiveLayout="scroll"
-      emptyMessage="No records found"
+    <section
+      className="content-panel"
+      data-testid={`entity-section-${section}`}
     >
-      {children}
-    </DataTable>
+      <CrudHeader onAdd={() => props.onAdd(section)} actions={props.actions} />
+      {props.loading[section] ? (
+        <EntityTableSkeleton />
+      ) : (
+        <Table<EntityItem>
+          dataSource={rows}
+          columns={columns}
+          rowKey="id"
+          size="middle"
+          scroll={{ x: 720 }}
+          locale={{ emptyText: "No records found" }}
+          pagination={{
+            defaultPageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: [5, 10, 20, 50],
+            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total}`,
+          }}
+        />
+      )}
+    </section>
   );
 }
 
 function EntityTableSkeleton() {
   return (
-    <div data-testid="auto-entity-tabs-5-div" className="entity-table-skeleton">
+    <div className="entity-table-skeleton" aria-label="Loading records">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          data-testid="auto-entity-tabs-6-div"
-          key={index}
-          className="entity-table-skeleton__row"
-        >
+        <div key={index} className="entity-table-skeleton__row">
           <Skeleton width="22%" height="1rem" />
           <Skeleton width="18%" height="1rem" />
           <Skeleton width="26%" height="1rem" />
