@@ -97,7 +97,8 @@ export default function ConfigCenterPage() {
   } = useAuth();
   const queryClient = useQueryClient();
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<ConfigSection>("dashboard");
+  const [activeSection, setActiveSection] =
+    useState<ConfigSection>("dashboard");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
@@ -745,9 +746,7 @@ export default function ConfigCenterPage() {
               service:
                 initialized && isAuthenticated ? services.isLoading : false,
               environment:
-                initialized && isAuthenticated
-                  ? environments.isLoading
-                  : false,
+                initialized && isAuthenticated ? environments.isLoading : false,
               config:
                 initialized && isAuthenticated ? configs.isLoading : false,
             }}
