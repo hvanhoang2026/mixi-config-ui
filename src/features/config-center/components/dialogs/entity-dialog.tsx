@@ -317,7 +317,6 @@ function SelectField({
             .includes(input.toLowerCase())
         }
         optionFilterProp="label"
-        allowClear
         getPopupContainer={() => document.body}
         popupClassName="entity-select-dropdown"
         notFoundContent="Không tìm thấy"

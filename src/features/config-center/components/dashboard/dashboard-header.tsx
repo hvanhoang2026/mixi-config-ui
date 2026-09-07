@@ -134,7 +134,6 @@ export function DashboardHeader({
                         .includes(input.toLowerCase())
                     }
                     optionFilterProp="label"
-                    allowClear
                     getPopupContainer={() => document.body}
                   />
                 )}
@@ -173,7 +172,6 @@ export function DashboardHeader({
                         .includes(input.toLowerCase())
                     }
                     optionFilterProp="label"
-                    allowClear
                     getPopupContainer={() => document.body}
                   />
                 )}

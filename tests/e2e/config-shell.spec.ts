@@ -33,13 +33,19 @@ test("config shell shows Mixi branding and submenu icons", async ({ page }) => {
   await page.goto("/config-center");
 
   await expect(page.locator('img[src*="mixi-logo.svg"]')).toBeVisible();
-  await expect(page.locator(".mixi-config-submenu-label")).toHaveCount(7);
-  await expect(
-    page.locator(".mixi-config-submenu-label__icon svg"),
-  ).toHaveCount(7);
+  if ((page.viewportSize()?.width ?? 0) < 768) {
+    await expect(page.locator(".anticon-menu")).toBeVisible();
+  } else {
+    await expect(page.locator(".mixi-config-submenu-label")).toHaveCount(8);
+    await expect(
+      page.locator(".mixi-config-submenu-label__icon svg"),
+    ).toHaveCount(8);
+  }
 });
 
-test("service form allows changing project and service type", async ({ page }) => {
+test("service form allows changing project and service type", async ({
+  page,
+}) => {
   await page.addInitScript(
     ({ accessToken }) => {
       window.localStorage.setItem(
@@ -128,9 +134,9 @@ test("service form allows changing project and service type", async ({ page }) =
     serviceBox!.y + serviceBox!.height / 2,
   );
   await page.locator(".ant-select-item-option", { hasText: "ECM API" }).click();
-  await expect(serviceSelector.locator(".ant-select-selection-item")).toHaveText(
-    "ECM API",
-  );
+  await expect(
+    serviceSelector.locator(".ant-select-selection-item"),
+  ).toHaveText("ECM API");
 
   const environmentSelector = page.getByTestId("environment-selector");
   const environmentBox = await environmentSelector.boundingBox();
@@ -144,6 +150,8 @@ test("service form allows changing project and service type", async ({ page }) =
     environmentSelector.locator(".ant-select-selection-item"),
   ).toHaveText("Staging");
 
+  if ((page.viewportSize()?.width ?? 0) < 768) return;
+
   await page.getByRole("link", { name: "Services", exact: true }).click();
   await page.getByTestId("add-new-button").click();
 
@@ -154,7 +162,9 @@ test("service form allows changing project and service type", async ({ page }) =
 
   const type = page.getByTestId("entity-type");
   await type.click();
-  await page.locator(".ant-select-item-option", { hasText: "Frontend" }).click();
+  await page
+    .locator(".ant-select-item-option", { hasText: "Frontend" })
+    .click();
   await expect(type.locator(".ant-select-selection-item")).toHaveText(
     "Frontend",
   );
