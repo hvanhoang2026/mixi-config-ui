@@ -16,7 +16,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html data-testid="auto-layout-1-html" lang="en">
-      <body data-testid="auto-layout-2-body">
+      <body
+        data-testid="auto-layout-2-body"
+        suppressHydrationWarning
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

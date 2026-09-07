@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["@w-iris/react", "@w-iris/antd-react", "@w-iris/tokens", "@w-iris/themes"],
   env: {
     W_API_PROXY_TARGET:
       process.env.W_API_PROXY_TARGET || "https://w-gateway-phi.vercel.app",

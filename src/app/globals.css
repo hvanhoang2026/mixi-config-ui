@@ -2287,6 +2287,14 @@ body {
   min-width: 0;
 }
 
+.ant-select-dropdown.entity-select-dropdown,
+.ant-select-dropdown.entity-select-dropdown .ant-select-dropdown {
+  z-index: 2100 !important;
+}
+.ant-select-dropdown {
+  z-index: 1050;
+}
+
 .entity-form__check {
   display: flex;
   align-items: center;
