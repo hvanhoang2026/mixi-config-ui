@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AntdButton as Button } from "@w-iris/react";
+import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 type Props = {
@@ -18,11 +18,13 @@ export function CrudHeader({ onAdd, actions }: Props) {
       </div>
       <Button
         data-testid="add-new-button"
-        label="Add new"
+        type="primary"
         icon={<PlusOutlined />}
         onClick={onAdd}
         className="crud-header__add"
-      />
+      >
+        Add new
+      </Button>
     </div>
   );
 }

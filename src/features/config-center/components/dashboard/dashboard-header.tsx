@@ -99,8 +99,8 @@ export function DashboardHeader({
 
         <Col xs={24} lg={14}>
           <Space direction="vertical" size={12} style={{ width: "100%" }}>
-            <Row gutter={12}>
-              <Col span={12}>
+            <Row gutter={[12, 12]}>
+              <Col xs={24} sm={12}>
                 <Typography.Text strong style={{ fontSize: 12 }}>
                   Service
                 </Typography.Text>
@@ -135,10 +135,11 @@ export function DashboardHeader({
                     }
                     optionFilterProp="label"
                     getPopupContainer={() => document.body}
+                    popupMatchSelectWidth
                   />
                 )}
               </Col>
-              <Col span={12}>
+              <Col xs={24} sm={12}>
                 <Typography.Text strong style={{ fontSize: 12 }}>
                   Environment
                 </Typography.Text>
@@ -173,6 +174,7 @@ export function DashboardHeader({
                     }
                     optionFilterProp="label"
                     getPopupContainer={() => document.body}
+                    popupMatchSelectWidth
                   />
                 )}
               </Col>

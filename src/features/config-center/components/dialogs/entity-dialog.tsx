@@ -2,15 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
-import { Select } from "antd";
-import { FormField } from "@w-iris/react";
-import {
-  AntdButton as Button,
-  AntdCheckbox as Checkbox,
-  AntdModal as Dialog,
-  AntdInput as InputText,
-  AntdTextArea as InputTextarea,
-} from "@w-iris/react";
+import { Button, Checkbox, Form, Input, Modal, Select } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import type {
   ConfigForm,
@@ -63,13 +55,15 @@ export function EntityDialog({
   if (!visible) return null;
 
   return (
-    <Dialog
-      visible={visible}
-      onHide={onHide}
+    <Modal
+      open={visible}
+      onCancel={onHide}
       footer={null}
       data-testid="entity-dialog"
-      header={`${title.charAt(0).toUpperCase()}${title.slice(1)} Form`}
-      style={{ width: "min(720px, 96vw)" }}
+      title={`${title.charAt(0).toUpperCase()}${title.slice(1)} Form`}
+      width={720}
+      centered
+      destroyOnHidden
     >
       {activeType && (
         <FormFields
@@ -80,7 +74,7 @@ export function EntityDialog({
           {...options}
         />
       )}
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -113,6 +107,7 @@ function FormFields({
       {activeFields.includes("projectId") && (
         <SelectField
           testId="entity-project"
+          label="Project"
           options={projectOptions}
           value={watch("projectId")}
           onChange={(value) =>
@@ -121,12 +116,13 @@ function FormFields({
               shouldValidate: true,
             })
           }
-          placeholder="Project"
+          placeholder="Select project"
         />
       )}
       {activeFields.includes("serviceId") && (
         <SelectField
           testId="entity-service"
+          label="Service"
           options={serviceOptions}
           value={watch("serviceId")}
           onChange={(value) =>
@@ -135,12 +131,13 @@ function FormFields({
               shouldValidate: true,
             })
           }
-          placeholder="Service"
+          placeholder="Select service"
         />
       )}
       {activeFields.includes("environmentId") && (
         <SelectField
           testId="entity-environment"
+          label="Environment"
           options={environmentOptions}
           value={watch("environmentId")}
           onChange={(value) =>
@@ -149,11 +146,12 @@ function FormFields({
               shouldValidate: true,
             })
           }
-          placeholder="Environment"
+          placeholder="Select environment"
         />
       )}
       {activeFields.includes("type") && (
         <SelectField
+          label="Type"
           options={[
             { name: "Backend", id: "backend" },
             { name: "Frontend", id: "frontend" },
@@ -168,17 +166,17 @@ function FormFields({
             })
           }
           testId="entity-type"
-          placeholder="Type"
+          placeholder="Select type"
         />
       )}
       {activeFields.includes("name") && (
         <Field
           label="Name"
           input={
-            <InputText
+            <Input
               data-testid="entity-name"
               value={watch("name") ?? ""}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setValue("name", e.target.value, { shouldDirty: true })
               }
               className="ui-full-width"
@@ -190,10 +188,10 @@ function FormFields({
         <Field
           label="Code"
           input={
-            <InputText
+            <Input
               data-testid="entity-code"
               value={watch("code") ?? ""}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setValue("code", e.target.value, { shouldDirty: true })
               }
               className="ui-full-width"
@@ -205,10 +203,10 @@ function FormFields({
         <Field
           label="Key"
           input={
-            <InputText
+            <Input
               data-testid="entity-key"
               value={watch("key") ?? ""}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setValue("key", e.target.value, { shouldDirty: true })
               }
               className="ui-full-width"
@@ -220,10 +218,10 @@ function FormFields({
         <Field
           label="Value"
           input={
-            <InputText
+            <Input
               data-testid="entity-value"
               value={watch("value") ?? ""}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setValue("value", e.target.value, { shouldDirty: true })
               }
               className="ui-full-width"
@@ -235,10 +233,10 @@ function FormFields({
         <Field
           label="Description"
           input={
-            <InputTextarea
+            <Input.TextArea
               data-testid="entity-description"
               value={watch("description") ?? ""}
-              onChange={(e: any) =>
+              onChange={(e) =>
                 setValue("description", e.target.value, { shouldDirty: true })
               }
               rows={4}
@@ -291,37 +289,48 @@ function FormFields({
 
 function SelectField({
   testId,
+  label,
   options,
   value,
   onChange,
   placeholder,
 }: {
   testId: string;
+  label: string;
   options: Array<{ id: string; name: string }>;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
 }) {
+  const hasOptions = options.length > 0;
   return (
     <div data-testid="auto-entity-dialog-3-div" className="entity-form__field">
-      <Select
-        data-testid={testId}
-        value={value || undefined}
-        onChange={onChange}
-        options={options.map((o) => ({ label: o.name, value: o.id }))}
-        placeholder={placeholder}
-        showSearch
-        filterOption={(input, option) =>
-          String(option?.label ?? "")
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
-        optionFilterProp="label"
-        getPopupContainer={() => document.body}
-        popupClassName="entity-select-dropdown"
-        notFoundContent="Không tìm thấy"
-        className="ui-full-width"
-      />
+      <Form.Item label={label}>
+        <Select
+          data-testid={testId}
+          value={value || undefined}
+          onChange={(nextValue) => onChange(nextValue ?? "")}
+          options={options.map((o) => ({ label: o.name, value: o.id }))}
+          placeholder={placeholder}
+          showSearch
+          allowClear
+          filterOption={(input, option) =>
+            String(option?.label ?? "")
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          optionFilterProp="label"
+          popupMatchSelectWidth
+          getPopupContainer={() => document.body}
+          classNames={{ popup: { root: "entity-select-dropdown" } }}
+          notFoundContent={
+            hasOptions ? "Không tìm thấy" : "Chưa có dữ liệu - hãy tạo mới"
+          }
+          className="ui-full-width"
+          style={{ width: "100%" }}
+          listHeight={256}
+        />
+      </Form.Item>
     </div>
   );
 }
@@ -329,7 +338,7 @@ function SelectField({
 function Field({ label, input }: { label: string; input: ReactNode }) {
   return (
     <div data-testid="auto-entity-dialog-4-div" className="entity-form__field">
-      <FormField label={label}>{input}</FormField>
+      <Form.Item label={label}>{input}</Form.Item>
     </div>
   );
 }
@@ -347,7 +356,7 @@ function CheckField({
     <div data-testid="auto-entity-dialog-5-div" className="entity-form__check">
       <Checkbox
         checked={checked}
-        onChange={(event) => onChange(!!event.checked)}
+        onChange={(event) => onChange(event.target.checked)}
       />
       <span data-testid="auto-entity-dialog-6-span">{label}</span>
     </div>

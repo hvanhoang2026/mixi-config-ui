@@ -1,9 +1,5 @@
 import { useState } from "react";
-import {
-  AntdButton as Button,
-  AntdModal as Dialog,
-  AntdTextArea as InputTextarea,
-} from "@w-iris/react";
+import { Button, Input, Modal } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 type Props = {
@@ -39,13 +35,16 @@ export function ImportEnvDialog({
   };
 
   return (
-    <Dialog
+    <Modal
       data-testid="import-env-dialog"
-      visible={visible}
+      open={visible}
       footer={null}
-      onHide={() => !importing && onHide()}
-      header="Import Service ENV"
-      style={{ width: "min(760px, 95vw)" }}
+      onCancel={() => !importing && onHide()}
+      title="Import Service ENV"
+      width={760}
+      centered
+      destroyOnHidden
+      maskClosable={!importing}
     >
       <div
         data-testid="auto-import-env-dialog-1-div"
@@ -67,7 +66,7 @@ export function ImportEnvDialog({
           {projectName ? ` / ${projectName}` : ""}
         </div>
       </div>
-      <InputTextarea
+      <Input.TextArea
         data-testid="import-env-textarea"
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -99,6 +98,6 @@ export function ImportEnvDialog({
           {importing ? "Importing..." : "Import"}
         </Button>
       </div>
-    </Dialog>
+    </Modal>
   );
 }

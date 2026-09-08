@@ -1,5 +1,4 @@
-import { Modal } from "antd";
-import { AntdButton as Button } from "@w-iris/react";
+import { Button, Modal, Space, Tooltip } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -42,31 +41,37 @@ export function ActionButtons({
   };
 
   return (
-    <div data-testid="auto-action-buttons-1-div" className="config-row-actions">
-      <Button
-        data-testid={`edit-${type}-${row.id}`}
-        size="small"
-        icon={<EditOutlined />}
-        text
-        onClick={() => onEdit(type, row)}
-      />
-      {type === "config" && onHistory && (
+    <Space data-testid="auto-action-buttons-1-div" size={4}>
+      <Tooltip title="Edit">
         <Button
-          data-testid={`history-config-${row.id}`}
+          data-testid={`edit-${type}-${row.id}`}
           size="small"
-          icon={<HistoryOutlined />}
-          text
-          onClick={() => onHistory(row.id)}
+          type="text"
+          icon={<EditOutlined />}
+          onClick={() => onEdit(type, row)}
         />
+      </Tooltip>
+      {type === "config" && onHistory && (
+        <Tooltip title="History">
+          <Button
+            data-testid={`history-config-${row.id}`}
+            size="small"
+            type="text"
+            icon={<HistoryOutlined />}
+            onClick={() => onHistory(row.id)}
+          />
+        </Tooltip>
       )}
-      <Button
-        size="small"
-        data-testid={`delete-${type}-${row.id}`}
-        icon={<DeleteOutlined />}
-        text
-        severity="danger"
-        onClick={confirmDelete}
-      />
-    </div>
+      <Tooltip title="Delete">
+        <Button
+          size="small"
+          type="text"
+          danger
+          data-testid={`delete-${type}-${row.id}`}
+          icon={<DeleteOutlined />}
+          onClick={confirmDelete}
+        />
+      </Tooltip>
+    </Space>
   );
 }

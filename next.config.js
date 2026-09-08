@@ -12,6 +12,9 @@ const nextConfig = {
   },
   distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["@w-iris/react", "@ant-design/icons"],
+  },
   async headers() {
     return [
       {
