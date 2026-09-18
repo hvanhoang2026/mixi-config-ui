@@ -12,6 +12,7 @@ import {
 import {
   AUTH_REFRESHED_EVENT,
   authApi,
+  mergeMyProfile,
   type AuthResponse,
   type AuthUser,
   type LoginResponse,
@@ -127,16 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             {
               accessToken: stored.accessToken,
               refreshToken: stored.refreshToken,
-              user: {
-                ...stored.user,
-                ...profile?.profile,
-                email: profile?.email ?? stored.user.email,
-                tenantId: profile?.tenantId ?? stored.user.tenantId ?? null,
-                tenantCode:
-                  profile?.tenantCode ?? stored.user.tenantCode ?? null,
-                tenantName:
-                  profile?.tenantName ?? stored.user.tenantName ?? null,
-              },
+              user: mergeMyProfile(stored.user, profile),
             },
             Boolean(stored.remember),
           ),
@@ -153,17 +145,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           refreshed.accessToken,
           {
             ...refreshed,
-            user: {
-              ...stored.user,
-              ...refreshed.user,
-              ...profile?.profile,
-              email: profile?.email ?? refreshed.user.email,
-              tenantId: profile?.tenantId ?? refreshed.user.tenantId ?? null,
-              tenantCode:
-                profile?.tenantCode ?? refreshed.user.tenantCode ?? null,
-              tenantName:
-                profile?.tenantName ?? refreshed.user.tenantName ?? null,
-            },
+            user: mergeMyProfile(
+              { ...stored.user, ...refreshed.user },
+              profile,
+            ),
           },
           Boolean(stored.remember),
         ),
@@ -318,16 +303,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               response.accessToken,
               {
                 ...response,
-                user: {
-                  ...response.user,
-                  ...profile?.profile,
-                  email: profile?.email ?? response.user.email,
-                  tenantId: profile?.tenantId ?? response.user.tenantId ?? null,
-                  tenantCode:
-                    profile?.tenantCode ?? response.user.tenantCode ?? null,
-                  tenantName:
-                    profile?.tenantName ?? response.user.tenantName ?? null,
-                },
+                user: mergeMyProfile(response.user, profile),
               },
               remember,
             ),

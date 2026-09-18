@@ -80,6 +80,7 @@ export interface AuthUser {
   jobTitle?: string | null;
   department?: string | null;
   website?: string | null;
+  socialLinks?: Record<string, string> | null;
   locale?: string | null;
   timeZone?: string | null;
   theme?: string | null;
@@ -89,12 +90,41 @@ export interface AuthUser {
   tenantCode?: string | null;
   tenantName?: string | null;
   roles?: string[];
+  mustChangePassword?: boolean;
 }
 
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: AuthUser;
+}
+
+export interface MyProfileResponse {
+  id: string;
+  email: string;
+  tenantId?: string | null;
+  tenantCode?: string | null;
+  tenantName?: string | null;
+  mustChangePassword?: boolean;
+  profile?: Partial<AuthUser> | null;
+}
+
+export function mergeMyProfile(
+  user: AuthUser,
+  response: MyProfileResponse | null,
+): AuthUser {
+  if (!response) return user;
+
+  return {
+    ...user,
+    ...response.profile,
+    id: response.id,
+    email: response.email,
+    tenantId: response.tenantId ?? null,
+    tenantCode: response.tenantCode ?? null,
+    tenantName: response.tenantName ?? null,
+    mustChangePassword: response.mustChangePassword,
+  };
 }
 
 export interface AccountSettings {
@@ -308,14 +338,10 @@ export const authApi = {
       },
     ),
   getMyProfile: (accessToken: string) =>
-    requestWithAuth<{
-      id: string;
-      email: string;
-      tenantId?: string | null;
-      tenantCode?: string | null;
-      tenantName?: string | null;
-      profile?: Partial<AuthUser> | null;
-    }>(`${AUTH_BASE_URL}/users/me`, accessToken),
+    requestWithAuth<MyProfileResponse>(
+      `${AUTH_BASE_URL}/users/me`,
+      accessToken,
+    ),
   getMfaStatus: (accessToken: string) =>
     requestWithAuth<{ enabled: boolean }>(
       `${AUTH_BASE_URL}/auth/mfa/status`,

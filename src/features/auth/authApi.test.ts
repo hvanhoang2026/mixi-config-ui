@@ -1,5 +1,48 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { authApi, normalizeAccountSettings, requestWithAuth } from "./authApi";
+import {
+  authApi,
+  mergeMyProfile,
+  normalizeAccountSettings,
+  requestWithAuth,
+} from "./authApi";
+
+describe("mergeMyProfile", () => {
+  it("preserves the complete users/me profile contract", () => {
+    expect(
+      mergeMyProfile(
+        { id: "login-id", email: "login@example.com", roles: ["ADMIN"] },
+        {
+          id: "user-1",
+          email: "user@example.com",
+          tenantId: "tenant-1",
+          tenantCode: "mixi",
+          tenantName: "Mixi",
+          mustChangePassword: true,
+          profile: {
+            fullName: "Mixi User",
+            phone: "0900000000",
+            bio: "Profile bio",
+            locale: "vi-VN",
+            timeZone: "Asia/Ho_Chi_Minh",
+            socialLinks: { github: "https://github.com/mixi" },
+          },
+        },
+      ),
+    ).toMatchObject({
+      id: "user-1",
+      email: "user@example.com",
+      roles: ["ADMIN"],
+      fullName: "Mixi User",
+      phone: "0900000000",
+      bio: "Profile bio",
+      locale: "vi-VN",
+      timeZone: "Asia/Ho_Chi_Minh",
+      tenantCode: "mixi",
+      mustChangePassword: true,
+      socialLinks: { github: "https://github.com/mixi" },
+    });
+  });
+});
 
 describe("normalizeAccountSettings", () => {
   it("extracts workspace preferences and notifications from the profile response", () => {
