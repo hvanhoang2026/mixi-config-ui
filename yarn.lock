@@ -894,19 +894,19 @@
     loupe "^3.1.2"
     tinyrainbow "^1.2.0"
 
-"@w-iris/antd-react@*", "@w-iris/antd-react@^0.1.7":
-  version "0.1.9"
-  resolved "https://registry.npmjs.org/@w-iris/antd-react/-/antd-react-0.1.9.tgz"
-  integrity sha512-5kRgJFJxWCnjti+ohxOcdkcIC+le9CLnqeN3oBS8G4LhliN/TeuOkqGZCMPIX6nh0qgMIOS7O9BZ/csIbiIr4g==
+"@w-iris/antd-react@*", "@w-iris/antd-react@^0.1.10":
+  version "0.1.10"
+  resolved "https://registry.npmjs.org/@w-iris/antd-react/-/antd-react-0.1.10.tgz"
+  integrity sha512-Fp7IkeoRYTZ9/hUDjnLHU+orc+xZoJow9vXfDCPaE3VkTzSTg8JnE+qD3+N/BEjUF5xfn7we0g81smMkPgYL6w==
   dependencies:
     "@ant-design/pro-components" "^2.8.10"
     "@ant-design/pro-layout" "^7.22.7"
     "@w-iris/tokens" "*"
 
-"@w-iris/react@^0.3.0":
-  version "0.3.2"
-  resolved "https://registry.npmjs.org/@w-iris/react/-/react-0.3.2.tgz"
-  integrity sha512-veSa6bbNm4jTVEUF61/8mcAlUJ4+66vfW2yHVD1vAAIhcU+tjVESuUVztWEYZp6cG4/HRA4tvqvE3i7Xmz5+Vw==
+"@w-iris/react@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.npmjs.org/@w-iris/react/-/react-0.3.3.tgz"
+  integrity sha512-be6d02zqcCoen+OpQ4AQiPSu6DTWPV5sUg4g5F5mTfqHTzvskIgX1aGAyfsQsXQmmOEnpZQq3qHvRXnUDtcYMA==
   dependencies:
     "@ant-design/pro-components" "^2.8.10"
     "@hookform/resolvers" "^3.9.0"
@@ -919,9 +919,9 @@
     zod "^3.23.0"
 
 "@w-iris/tokens@*":
-  version "0.1.26"
-  resolved "https://registry.npmjs.org/@w-iris/tokens/-/tokens-0.1.26.tgz"
-  integrity sha512-+11Ac5W+yvQlUuynRU1e27Ux/nEnycldbvvnz1uObCx/jY420+pLZ05WNKWzzpgdSFDLzQYzLCYMGZtkAwtK+g==
+  version "0.1.27"
+  resolved "https://registry.npmjs.org/@w-iris/tokens/-/tokens-0.1.27.tgz"
+  integrity sha512-q7+xBEPWYOhJvqcyto46KeKapzLROf+8ZMbuBFZFKUSvXBq8HqDQnomK1JtPdk/1yTSdZzl41J1iXF/cMiLbTQ==
 
 acorn-jsx@^5.3.2:
   version "5.3.2"
