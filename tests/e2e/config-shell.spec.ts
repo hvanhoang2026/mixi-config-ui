@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const ACCESS_TOKEN = "eyJhbGciOiJub25lIn0.eyJleHAiOjk5OTk5OTk5OTl9.";
+const GATEWAY = "https://w-gateway-phi.vercel.app";
 
 test("config shell shows Mixi branding and navigation items", async ({
   page,
@@ -25,16 +26,36 @@ test("config shell shows Mixi branding and navigation items", async ({
     { accessToken: ACCESS_TOKEN },
   );
 
-  await page.route("**/api/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: "[]",
-    });
+  // Mock all gateway API calls
+  await page.route(`${GATEWAY}/**`, async (route) => {
+    const url = route.request().url();
+    if (url.includes("/auth/users/me")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          profile: { id: "e2e-user", roles: ["SUPERADMIN"] },
+        }),
+      });
+      return;
+    }
+    if (url.includes("/config/")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]",
+      });
+      return;
+    }
+    await route.fallback();
   });
   await page.goto("/config-center");
 
-  await expect(page.locator('img[src*="mixi-logo.svg"]')).toBeVisible();
+  // Check appbar logo (not sidebar logo) to avoid strict mode violation
+  await expect(
+    page.locator('header >> img[src*="mixi-logo.svg"]').first(),
+  ).toBeVisible();
+  
   if ((page.viewportSize()?.width ?? 0) < 768) {
     await expect(
       page.getByRole("button", { name: "open navigation menu" }),
@@ -80,63 +101,82 @@ test("service form allows changing project and service type", async ({
     { accessToken: ACCESS_TOKEN },
   );
 
-  await page.route("**/auth/users/me", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        profile: { id: "e2e-user", roles: ["SUPERADMIN"] },
-      }),
-    }),
-  );
-  await page.route("**/config/projects", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        { id: "project-auth", name: "Auth", code: "auth" },
-        { id: "project-ecm", name: "ECM", code: "ecm" },
-      ]),
-    }),
-  );
-  await page.route("**/config/services", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        {
-          id: "service-auth",
-          projectId: "project-auth",
-          name: "Auth API",
-          code: "auth-api",
-          type: "backend",
-        },
-        {
-          id: "service-ecm",
-          projectId: "project-ecm",
-          name: "ECM API",
-          code: "ecm-api",
-          type: "backend",
-        },
-      ]),
-    }),
-  );
-  await page.route("**/config/environments", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        { id: "environment-production", name: "Production", code: "prod" },
-        { id: "environment-staging", name: "Staging", code: "staging" },
-      ]),
-    }),
-  );
-  await page.route("**/config/dashboard", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
-  );
-  await page.route("**/config/configs/service/**", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
-  );
+  // Mock all gateway API calls
+  await page.route(`${GATEWAY}/**`, async (route) => {
+    const url = route.request().url();
+    if (url.includes("/auth/users/me")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          profile: { id: "e2e-user", roles: ["SUPERADMIN"] },
+        }),
+      });
+      return;
+    }
+    if (url.includes("/config/")) {
+      if (url.includes("/projects")) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            { id: "project-auth", name: "Auth", code: "auth" },
+            { id: "project-ecm", name: "ECM", code: "ecm" },
+          ]),
+        });
+        return;
+      }
+      if (url.includes("/services")) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "service-auth",
+              projectId: "project-auth",
+              name: "Auth API",
+              code: "auth-api",
+              type: "backend",
+            },
+            {
+              id: "service-ecm",
+              projectId: "project-ecm",
+              name: "ECM API",
+              code: "ecm-api",
+              type: "backend",
+            },
+          ]),
+        });
+        return;
+      }
+      if (url.includes("/environments")) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            { id: "environment-production", name: "Production", code: "prod" },
+            { id: "environment-staging", name: "Staging", code: "staging" },
+          ]),
+        });
+        return;
+      }
+      if (url.includes("/dashboard")) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{}",
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]",
+      });
+      return;
+    }
+    await route.fallback();
+  });
 
   await page.goto("/config-center");
 

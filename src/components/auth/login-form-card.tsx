@@ -26,6 +26,7 @@ import {
   Person,
   Visibility,
   VisibilityOff,
+  Security,
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,8 +46,9 @@ export function LoginFormCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
+  const [showMfa, setShowMfa] = useState(false);
   const [message, setMessage] = useState<{
-    severity: "success" | "error";
+    severity: "success" | "error" | "info";
     text: string;
   } | null>(null);
 
@@ -70,12 +72,14 @@ export function LoginFormCard() {
         data.email,
         data.password,
         data.remember,
-        data.mfaCode,
+        showMfa ? data.mfaCode : undefined,
       );
-      if (result.requiresMfa) {
+      if (result?.requiresMfa) {
+        setShowMfa(true);
+        form.setValue("mfaCode", "");
         setMessage({
-          severity: "error",
-          text: "MFA code required. Please check your authenticator app.",
+          severity: "info",
+          text: "Enter the 6-digit MFA code from your authenticator app.",
         });
       }
     } catch (error) {
@@ -84,6 +88,11 @@ export function LoginFormCard() {
         text: error instanceof Error ? error.message : "Invalid credentials",
       });
     }
+  };
+
+  const handleBackToEmail = () => {
+    setShowMfa(false);
+    setMessage(null);
   };
 
   return (
@@ -138,7 +147,7 @@ export function LoginFormCard() {
               Mixi Config
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Sign in to your account
+              {showMfa ? "Security verification" : "Sign in to your account"}
             </Typography>
           </Box>
 
@@ -153,76 +162,113 @@ export function LoginFormCard() {
           )}
 
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  type="email"
-                  autoComplete="email"
-                  {...form.register("email")}
-                  error={!!form.formState.errors.email}
-                  helperText={form.formState.errors.email?.message}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Email color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  {...form.register("password")}
-                  error={!!form.formState.errors.password}
-                  helperText={form.formState.errors.password?.message}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock color="action" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="MFA Code (if enabled)"
-                  autoComplete="one-time-code"
-                  {...form.register("mfaCode")}
-                  placeholder="Enter 6-digit code"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox {...form.register("remember")} />}
-                  label="Remember me"
-                />
-              </Grid>
-            </Grid>
+            {showMfa ? (
+              <>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Enter the 6-digit MFA code for{" "}
+                  <strong>{form.watch("email")}</strong>.
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="MFA Code"
+                      type="text"
+                      autoComplete="one-time-code"
+                      inputMode="numeric"
+                      {...form.register("mfaCode", {
+                        valueAsNumber: undefined,
+                        onChange: (e) =>
+                          e.target.value.replace(/\D/g, "").slice(0, 6),
+                      })}
+                      placeholder="123456"
+                      error={!!form.formState.errors.mfaCode}
+                      helperText={form.formState.errors.mfaCode?.message}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Security color="action" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 1 }}>
+                  <Button
+                    type="button"
+                    variant="outlined"
+                    fullWidth
+                    onClick={handleBackToEmail}
+                    startIcon={<Person />}
+                  >
+                    Use another account
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      type="email"
+                      autoComplete="email"
+                      {...form.register("email")}
+                      error={!!form.formState.errors.email}
+                      helperText={form.formState.errors.email?.message}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Email color="action" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      {...form.register("password")}
+                      error={!!form.formState.errors.password}
+                      helperText={form.formState.errors.password?.message}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Lock color="action" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={<Checkbox {...form.register("remember")} />}
+                      label="Remember me"
+                    />
+                  </Grid>
+                </Grid>
+              </>
+            )}
+
             <Box sx={{ mt: 3 }}>
               <Button
                 type="submit"
@@ -230,9 +276,21 @@ export function LoginFormCard() {
                 variant="contained"
                 size="large"
                 disabled={loading}
+                startIcon={
+                  showMfa
+                    ? <Security />
+                    : loading
+                      ? undefined
+                      : <Person />}
                 sx={{ py: 1.5, borderRadius: 2 }}
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading
+                  ? showMfa
+                    ? "Verifying..."
+                    : "Signing in..."
+                  : showMfa
+                    ? "Verify code"
+                    : "Sign In"}
               </Button>
             </Box>
           </form>

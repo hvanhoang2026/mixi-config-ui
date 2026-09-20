@@ -114,21 +114,21 @@ export function AdminShell({
         <ListItem
           key={`${labelText}-${index}`}
           disablePadding
-          sx={{
-            "& .MuiListItemButton-root": {
-              py: 1,
-              px: 1.5,
-              borderRadius: 1,
-              backgroundColor: isActive ? "primary.light" : "transparent",
-              color: isActive ? "primary.contrastText" : "text.primary",
-              "&:hover": {
-                backgroundColor: isActive ? "primary.main" : "action.hover",
+sx={{
+              "& .MuiListItemButton-root": {
+                py: 1,
+                px: 1.5,
+                borderRadius: 1,
+                backgroundColor: isActive ? "primary.light" : "transparent",
+                color: isActive ? "primary.main" : "text.primary",
+                "&:hover": {
+                  backgroundColor: isActive ? "primary.main" : "action.hover",
+                },
+                "& .MuiListItemIcon-root": {
+                  color: isActive ? "primary.main" : "inherit",
+                },
               },
-              "& .MuiListItemIcon-root": {
-                color: isActive ? "primary.contrastText" : "inherit",
-              },
-            },
-          }}
+            }}
         >
           <ListItemButton
             onClick={() => handleMenuItemClick(item)}

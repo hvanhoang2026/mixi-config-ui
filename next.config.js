@@ -9,6 +9,17 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["@mui/material", "@mui/icons-material"],
   },
+  async rewrites() {
+    if (process.env.PLAYWRIGHT_BASE_URL) {
+      return [
+        {
+          source: "/config/:path*",
+          destination: `${process.env.PLAYWRIGHT_BASE_URL}/config/:path*`,
+        },
+      ];
+    }
+    return [];
+  },
   async headers() {
     return [
       {
