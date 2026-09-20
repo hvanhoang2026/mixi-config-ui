@@ -2,21 +2,24 @@
 
 import {
   Card,
-  Col,
-  Input,
-  Row,
+  CardContent,
+  Grid,
+  InputAdornment,
   Select,
-  Skeleton,
-  Space,
-  Statistic,
+  MenuItem,
+  TextField,
   Typography,
-} from "antd";
+  Skeleton,
+  Box,
+  Chip,
+} from "@mui/material";
 import {
-  AppstoreOutlined,
-  CloudServerOutlined,
-  DeploymentUnitOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+  Cloud,
+  Storage,
+  Folder,
+  Search,
+} from "@mui/icons-material";
+import type { ReactNode } from "react";
 
 type Dashboard = {
   totalProjects?: number;
@@ -39,7 +42,7 @@ type Props = {
   selectedServiceId: string;
   selectedEnvironmentId: string;
   search: string;
-  actions?: React.ReactNode;
+  actions?: ReactNode;
   onServiceChange: (value: string) => void;
   onEnvironmentChange: (value: string) => void;
   onSearchChange: (value: string) => void;
@@ -62,197 +65,237 @@ export function DashboardHeader({
   return (
     <Card
       data-testid="dashboard-header"
-      style={{ borderRadius: 12 }}
-      styles={{ body: { padding: 24 } }}
+      sx={{
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        p: 3,
+        backgroundColor: "background.paper",
+      }}
     >
-      <Row gutter={[24, 24]}>
-        <Col xs={24} lg={10}>
-          <Typography.Text
-            type="secondary"
-            style={{
-              fontSize: 12,
-              letterSpacing: 1,
+      <Grid container spacing={3}>
+        <Grid item xs={12} lg={6}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontSize: "0.75rem",
+              letterSpacing: "0.1em",
               textTransform: "uppercase",
+              fontWeight: 700,
+              color: "text.secondary",
+              display: "block",
+              mb: 1,
             }}
           >
             Platform configuration ledger
-          </Typography.Text>
-          <Typography.Title
-            level={3}
-            style={{ margin: "8px 0 8px", fontSize: 28 }}
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontSize: "1.75rem",
+              fontWeight: 700,
+              lineHeight: 1.2,
+              mb: 1,
+              color: "text.primary",
+            }}
           >
             Configuration control
-          </Typography.Title>
-          <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 2, lineHeight: 1.6 }}
+          >
             Select an operational scope, review governed values, and publish
             changes without losing service context.
-          </Typography.Paragraph>
+          </Typography>
           {loading ? (
-            <Skeleton.Input active size="small" style={{ width: 160 }} />
+            <Skeleton variant="text" width="160" />
           ) : projectName ? (
-            <Typography.Text type="secondary">
-              Current project:{" "}
-              <Typography.Text strong>{projectName}</Typography.Text>
-            </Typography.Text>
+            <Typography color="text.secondary">
+              Current project:{' '}
+              <Typography component="span" fontWeight={600}>
+                {projectName}
+              </Typography>
+            </Typography>
           ) : null}
-        </Col>
+        </Grid>
 
-        <Col xs={24} lg={14}>
-          <Space direction="vertical" size={12} style={{ width: "100%" }}>
-            <Row gutter={[12, 12]}>
-              <Col xs={24} sm={12}>
-                <Typography.Text strong style={{ fontSize: 12 }}>
+        <Grid item xs={12} lg={6}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: "text.secondary",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
                   Service
-                </Typography.Text>
+                </Typography>
                 {loading ? (
-                  <Skeleton.Input
-                    active
-                    block
-                    style={{ height: 32, marginTop: 4 }}
-                  />
+                  <Skeleton variant="rectangular" height={40} />
                 ) : (
                   <Select
-                    placeholder="Select service"
-                    value={selectedServiceId || undefined}
-                    onChange={onServiceChange}
-                    options={services.map((s) => ({
-                      label: s.name,
-                      value: s.id,
-                    }))}
-                    style={{ width: "100%", marginTop: 4 }}
-                    suffixIcon={
-                      <CloudServerOutlined
-                        aria-hidden="true"
-                        style={{ pointerEvents: "none" }}
-                      />
-                    }
+                    value={selectedServiceId || ""}
+                    onChange={(e) => onServiceChange(e.target.value)}
+                    displayEmpty
+                    sx={{ width: "100%", "& .MuiSelect-select": { paddingTop: 10, paddingBottom: 10 } }}
                     data-testid="service-selector"
-                    showSearch
-                    filterOption={(input, option) =>
-                      String(option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    optionFilterProp="label"
-                    getPopupContainer={() => document.body}
-                    popupMatchSelectWidth
-                  />
+                  >
+                    <MenuItem value="">{services.length === 0 && "No services available"}</MenuItem>
+                    {services.map((s) => (
+                      <MenuItem key={s.id} value={s.id}>
+                        {s.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 )}
-              </Col>
-              <Col xs={24} sm={12}>
-                <Typography.Text strong style={{ fontSize: 12 }}>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: "text.secondary",
+                    display: "block",
+                    mb: 0.5,
+                  }}
+                >
                   Environment
-                </Typography.Text>
+                </Typography>
                 {loading ? (
-                  <Skeleton.Input
-                    active
-                    block
-                    style={{ height: 32, marginTop: 4 }}
-                  />
+                  <Skeleton variant="rectangular" height={40} />
                 ) : (
                   <Select
-                    placeholder="Select environment"
-                    value={selectedEnvironmentId || undefined}
-                    onChange={onEnvironmentChange}
-                    options={environments.map((e) => ({
-                      label: e.name,
-                      value: e.id,
-                    }))}
-                    style={{ width: "100%", marginTop: 4 }}
-                    suffixIcon={
-                      <DeploymentUnitOutlined
-                        aria-hidden="true"
-                        style={{ pointerEvents: "none" }}
-                      />
-                    }
+                    value={selectedEnvironmentId || ""}
+                    onChange={(e) => onEnvironmentChange(e.target.value)}
+                    displayEmpty
+                    sx={{ width: "100%", "& .MuiSelect-select": { paddingTop: 10, paddingBottom: 10 } }}
                     data-testid="environment-selector"
-                    showSearch
-                    filterOption={(input, option) =>
-                      String(option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    optionFilterProp="label"
-                    getPopupContainer={() => document.body}
-                    popupMatchSelectWidth
-                  />
+                  >
+                    <MenuItem value="">{environments.length === 0 && "No environments available"}</MenuItem>
+                    {environments.map((e) => (
+                      <MenuItem key={e.id} value={e.id}>
+                        {e.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 )}
-              </Col>
-            </Row>
+              </Grid>
+            </Grid>
 
             {loading ? (
-              <Skeleton.Input active block style={{ height: 32 }} />
+              <Skeleton variant="rectangular" height={40} width="100%" />
             ) : (
-              <Input
-                prefix={<SearchOutlined />}
+              <TextField
+                fullWidth
                 placeholder="Search service config keys"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
-                allowClear
+                size="small"
                 data-testid="config-search-input"
                 aria-label="Search configuration keys"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search color="action" />
+                    </InputAdornment>
+                  ),
+                }}
               />
             )}
 
             {loading ? (
-              <Space>
-                <Skeleton.Button active />
-                <Skeleton.Button active />
-                <Skeleton.Button active />
-              </Space>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Skeleton variant="circular" width={120} height={40} />
+                <Skeleton variant="circular" width={120} height={40} />
+                <Skeleton variant="circular" width={120} height={40} />
+              </Box>
             ) : actions ? (
-              <Space wrap>{actions}</Space>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {actions}
+              </Box>
             ) : null}
-          </Space>
-        </Col>
-      </Row>
+          </Box>
+        </Grid>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-        {[
-          {
-            title: "Services",
-            value: dashboard?.totalServices,
-            suffix: "Registered workloads",
-            icon: <CloudServerOutlined />,
-          },
-          {
-            title: "Environments",
-            value: dashboard?.totalEnvironments,
-            suffix: "Deployment scopes",
-            icon: <DeploymentUnitOutlined />,
-          },
-          {
-            title: "Config keys",
-            value: dashboard?.totalConfigs,
-            suffix: "Governed values",
-            icon: <AppstoreOutlined />,
-          },
-        ].map((stat) =>
-          loading ? (
-            <Col key={stat.title} xs={24} sm={8}>
-              <Card size="small">
-                <Skeleton active paragraph={{ rows: 1 }} />
-              </Card>
-            </Col>
-          ) : (
-            <Col key={stat.title} xs={24} sm={8}>
-              <Card size="small" hoverable>
-                <Statistic
-                  title={stat.title}
-                  value={stat.value ?? 0}
-                  prefix={stat.icon}
-                  suffix={
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      {stat.suffix}
-                    </Typography.Text>
-                  }
-                  valueStyle={{ fontSize: 28 }}
-                />
-              </Card>
-            </Col>
-          ),
-        )}
-      </Row>
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            {[
+              {
+                title: "Services",
+                value: dashboard?.totalServices,
+                suffix: "Registered workloads",
+                icon: <Cloud fontSize="large" />,
+              },
+              {
+                title: "Environments",
+                value: dashboard?.totalEnvironments,
+                suffix: "Deployment scopes",
+                icon: <Storage fontSize="large" />,
+              },
+              {
+                title: "Config keys",
+                value: dashboard?.totalConfigs,
+                suffix: "Governed values",
+                icon: <Folder fontSize="large" />,
+              },
+            ].map((stat) => (
+              <Grid key={stat.title} item xs={12} sm={4}>
+                {loading ? (
+                  <Card variant="outlined" sx={{ p: 2, borderColor: "divider" }}>
+                    <Skeleton variant="text" width="100%" />
+                  </Card>
+                ) : (
+                  <Card variant="outlined" sx={{ p: 2, borderColor: "divider", height: "100%" }}>
+                    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+                      <Box
+                        sx={{
+                          p: 1,
+                          borderRadius: 1,
+                          backgroundColor: "primary.light",
+                          color: "primary.contrastText",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {stat.icon}
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                          {stat.title}
+                        </Typography>
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            fontSize: "2rem",
+                            fontWeight: 700,
+                            lineHeight: 1.2,
+                            mb: 0.5,
+                            color: "text.primary",
+                          }}
+                        >
+                          {stat.value ?? 0}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {stat.suffix}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Card>
+                )}
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+      </Grid>
     </Card>
   );
 }

@@ -1,10 +1,18 @@
-import { Button, Modal, Space, Tooltip } from "antd";
+"use client";
+
+import { useState } from "react";
 import {
-  DeleteOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  HistoryOutlined,
-} from "@ant-design/icons";
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { Delete, Edit, History } from "@mui/icons-material";
 import type { EntityItem, EntityType } from "../../form-types";
 
 type Props = {
@@ -22,56 +30,78 @@ export function ActionButtons({
   onDelete,
   onHistory,
 }: Props) {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const displayName =
+    (row as { name?: string; code?: string; key?: string }).name ??
+    (row as { code?: string }).code ??
+    (row as { key?: string }).key ??
+    row.id;
+
   const confirmDelete = () => {
-    const name =
-      (row as { name?: string; code?: string; key?: string }).name ??
-      (row as { code?: string }).code ??
-      (row as { key?: string }).key ??
-      row.id;
-    Modal.confirm({
-      title: `Xác nhận xóa ${type}?`,
-      icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc muốn xóa "${name}"? Hành động này không thể hoàn tác.`,
-      okText: "Xóa",
-      okType: "danger",
-      cancelText: "Hủy",
-      centered: true,
-      onOk: () => onDelete(type, row.id),
-    });
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDelete(type, row.id);
+    setDeleteOpen(false);
   };
 
   return (
-    <Space data-testid="auto-action-buttons-1-div" size={4}>
+    <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
       <Tooltip title="Edit">
-        <Button
+        <IconButton
           data-testid={`edit-${type}-${row.id}`}
           size="small"
-          type="text"
-          icon={<EditOutlined />}
           onClick={() => onEdit(type, row)}
-        />
+          aria-label={`Edit ${type}`}
+        >
+          <Edit fontSize="small" />
+        </IconButton>
       </Tooltip>
       {type === "config" && onHistory && (
         <Tooltip title="History">
-          <Button
+          <IconButton
             data-testid={`history-config-${row.id}`}
             size="small"
-            type="text"
-            icon={<HistoryOutlined />}
             onClick={() => onHistory(row.id)}
-          />
+            aria-label="View history"
+          >
+            <History fontSize="small" />
+          </IconButton>
         </Tooltip>
       )}
       <Tooltip title="Delete">
-        <Button
+        <IconButton
           size="small"
-          type="text"
-          danger
+          color="error"
           data-testid={`delete-${type}-${row.id}`}
-          icon={<DeleteOutlined />}
           onClick={confirmDelete}
-        />
+          aria-label={`Delete ${type}`}
+        >
+          <Delete fontSize="small" />
+        </IconButton>
       </Tooltip>
-    </Space>
+
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)} maxWidth="sm">
+        <DialogTitle>Confirm Delete {type.charAt(0).toUpperCase() + type.slice(1)}?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            Are you sure you want to delete <strong>&quot;{displayName}&quot;</strong>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteConfirm}
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

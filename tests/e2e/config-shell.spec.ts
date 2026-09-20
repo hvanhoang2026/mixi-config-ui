@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 
 const ACCESS_TOKEN = "eyJhbGciOiJub25lIn0.eyJleHAiOjk5OTk5OTk5OTl9.";
 
-test("config shell shows Mixi branding and submenu icons", async ({ page }) => {
+test("config shell shows Mixi branding and navigation items", async ({
+  page,
+}) => {
   await page.addInitScript(
     ({ accessToken }) => {
       window.localStorage.setItem(
@@ -34,12 +36,24 @@ test("config shell shows Mixi branding and submenu icons", async ({ page }) => {
 
   await expect(page.locator('img[src*="mixi-logo.svg"]')).toBeVisible();
   if ((page.viewportSize()?.width ?? 0) < 768) {
-    await expect(page.locator(".anticon-menu")).toBeVisible();
-  } else {
-    await expect(page.locator(".mixi-config-submenu-label")).toHaveCount(8);
     await expect(
-      page.locator(".mixi-config-submenu-label__icon svg"),
-    ).toHaveCount(8);
+      page.getByRole("button", { name: "open navigation menu" }),
+    ).toBeVisible();
+  } else {
+    for (const label of [
+      "Config Center",
+      "Mixi Admin",
+      "Dashboard",
+      "Services",
+      "Environments",
+      "Service Configs",
+      "Runtime & History",
+      "Projects",
+    ]) {
+      await expect(
+        page.getByRole("navigation").getByText(label, { exact: true }).first(),
+      ).toBeVisible();
+    }
   }
 });
 
@@ -128,36 +142,31 @@ test("service form allows changing project and service type", async ({
 
   const serviceSelector = page.getByTestId("service-selector");
   await serviceSelector.click();
-  await page.locator(".ant-select-item-option", { hasText: "ECM API" }).click();
-  await expect(
-    serviceSelector.locator(".ant-select-selection-item"),
-  ).toHaveText("ECM API");
+  await page.getByRole("option", { name: "ECM API" }).click();
+  await expect(serviceSelector).toContainText("ECM API");
 
   const environmentSelector = page.getByTestId("environment-selector");
   await environmentSelector.click();
-  await page.locator(".ant-select-item-option", { hasText: "Staging" }).click();
-  await expect(
-    environmentSelector.locator(".ant-select-selection-item"),
-  ).toHaveText("Staging");
+  await page.getByRole("option", { name: "Staging" }).click();
+  await expect(environmentSelector).toContainText("Staging");
 
   if ((page.viewportSize()?.width ?? 0) < 768) return;
 
-  await page.getByRole("link", { name: "Services", exact: true }).click();
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Services", exact: true })
+    .click();
   await page.getByTestId("add-new-button").click();
 
-  const project = page.getByTestId("entity-project");
-  await project.click();
-  await page.locator(".ant-select-item-option", { hasText: "ECM" }).click();
-  await expect(project.locator(".ant-select-selection-item")).toHaveText("ECM");
-
-  const type = page.getByTestId("entity-type");
-  await type.click();
-  await page
-    .locator(".ant-select-item-option", { hasText: "Frontend" })
-    .click();
-  await expect(type.locator(".ant-select-selection-item")).toHaveText(
-    "Frontend",
+  const projectSelect = page.locator(
+    '[data-testid="entity-project"] select',
   );
+  await projectSelect.selectOption("project-ecm");
+  await expect(projectSelect).toHaveValue("project-ecm");
+
+  const typeSelect = page.locator('[data-testid="entity-type"] select');
+  await typeSelect.selectOption("frontend");
+  await expect(typeSelect).toHaveValue("frontend");
 
   await page.reload();
   await expect(page).toHaveURL(/\/config-center\/service$/);

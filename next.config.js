@@ -1,11 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: [
-    "@w-iris/react",
-    "@w-iris/antd-react",
-    "@w-iris/tokens",
-    "@w-iris/themes",
-  ],
   env: {
     W_API_PROXY_TARGET:
       process.env.W_API_PROXY_TARGET || "https://w-gateway-phi.vercel.app",
@@ -13,7 +7,7 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   experimental: {
-    optimizePackageImports: ["@w-iris/react", "@ant-design/icons"],
+    optimizePackageImports: ["@mui/material", "@mui/icons-material"],
   },
   async headers() {
     return [

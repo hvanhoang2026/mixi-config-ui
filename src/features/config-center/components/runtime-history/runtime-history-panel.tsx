@@ -1,5 +1,7 @@
-import { Button } from "antd";
-import { DownloadOutlined, HistoryOutlined } from "@ant-design/icons";
+"use client";
+
+import { Box, Button, Typography } from "@mui/material";
+import { Download, History } from "@mui/icons-material";
 import { Skeleton } from "../../../../components/ui/skeleton";
 import type { Config, Environment, HistoryItem, Service } from "../../types";
 
@@ -126,62 +128,50 @@ ${runtimeOutput}
 
   return (
     <div className="api-guide" data-testid="runtime-history-panel">
-      <div
-        data-testid="auto-runtime-history-panel-1-div"
-        className="api-guide__header"
-      >
-        <div data-testid="auto-runtime-history-panel-2-div">
-          <span
-            data-testid="auto-runtime-history-panel-3-span"
-            className="api-guide__eyebrow"
-          >
-            Runtime integration
-          </span>
-          <h2 data-testid="auto-runtime-history-panel-4-h2">
+      <div className="api-guide__header">
+        <div>
+          <span className="api-guide__eyebrow">Runtime integration</span>
+          <Typography variant="h5" component="h2" fontWeight={700}>
             Service config API guide
-          </h2>
-          <p data-testid="auto-runtime-history-panel-5-p">
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             Connect another service to the selected configuration scope and read
             runtime-safe values from Mixi Config.
-          </p>
+          </Typography>
         </div>
-        <div
-          data-testid="auto-runtime-history-panel-6-div"
-          className="api-guide__header-actions"
-        >
-          <a
+        <div className="api-guide__header-actions">
+          <Button
+            component="a"
             data-testid="download-integration-guide"
-            className="api-guide__download"
             href={markdownDownloadHref}
             download={downloadFileName || "mixi-config-integration.md"}
+            variant="outlined"
+            size="small"
+            startIcon={<Download aria-hidden="true" />}
           >
-            <DownloadOutlined
-              data-testid="auto-runtime-history-panel-7-span"
-              aria-hidden="true"
-            />
-            <span data-testid="auto-runtime-history-panel-8-span">
-              Download guide
-            </span>
-          </a>
+            Download guide
+          </Button>
         </div>
       </div>
 
-      <div
-        data-testid="auto-runtime-history-panel-9-div"
-        className="api-guide__grid"
+      <Button
+        variant="contained"
+        size="small"
+        onClick={() => void onLoadRuntime()}
+        sx={{ alignSelf: "flex-start" }}
       >
-        <section
-          data-testid="auto-runtime-history-panel-10-section"
-          className="api-guide__panel"
-        >
-          <h3 data-testid="auto-runtime-history-panel-11-h3">Selected scope</h3>
-          <dl
-            data-testid="auto-runtime-history-panel-12-dl"
-            className="api-guide__facts"
-          >
-            <div data-testid="auto-runtime-history-panel-13-div">
-              <dt data-testid="auto-runtime-history-panel-14-dt">Service</dt>
-              <dd data-testid="auto-runtime-history-panel-15-dd">
+        Load runtime values
+      </Button>
+
+      <div className="api-guide__grid">
+        <section className="api-guide__panel">
+          <Typography variant="subtitle1" component="h3" fontWeight={600}>
+            Selected scope
+          </Typography>
+          <dl className="api-guide__facts">
+            <div>
+              <dt>Service</dt>
+              <dd>
                 {loading ? (
                   <Skeleton width="10rem" height="1rem" />
                 ) : (
@@ -189,9 +179,9 @@ ${runtimeOutput}
                 )}
               </dd>
             </div>
-            <div data-testid="auto-runtime-history-panel-16-div">
-              <dt data-testid="auto-runtime-history-panel-17-dt">Type</dt>
-              <dd data-testid="auto-runtime-history-panel-18-dd">
+            <div>
+              <dt>Type</dt>
+              <dd>
                 {loading ? (
                   <Skeleton width="6rem" height="1rem" />
                 ) : (
@@ -199,11 +189,9 @@ ${runtimeOutput}
                 )}
               </dd>
             </div>
-            <div data-testid="auto-runtime-history-panel-19-div">
-              <dt data-testid="auto-runtime-history-panel-20-dt">
-                Environment
-              </dt>
-              <dd data-testid="auto-runtime-history-panel-21-dd">
+            <div>
+              <dt>Environment</dt>
+              <dd>
                 {loading ? (
                   <Skeleton width="9rem" height="1rem" />
                 ) : (
@@ -211,18 +199,15 @@ ${runtimeOutput}
                 )}
               </dd>
             </div>
-            <div data-testid="auto-runtime-history-panel-22-div">
-              <dt data-testid="auto-runtime-history-panel-23-dt">Endpoint</dt>
-              <dd
-                data-testid="auto-runtime-history-panel-24-dd"
-                className="api-guide__mono"
-              >
+            <div>
+              <dt>Endpoint</dt>
+              <dd className="api-guide__mono">
                 {loading ? <Skeleton width="100%" height="1rem" /> : endpoint}
               </dd>
             </div>
-            <div data-testid="auto-runtime-history-panel-25-div">
-              <dt data-testid="auto-runtime-history-panel-26-dt">Auth</dt>
-              <dd data-testid="auto-runtime-history-panel-27-dd">
+            <div>
+              <dt>Auth</dt>
+              <dd>
                 {loading ? (
                   <Skeleton width="14rem" height="1rem" />
                 ) : requiresToken ? (
@@ -232,11 +217,9 @@ ${runtimeOutput}
                 )}
               </dd>
             </div>
-            <div data-testid="auto-runtime-history-panel-28-div">
-              <dt data-testid="auto-runtime-history-panel-29-dt">
-                Config keys
-              </dt>
-              <dd data-testid="auto-runtime-history-panel-30-dd">
+            <div>
+              <dt>Config keys</dt>
+              <dd>
                 {loading ? (
                   <Skeleton width="2rem" height="1rem" />
                 ) : (
@@ -247,72 +230,45 @@ ${runtimeOutput}
           </dl>
         </section>
 
-        <section
-          data-testid="auto-runtime-history-panel-31-section"
-          className="api-guide__panel"
-        >
-          <h3 data-testid="auto-runtime-history-panel-32-h3">Service ENV</h3>
+        <section className="api-guide__panel">
+          <Typography variant="subtitle1" component="h3" fontWeight={600}>
+            Service ENV
+          </Typography>
           {loading ? (
             <RuntimeCodeSkeleton />
           ) : (
-            <pre
-              data-testid="auto-runtime-history-panel-33-pre"
-              className="api-guide__code"
-            >
-              {envSnippet}
-            </pre>
+            <pre className="api-guide__code">{envSnippet}</pre>
           )}
         </section>
 
-        <section
-          data-testid="auto-runtime-history-panel-34-section"
-          className="api-guide__panel api-guide__panel--wide"
-        >
-          <h3 data-testid="auto-runtime-history-panel-35-h3">
+        <section className="api-guide__panel api-guide__panel--wide">
+          <Typography variant="subtitle1" component="h3" fontWeight={600}>
             Request examples
-          </h3>
-          <div
-            data-testid="auto-runtime-history-panel-36-div"
-            className="api-guide__code-grid"
-          >
-            <div data-testid="auto-runtime-history-panel-37-div">
-              <span data-testid="auto-runtime-history-panel-38-span">cURL</span>
+          </Typography>
+          <div className="api-guide__code-grid">
+            <div>
+              <span>cURL</span>
               {loading ? (
                 <RuntimeCodeSkeleton />
               ) : (
-                <pre
-                  data-testid="auto-runtime-history-panel-39-pre"
-                  className="api-guide__code"
-                >
-                  {curlSnippet}
-                </pre>
+                <pre className="api-guide__code">{curlSnippet}</pre>
               )}
             </div>
-            <div data-testid="auto-runtime-history-panel-40-div">
-              <span data-testid="auto-runtime-history-panel-41-span">
-                Node.js
-              </span>
+            <div>
+              <span>Node.js</span>
               {loading ? (
                 <RuntimeCodeSkeleton />
               ) : (
-                <pre
-                  data-testid="auto-runtime-history-panel-42-pre"
-                  className="api-guide__code"
-                >
-                  {nodeSnippet}
-                </pre>
+                <pre className="api-guide__code">{nodeSnippet}</pre>
               )}
             </div>
           </div>
         </section>
 
-        <section
-          data-testid="auto-runtime-history-panel-43-section"
-          className="api-guide__panel"
-        >
-          <h3 data-testid="auto-runtime-history-panel-44-h3">
+        <section className="api-guide__panel">
+          <Typography variant="subtitle1" component="h3" fontWeight={600}>
             Runtime response
-          </h3>
+          </Typography>
           {loading ? (
             <RuntimeCodeSkeleton response />
           ) : (
@@ -325,38 +281,25 @@ ${runtimeOutput}
           )}
         </section>
 
-        <section
-          data-testid="auto-runtime-history-panel-45-section"
-          className="api-guide__panel"
-        >
-          <div
-            data-testid="auto-runtime-history-panel-46-div"
-            className="api-guide__panel-title"
-          >
-            <h3 data-testid="auto-runtime-history-panel-47-h3">
+        <section className="api-guide__panel">
+          <div className="api-guide__panel-title">
+            <Typography variant="subtitle1" component="h3" fontWeight={600}>
               Config history
-            </h3>
+            </Typography>
             <Button
               data-testid="load-history-button"
-              icon={<HistoryOutlined />}
+              startIcon={<History />}
               size="small"
-              type="text"
+              variant="text"
               onClick={onLoadHistory}
             >
               Load history
             </Button>
           </div>
           {loading ? (
-            <div
-              data-testid="auto-runtime-history-panel-48-div"
-              className="api-guide__history"
-            >
+            <div className="api-guide__history">
               {Array.from({ length: 3 }).map((_, index) => (
-                <article
-                  data-testid="auto-runtime-history-panel-49-article"
-                  key={index}
-                  className="api-guide__history-item"
-                >
+                <article key={index} className="api-guide__history-item">
                   <Skeleton width="7rem" height="1rem" />
                   <Skeleton width="9rem" height="0.9rem" />
                   <Skeleton width="100%" height="0.95rem" />
@@ -364,35 +307,21 @@ ${runtimeOutput}
               ))}
             </div>
           ) : history.length ? (
-            <div
-              data-testid="auto-runtime-history-panel-50-div"
-              className="api-guide__history"
-            >
+            <div className="api-guide__history">
               {history.slice(0, 5).map((item) => (
-                <article
-                  data-testid="auto-runtime-history-panel-51-article"
-                  key={item.id}
-                  className="api-guide__history-item"
-                >
-                  <strong data-testid="auto-runtime-history-panel-52-strong">
-                    {item.changedBy}
-                  </strong>
-                  <span data-testid="auto-runtime-history-panel-53-span">
-                    {new Date(item.createdAt).toLocaleString()}
-                  </span>
-                  <code data-testid="auto-runtime-history-panel-54-code">
+                <article key={item.id} className="api-guide__history-item">
+                  <strong>{item.changedBy}</strong>
+                  <span>{new Date(item.createdAt).toLocaleString()}</span>
+                  <code>
                     {item.oldValue} {"->"} {item.newValue}
                   </code>
                 </article>
               ))}
             </div>
           ) : (
-            <p
-              data-testid="auto-runtime-history-panel-55-p"
-              className="api-guide__empty"
-            >
+            <Typography variant="body2" className="api-guide__empty">
               No config changes recorded for the selected key.
-            </p>
+            </Typography>
           )}
         </section>
       </div>
@@ -402,9 +331,9 @@ ${runtimeOutput}
 
 function RuntimeCodeSkeleton({ response = false }: { response?: boolean }) {
   return (
-    <div
-      data-testid="auto-runtime-history-panel-56-div"
+    <Box
       className={`api-guide__code api-guide__code--skeleton${response ? " api-guide__code--response" : ""}`}
+      sx={{ display: "grid", gap: 1 }}
     >
       {Array.from({ length: response ? 6 : 4 }).map((_, index) => (
         <Skeleton
@@ -413,6 +342,6 @@ function RuntimeCodeSkeleton({ response = false }: { response?: boolean }) {
           height="0.9rem"
         />
       ))}
-    </div>
+    </Box>
   );
 }

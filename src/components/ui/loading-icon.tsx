@@ -1,7 +1,6 @@
 "use client";
 
-import { LoadingOutlined } from "@ant-design/icons";
-import { Spin } from "antd";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 type LoadingIconProps = {
   label?: string;
@@ -13,8 +12,20 @@ export function LoadingIcon({
   size = 28,
 }: LoadingIconProps) {
   return (
-    <span className="loading-icon" role="status" aria-label={label}>
-      <Spin indicator={<LoadingOutlined spin style={{ fontSize: size }} />} />
-    </span>
+    <Box
+      className="loading-icon"
+      role="status"
+      aria-label={label}
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 1,
+      }}
+    >
+      <CircularProgress size={size} />
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+    </Box>
   );
 }

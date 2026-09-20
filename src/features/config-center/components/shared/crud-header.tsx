@@ -1,6 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
-import { Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, Box } from "@mui/material";
+import { Add } from "@mui/icons-material";
 
 type Props = {
   onAdd: () => void;
@@ -9,22 +11,29 @@ type Props = {
 
 export function CrudHeader({ onAdd, actions }: Props) {
   return (
-    <div data-testid="auto-crud-header-1-div" className="crud-header">
-      <div
-        data-testid="auto-crud-header-2-div"
-        className="crud-header__actions"
-      >
+    <Box
+      data-testid="crud-header"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 2,
+        mb: 2,
+        flexWrap: "wrap",
+      }}
+    >
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
         {actions}
-      </div>
+      </Box>
       <Button
         data-testid="add-new-button"
-        type="primary"
-        icon={<PlusOutlined />}
+        variant="contained"
+        startIcon={<Add />}
         onClick={onAdd}
-        className="crud-header__add"
+        size="small"
       >
         Add new
       </Button>
-    </div>
+    </Box>
   );
 }

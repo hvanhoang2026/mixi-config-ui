@@ -5,14 +5,6 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AdminUserMenu,
-  MixiAccountPages,
-  MixiAdminShell,
-  createMixiAccountMenuItems,
-  type MixiAccountPagesProps,
-  type MixiAdminMenuItem,
-} from "@w-iris/react";
 import { AuthGuard } from "../../features/auth/auth-guard";
 import { useAuth } from "../../features/auth/AuthProvider";
 import {
@@ -22,21 +14,23 @@ import {
 } from "../../features/auth/authApi";
 import { API_BASE, api } from "../../features/config-center/api";
 import { publicEnv } from "../../shared/config/public-env";
-import { Button } from "antd";
 import {
-  AppstoreOutlined,
-  CloudServerOutlined,
-  DashboardOutlined,
-  DeploymentUnitOutlined,
-  DownloadOutlined,
-  HistoryOutlined,
-  ProjectOutlined,
-  ReloadOutlined,
-  SettingOutlined,
-  SlidersOutlined,
-  SyncOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+  Button,
+  IconButton,
+} from "@mui/material";
+import {
+  Dashboard,
+  Cloud,
+  Storage,
+  Tune,
+  History,
+  Folder,
+  Settings,
+  Refresh,
+  Upload,
+  Download,
+  Sync,
+} from "@mui/icons-material";
 import { DashboardHeader } from "../../features/config-center/components/dashboard/dashboard-header";
 import { EntityDialog } from "../../features/config-center/components/dialogs/entity-dialog";
 import { ImportEnvDialog } from "../../features/config-center/components/dialogs/import-env-dialog";
@@ -65,6 +59,9 @@ import type {
   Project,
   Service,
 } from "../../features/config-center/types";
+import { AdminShell } from "../../components/shell/AdminShell";
+import { UserMenu } from "../../components/shell/UserMenu";
+import { AccountPages } from "../../components/shell/AccountPages";
 
 const emptyProject: ProjectForm = { name: "", code: "", description: "" };
 const emptyEnvironment: EnvironmentForm = {
@@ -91,13 +88,11 @@ function sectionFromPathname(pathname: string): ConfigSection {
 
 function submenuLabel(label: string, icon: ReactNode) {
   return (
-    <span className="mixi-config-submenu-label">
-      <span className="mixi-config-submenu-label__icon" aria-hidden="true">
-        {icon}
-      </span>
+    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span style={{ display: "flex" }}>{icon}</span>
       <span>{label}</span>
     </span>
-  ) as unknown as string;
+  );
 }
 
 export default function ConfigCenterPage() {
@@ -127,7 +122,7 @@ export default function ConfigCenterPage() {
   );
   const [runtimeText, setRuntimeText] = useState("");
   const [activeAccountPage, setActiveAccountPage] = useState<
-    MixiAccountPagesProps["page"] | null
+    "profile" | "settings" | "security" | null
   >(null);
 
   useEffect(() => {
@@ -458,29 +453,29 @@ export default function ConfigCenterPage() {
     {
       key: "dashboard",
       label: "Dashboard",
-      icon: <DashboardOutlined />,
+      icon: <Dashboard />,
     },
     {
       key: "service",
       label: "Services",
-      icon: <CloudServerOutlined />,
+      icon: <Cloud />,
     },
     {
       key: "environment",
       label: "Environments",
-      icon: <DeploymentUnitOutlined />,
+      icon: <Storage />,
     },
     {
       key: "config",
       label: "Service Configs",
-      icon: <SlidersOutlined />,
+      icon: <Tune />,
     },
     {
       key: "runtime-history",
       label: "Runtime & History",
-      icon: <HistoryOutlined />,
+      icon: <History />,
     },
-    { key: "project", label: "Projects", icon: <ProjectOutlined /> },
+    { key: "project", label: "Projects", icon: <Folder /> },
   ] as const satisfies ReadonlyArray<{
     key: ConfigSection;
     label: string;
@@ -503,15 +498,17 @@ export default function ConfigCenterPage() {
     name:
       user?.fullName ||
       [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-      user?.email,
-    email: user?.email,
+      user?.email ||
+      "",
+    email: user?.email ?? "",
     role: user?.roles?.[0] ?? "SUPERADMIN",
     avatarUrl: user?.avatarUrl ?? undefined,
     tenantName: user?.tenantName ?? "Config Center workspace",
     fullName:
       user?.fullName ||
       [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-      user?.email,
+      user?.email ||
+      "",
     phone: user?.phone,
     bio: user?.bio,
     birthday: user?.birthday,
@@ -522,17 +519,17 @@ export default function ConfigCenterPage() {
     department: user?.department ?? "Configuration",
     website: user?.website,
   };
-  const shellMenu: MixiAdminMenuItem[] = [
+  const shellMenu = [
     {
       label: "Workspace",
-      icon: "config",
+      icon: <Settings />,
       items: [
         {
-          label: submenuLabel("Config Center", <SettingOutlined />),
+          label: submenuLabel("Config Center", <Settings />),
           href: "/config-center",
         },
         {
-          label: submenuLabel("Mixi Admin", <AppstoreOutlined />),
+          label: submenuLabel("Mixi Admin", <Dashboard />),
           url: "http://localhost:3000/main",
           target: "_blank",
         },
@@ -540,7 +537,7 @@ export default function ConfigCenterPage() {
     },
     {
       label: "Content",
-      icon: "ecm",
+      icon: <Folder />,
       items: contentMenu.map((item) => ({
         label: submenuLabel(item.label, item.icon),
         href: `/config-center/${item.key}`,
@@ -552,25 +549,26 @@ export default function ConfigCenterPage() {
     <>
       <Button
         data-testid="refresh-workspace-button"
-        icon={<ReloadOutlined />}
+        startIcon={<Refresh />}
         onClick={() => invalidateAll()}
-        className="dashboard-header__action dashboard-header__action--ghost"
+        variant="outlined"
+        size="small"
       >
         Refresh workspace
       </Button>
       <Button
         data-testid="import-service-env-button"
-        type="primary"
-        icon={<UploadOutlined />}
+        variant="contained"
+        startIcon={<Upload />}
         onClick={() => setImportOpen(true)}
         disabled={!canRunScopedActions}
-        className="dashboard-header__action dashboard-header__action--primary"
+        size="small"
       >
         Import service ENV
       </Button>
       <Button
         data-testid="export-service-env-button"
-        icon={<DownloadOutlined />}
+        startIcon={<Download />}
         onClick={async () => {
           const query = new URLSearchParams({
             projectId: selectedProject?.id ?? "",
@@ -582,13 +580,14 @@ export default function ConfigCenterPage() {
           );
         }}
         disabled={!canRunScopedActions}
-        className="dashboard-header__action dashboard-header__action--ghost"
+        variant="outlined"
+        size="small"
       >
         Export service ENV
       </Button>
       <Button
         data-testid="reload-cache-button"
-        icon={<SyncOutlined />}
+        startIcon={<Sync />}
         onClick={async () => {
           await api("/configs/reload-cache", {
             method: "POST",
@@ -602,7 +601,8 @@ export default function ConfigCenterPage() {
           await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
         }}
         disabled={!canRunScopedActions}
-        className="dashboard-header__action dashboard-header__action--ghost"
+        variant="outlined"
+        size="small"
       >
         Reload cache
       </Button>
@@ -611,7 +611,7 @@ export default function ConfigCenterPage() {
 
   return (
     <AuthGuard>
-      <MixiAdminShell
+      <AdminShell
         brand="MIXI CONFIG"
         logo={
           <Image src="/mixi-logo.svg" alt="" width={32} height={32} priority />
@@ -649,30 +649,8 @@ export default function ConfigCenterPage() {
           router.push(href);
         }}
         user={
-          <AdminUserMenu
+          <UserMenu
             user={shellUser}
-            items={createMixiAccountMenuItems((href) => {
-              if (
-                href === accountPaths.profile ||
-                href === accountPaths.settings ||
-                href === accountPaths.security
-              ) {
-                router.push(href);
-                return;
-              }
-              const account = new URL(
-                href,
-                window.location.origin,
-              ).searchParams.get("account");
-              if (
-                account === "profile" ||
-                account === "settings" ||
-                account === "security"
-              ) {
-                window.history.pushState(null, "", href);
-                setActiveAccountPage(account);
-              }
-            }, accountPaths)}
             onLogout={async () => {
               await logout();
               router.replace("/login");
@@ -681,7 +659,7 @@ export default function ConfigCenterPage() {
         }
       >
         {activeAccountPage ? (
-          <MixiAccountPages
+          <AccountPages
             page={activeAccountPage}
             user={shellUser}
             settings={{
@@ -847,7 +825,7 @@ export default function ConfigCenterPage() {
             await queryClient.invalidateQueries({ queryKey: ["configs"] });
           }}
         />
-      </MixiAdminShell>
+      </AdminShell>
     </AuthGuard>
   );
 }

@@ -1,6 +1,17 @@
+"use client";
+
 import { useState } from "react";
-import { Button, Input, Modal } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Box,
+  Typography,
+} from "@mui/material";
+import { Upload } from "@mui/icons-material";
 
 type Props = {
   visible: boolean;
@@ -35,69 +46,67 @@ export function ImportEnvDialog({
   };
 
   return (
-    <Modal
-      data-testid="import-env-dialog"
+    <Dialog
       open={visible}
-      footer={null}
-      onCancel={() => !importing && onHide()}
-      title="Import Service ENV"
-      width={760}
-      centered
-      destroyOnHidden
-      maskClosable={!importing}
+      onClose={() => !importing && onHide()}
+      maxWidth="md"
+      fullWidth
+      data-testid="import-env-dialog"
+      PaperProps={{ sx: { maxWidth: 760 } }}
     >
-      <div
-        data-testid="auto-import-env-dialog-1-div"
-        className="import-env__scope"
-      >
-        <div
-          data-testid="auto-import-env-dialog-2-div"
-          className="import-env__scope-title"
+      <DialogTitle>Import Service ENV</DialogTitle>
+      <DialogContent dividers>
+        <Box
+          data-testid="import-env-scope"
+          sx={{
+            mb: 2,
+            p: 2,
+            borderRadius: 1,
+            backgroundColor: "action.hover",
+            border: "1px solid",
+            borderColor: "divider",
+          }}
         >
-          Target scope
-        </div>
-        <div
-          data-testid="auto-import-env-dialog-3-div"
-          className="import-env__scope-copy"
-        >
-          {serviceName
-            ? `${serviceName} / ${environmentName ?? "No environment"}`
-            : "No service selected"}
-          {projectName ? ` / ${projectName}` : ""}
-        </div>
-      </div>
-      <Input.TextArea
-        data-testid="import-env-textarea"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        rows={16}
-        className="ui-full-width"
-      />
-      <div
-        data-testid="auto-import-env-dialog-4-div"
-        className="import-env__actions"
-      >
+          <Typography variant="caption" color="text.secondary" gutterBottom>
+            Target scope
+          </Typography>
+          <Typography variant="body1" fontWeight={500}>
+            {serviceName
+              ? `${serviceName} / ${environmentName ?? "No environment"}`
+              : "No service selected"}
+            {projectName ? ` / ${projectName}` : ""}
+          </Typography>
+        </Box>
+        <TextField
+          fullWidth
+          multiline
+          rows={16}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Paste KEY=value pairs here"
+          data-testid="import-env-textarea"
+          sx={{ fontFamily: "monospace" }}
+        />
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: "flex-end", gap: 2 }}>
         <Button
-          type="default"
-          htmlType="button"
-          data-testid="import-env-close-button"
+          variant="outlined"
           onClick={onHide}
           disabled={importing}
+          data-testid="import-env-close-button"
         >
           Close
         </Button>
         <Button
-          type="primary"
-          htmlType="button"
-          data-testid="import-env-submit-button"
-          loading={importing}
-          icon={importing ? undefined : <UploadOutlined />}
+          variant="contained"
+          startIcon={importing ? undefined : <Upload />}
           disabled={importing}
           onClick={submitImport}
+          data-testid="import-env-submit-button"
         >
           {importing ? "Importing..." : "Import"}
         </Button>
-      </div>
-    </Modal>
+      </DialogActions>
+    </Dialog>
   );
 }

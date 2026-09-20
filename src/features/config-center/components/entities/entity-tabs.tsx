@@ -1,4 +1,19 @@
-import { Table, Tag, type TableColumnsType } from "antd";
+"use client";
+
+import { useMemo, useState, type ReactNode } from "react";
+import {
+  Box,
+  Chip,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
 import { Skeleton } from "../../../../components/ui/skeleton";
 import type {
   Config,
@@ -29,7 +44,7 @@ type Props = {
   onDelete: (type: EntityType, id: string) => Promise<void>;
   onHistory: (configId: string) => void;
   onLoadRuntime: () => Promise<void>;
-  actions?: React.ReactNode;
+  actions?: ReactNode;
   selectedServiceId: string;
   selectedEnvironmentId: string;
   onSelectService: (serviceId: string) => void;
@@ -40,16 +55,42 @@ type Props = {
   ) => Promise<void>;
 };
 
+type Column = {
+  field: string;
+  headerName: string;
+  sortable?: boolean;
+  align?: "left" | "right";
+  render?: (value: string, row: EntityItem) => ReactNode;
+};
+
+function getCellValue(item: EntityItem, field: string): string {
+  return String((item as Record<string, unknown>)[field] ?? "");
+}
+
 export function EntityTabs(props: Props) {
-  const actions = (type: EntityType, row: EntityItem) => (
-    <ActionButtons
-      type={type}
-      row={row}
-      onEdit={props.onEdit}
-      onDelete={props.onDelete}
-      onHistory={props.onHistory}
-    />
-  );
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<string>("name");
+
+  const section = props.activeSection as "project" | "service" | "environment";
+  const rows =
+    section === "project"
+      ? props.projects
+      : section === "service"
+        ? props.services
+        : props.environments;
+
+  const sortedRows = useMemo(() => {
+    const sorted = [...rows].sort((a, b) => {
+      const aVal = getCellValue(a, orderBy);
+      const bVal = getCellValue(b, orderBy);
+      if (aVal < bVal) return order === "asc" ? -1 : 1;
+      if (aVal > bVal) return order === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [rows, orderBy, order]);
 
   if (props.activeSection === "config") {
     return (
@@ -97,64 +138,90 @@ export function EntityTabs(props: Props) {
     );
   }
 
-  const section = props.activeSection as "project" | "service" | "environment";
-  const rows =
-    section === "project"
-      ? props.projects
-      : section === "service"
-        ? props.services
-        : props.environments;
-
-  const commonColumns: TableColumnsType<EntityItem> = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      sorter: (a, b) =>
-        String((a as { name?: string }).name ?? "").localeCompare(
-          String((b as { name?: string }).name ?? ""),
-        ),
-    },
-    {
-      title: "Code",
-      dataIndex: "code",
-      sorter: (a, b) =>
-        String((a as { code?: string }).code ?? "").localeCompare(
-          String((b as { code?: string }).code ?? ""),
-        ),
-    },
-  ];
-  const columns: TableColumnsType<EntityItem> = [
-    ...commonColumns,
+  const columns: Column[] = [
+    { field: "name", headerName: "Name", sortable: true },
+    { field: "code", headerName: "Code", sortable: true },
     ...(section === "service"
       ? [
           {
-            title: "Type",
-            dataIndex: "type",
-            render: (value: string) => <Tag color="cyan">{value}</Tag>,
-          },
+            field: "type",
+            headerName: "Type",
+            render: (value: string) => (
+              <Chip
+                label={value}
+                size="small"
+                variant="outlined"
+                color="primary"
+              />
+            ),
+          } satisfies Column,
           {
-            title: "Project",
-            dataIndex: "projectId",
+            field: "projectId",
+            headerName: "Project",
             render: (projectId: string) =>
               props.projects.find((project) => project.id === projectId)
                 ?.name ?? projectId,
-          },
+          } satisfies Column,
         ]
       : [
           {
-            title: "Description",
-            dataIndex: "description",
-            ellipsis: true,
-          },
+            field: "description",
+            headerName: "Description",
+            render: (value: string) => (
+              <Box
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: 300,
+                }}
+              >
+                {value}
+              </Box>
+            ),
+          } satisfies Column,
         ]),
     {
-      title: "Actions",
-      key: "actions",
-      width: 132,
+      field: "actions",
+      headerName: "Actions",
       align: "right",
-      render: (_, row) => actions(section, row),
+      render: (_value, row) => (
+        <ActionButtons
+          type={section}
+          row={row}
+          onEdit={props.onEdit}
+          onDelete={props.onDelete}
+          onHistory={props.onHistory}
+        />
+      ),
     },
   ];
+
+  const paginatedRows = sortedRows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  if (props.loading[section]) {
+    return (
+      <section
+        className="content-panel"
+        data-testid={`entity-section-${section}`}
+      >
+        <CrudHeader
+          onAdd={() => props.onAdd(section)}
+          actions={props.actions}
+        />
+        <EntityTableSkeleton />
+      </section>
+    );
+  }
 
   return (
     <section
@@ -162,39 +229,108 @@ export function EntityTabs(props: Props) {
       data-testid={`entity-section-${section}`}
     >
       <CrudHeader onAdd={() => props.onAdd(section)} actions={props.actions} />
-      {props.loading[section] ? (
-        <EntityTableSkeleton />
-      ) : (
-        <Table<EntityItem>
-          dataSource={rows}
-          columns={columns}
-          rowKey="id"
-          size="middle"
-          scroll={{ x: 720 }}
-          locale={{ emptyText: "No records found" }}
-          pagination={{
-            defaultPageSize: 10,
-            showSizeChanger: true,
-            pageSizeOptions: [5, 10, 20, 50],
-            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total}`,
+      <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
+          <Table
+            size="medium"
+            stickyHeader
+            aria-label={`Entity table for ${section}`}
+          >
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.field}
+                    sortDirection={orderBy === column.field ? order : false}
+                    align={column.align ?? "left"}
+                  >
+                    {column.sortable ? (
+                      <TableSortLabel
+                        active={orderBy === column.field}
+                        direction={orderBy === column.field ? order : "asc"}
+                        onClick={() => handleRequestSort(column.field)}
+                      >
+                        {column.headerName}
+                      </TableSortLabel>
+                    ) : (
+                      column.headerName
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paginatedRows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  hover
+                  sx={{ "&:last-child td": { borderBottom: "none" } }}
+                >
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.field}
+                      align={column.align ?? "left"}
+                    >
+                      {column.render
+                        ? column.render(getCellValue(row, column.field), row)
+                        : getCellValue(row, column.field)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+              {paginatedRows.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    align="center"
+                    sx={{ py: 4, color: "text.secondary" }}
+                  >
+                    No records found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 20, 50]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
           }}
         />
-      )}
+      </Paper>
     </section>
   );
 }
 
 function EntityTableSkeleton() {
   return (
-    <div className="entity-table-skeleton" aria-label="Loading records">
+    <Paper variant="outlined" sx={{ p: 2, borderColor: "divider" }}>
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="entity-table-skeleton__row">
-          <Skeleton width="22%" height="1rem" />
-          <Skeleton width="18%" height="1rem" />
-          <Skeleton width="26%" height="1rem" />
-          <Skeleton width="16%" height="1rem" />
-        </div>
+        <Box
+          key={index}
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 0.9fr 1.3fr 0.8fr",
+            gap: 2,
+            alignItems: "center",
+            py: 1.5,
+            borderBottom: index < 5 ? "1px solid" : "none",
+            borderColor: "divider",
+          }}
+        >
+          <Skeleton width="80%" height="1rem" />
+          <Skeleton width="70%" height="1rem" />
+          <Skeleton width="90%" height="1rem" />
+          <Skeleton width="60%" height="1rem" />
+        </Box>
       ))}
-    </div>
+    </Paper>
   );
 }

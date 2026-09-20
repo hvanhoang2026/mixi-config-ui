@@ -1,13 +1,14 @@
 "use client";
 
-import { Skeleton as AntSkeleton } from "antd";
+import { Skeleton as MuiSkeleton } from "@mui/material";
 import React, { type CSSProperties } from "react";
 
 type SkeletonProps = {
-  width?: CSSProperties["width"];
-  height?: CSSProperties["height"];
+  width?: CSSProperties["width"] | number;
+  height?: CSSProperties["height"] | number;
   borderRadius?: CSSProperties["borderRadius"];
   shape?: "circle" | "square";
+  variant?: "text" | "rectangular" | "circular" | "rounded";
   size?: CSSProperties["width"];
   className?: string;
 };
@@ -17,27 +18,31 @@ export function Skeleton({
   height = "1rem",
   borderRadius,
   shape,
+  variant,
   size,
   className,
 }: SkeletonProps) {
-  if (shape === "circle") {
+  if (shape === "circle" || variant === "circular") {
     const avatarSize = toPixels(size ?? width ?? height);
     return (
-      <AntSkeleton.Avatar
-        active
+      <MuiSkeleton
+        variant="circular"
+        animation="wave"
         className={className}
-        shape="circle"
-        size={avatarSize}
+        width={avatarSize}
+        height={avatarSize}
       />
     );
   }
 
   return (
-    <AntSkeleton.Input
-      active
-      block
+    <MuiSkeleton
+      variant={variant ?? "rectangular"}
+      animation="wave"
       className={className}
-      style={{ width, height, minWidth: 0, borderRadius }}
+      style={{ minWidth: 0, borderRadius }}
+      width={width}
+      height={height}
     />
   );
 }
