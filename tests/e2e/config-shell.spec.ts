@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const ACCESS_TOKEN = "eyJhbGciOiJub25lIn0.eyJleHAiOjk5OTk5OTk5OTl9.";
-const GATEWAY = "https://w-gateway-phi.vercel.app";
+const GATEWAY = "https://w-gateway.vercel.app";
 
 test("config shell shows Mixi branding and navigation items", async ({
   page,
