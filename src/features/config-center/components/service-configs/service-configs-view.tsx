@@ -10,6 +10,9 @@ import {
   Delete,
   Edit,
   History,
+  Lock,
+  LockOpen,
+  Search,
   Add,
   Save,
   Settings,
@@ -25,6 +28,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  InputAdornment,
   Paper,
   Table,
   TableBody,
@@ -90,10 +94,11 @@ export function ServiceConfigsView({
   const [servicePage, setServicePage] = useState(0);
   const [serviceRowsPerPage, setServiceRowsPerPage] = useState(10);
   const [serviceOrder, setServiceOrder] = useState<"asc" | "desc">("asc");
-  const [serviceOrderBy, setServiceOrderBy] = useState<"name" | "code">(
-    "name",
-  );
+  const [serviceOrderBy, setServiceOrderBy] = useState<"name" | "code">("name");
   const [configOrder, setConfigOrder] = useState<"asc" | "desc">("asc");
+  const [revealedConfigIds, setRevealedConfigIds] = useState<Set<string>>(
+    new Set(),
+  );
   const dirtyConfigIdsRef = useRef<Set<string>>(new Set());
   const successTimerRef = useRef<number | null>(null);
 
@@ -145,14 +150,15 @@ export function ServiceConfigsView({
       return next;
     });
     setBulkText(
-      serviceConfigs.map((config) => `${config.key}=${config.value}`).join("\n"),
+      serviceConfigs
+        .map((config) => `${config.key}=${config.value}`)
+        .join("\n"),
     );
   }, [serviceConfigs]);
 
   useEffect(() => {
     return () => {
-      if (successTimerRef.current)
-        window.clearTimeout(successTimerRef.current);
+      if (successTimerRef.current) window.clearTimeout(successTimerRef.current);
     };
   }, []);
 
@@ -173,12 +179,9 @@ export function ServiceConfigsView({
       setDraftValues((current) => ({ ...current, [config.id]: nextValue }));
       dirtyConfigIdsRef.current.delete(config.id);
       setSavedConfigId(config.id);
-      if (successTimerRef.current)
-        window.clearTimeout(successTimerRef.current);
+      if (successTimerRef.current) window.clearTimeout(successTimerRef.current);
       successTimerRef.current = window.setTimeout(() => {
-        setSavedConfigId((current) =>
-          current === config.id ? null : current,
-        );
+        setSavedConfigId((current) => (current === config.id ? null : current));
         successTimerRef.current = null;
       }, 1400);
     } finally {
@@ -277,13 +280,21 @@ export function ServiceConfigsView({
                 <TableHead>
                   <TableRow>
                     {(["name", "code"] as const).map((field) => (
-                      <TableCell key={field} sortDirection={serviceOrderBy === field ? serviceOrder : false}>
+                      <TableCell
+                        key={field}
+                        sortDirection={
+                          serviceOrderBy === field ? serviceOrder : false
+                        }
+                      >
                         <TableSortLabel
                           active={serviceOrderBy === field}
-                          direction={serviceOrderBy === field ? serviceOrder : "asc"}
+                          direction={
+                            serviceOrderBy === field ? serviceOrder : "asc"
+                          }
                           onClick={() => {
                             const isAsc =
-                              serviceOrderBy === field && serviceOrder === "asc";
+                              serviceOrderBy === field &&
+                              serviceOrder === "asc";
                             setServiceOrder(isAsc ? "desc" : "asc");
                             setServiceOrderBy(field);
                           }}
@@ -313,7 +324,11 @@ export function ServiceConfigsView({
                         )?.name ?? service.projectId}
                       </TableCell>
                       <TableCell>
-                        <Chip label={service.type} size="small" variant="outlined" />
+                        <Chip
+                          label={service.type}
+                          size="small"
+                          variant="outlined"
+                        />
                       </TableCell>
                       <TableCell align="right">
                         <Tooltip title="Open configurations">
@@ -334,7 +349,11 @@ export function ServiceConfigsView({
                   ))}
                   {paginatedServices.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                      <TableCell
+                        colSpan={5}
+                        align="center"
+                        sx={{ py: 4, color: "text.secondary" }}
+                      >
                         No services found
                       </TableCell>
                     </TableRow>
@@ -392,6 +411,9 @@ export function ServiceConfigsView({
             <Cloud />
           </Box>
           <div>
+            <Typography className="service-configs__eyebrow" component="p">
+              Configuration workspace
+            </Typography>
             <Typography variant="h5" component="h2" fontWeight={700}>
               {selectedService.name}
             </Typography>
@@ -408,7 +430,9 @@ export function ServiceConfigsView({
             value={selectedEnvironmentId || ""}
             onChange={(e) => onSelectEnvironment(e.target.value)}
             SelectProps={{ native: true }}
-            inputProps={{ "data-testid": "service-configs-environment-selector" }}
+            inputProps={{
+              "data-testid": "service-configs-environment-selector",
+            }}
             sx={{ minWidth: 200 }}
           >
             <option value="">Environment</option>
@@ -431,10 +455,22 @@ export function ServiceConfigsView({
       </div>
 
       <div className="service-configs__scope-bar">
-        <Chip icon={<Build />} label={selectedProject?.name ?? selectedService.projectId} variant="outlined" />
+        <Chip
+          icon={<Build />}
+          label={selectedProject?.name ?? selectedService.projectId}
+          variant="outlined"
+        />
         <Chip icon={<Code />} label={selectedService.code} variant="outlined" />
-        <Chip icon={<Public />} label={selectedEnvironment?.name ?? "No environment selected"} variant="outlined" />
-        <Chip icon={<Settings />} label={`${localConfigs.length} configs`} variant="outlined" />
+        <Chip
+          icon={<Public />}
+          label={selectedEnvironment?.name ?? "No environment selected"}
+          variant="outlined"
+        />
+        <Chip
+          icon={<Settings />}
+          label={`${localConfigs.length} configs`}
+          variant="outlined"
+        />
       </div>
 
       <div className="service-configs__grid">
@@ -443,22 +479,40 @@ export function ServiceConfigsView({
             <ServiceConfigDetailSkeleton />
           ) : (
             <>
-              <Box sx={{ display: "flex", gap: 2, p: 2, flexWrap: "wrap" }}>
+              <Box className="service-configs__table-toolbar">
+                <Box className="service-configs__table-summary">
+                  <Typography variant="subtitle1" fontWeight={700}>
+                    Environment values
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {visibleConfigs.length} of {localConfigs.length} values
+                    shown
+                  </Typography>
+                </Box>
                 <TextField
                   size="small"
                   value={keyFilter}
                   onChange={(event) => setKeyFilter(event.target.value)}
-                  placeholder="Filter by key"
+                  placeholder="Search key"
                   inputProps={{ "data-testid": "config-key-filter-input" }}
-                  sx={{ flex: 1, minWidth: 200 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ minWidth: 220, flex: "1 1 220px" }}
                 />
                 <TextField
                   size="small"
                   value={descriptionFilter}
                   onChange={(event) => setDescriptionFilter(event.target.value)}
-                  placeholder="Filter by description"
-                  inputProps={{ "data-testid": "config-description-filter-input" }}
-                  sx={{ flex: 1, minWidth: 200 }}
+                  placeholder="Search description"
+                  inputProps={{
+                    "data-testid": "config-description-filter-input",
+                  }}
+                  sx={{ minWidth: 220, flex: "1 1 220px" }}
                 />
               </Box>
               <Paper variant="outlined" sx={{ overflow: "hidden" }}>
@@ -471,7 +525,7 @@ export function ServiceConfigsView({
                   >
                     <TableHead>
                       <TableRow>
-                        <TableCell sortDirection={configOrder} width={190}>
+                        <TableCell sortDirection={configOrder} width={250}>
                           <TableSortLabel
                             active
                             direction={configOrder}
@@ -484,10 +538,14 @@ export function ServiceConfigsView({
                             Key
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell width={280}>Value</TableCell>
+                        <TableCell width={360}>Value</TableCell>
                         <TableCell>Description</TableCell>
-                        <TableCell align="center" width={72}>Save</TableCell>
-                        <TableCell align="right" width={128}>Actions</TableCell>
+                        <TableCell align="center" width={72}>
+                          Save
+                        </TableCell>
+                        <TableCell align="right" width={128}>
+                          Actions
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -497,12 +555,42 @@ export function ServiceConfigsView({
                         const busy =
                           savingConfigId !== null || deletingConfigId !== null;
                         return (
-                          <TableRow key={row.id} hover>
-                            <TableCell>{row.key}</TableCell>
+                          <TableRow
+                            key={row.id}
+                            hover
+                            className="service-configs__config-row"
+                          >
+                            <TableCell>
+                              <Typography
+                                component="code"
+                                className="service-configs__config-key"
+                              >
+                                {row.key}
+                              </Typography>
+                              <Chip
+                                size="small"
+                                icon={
+                                  row.isSecret ? (
+                                    <Lock fontSize="small" />
+                                  ) : undefined
+                                }
+                                label={row.isSecret ? "Secret" : "Value"}
+                                className={
+                                  row.isSecret
+                                    ? "service-configs__sensitivity service-configs__sensitivity--secret"
+                                    : "service-configs__sensitivity"
+                                }
+                              />
+                            </TableCell>
                             <TableCell>
                               <TextField
                                 fullWidth
                                 size="small"
+                                type={
+                                  row.isSecret && !revealedConfigIds.has(row.id)
+                                    ? "password"
+                                    : "text"
+                                }
                                 value={draftValues[row.id] ?? row.value ?? ""}
                                 onChange={(event) => {
                                   const nextValue = event.target.value;
@@ -521,6 +609,40 @@ export function ServiceConfigsView({
                                   setSavedConfigId((current) =>
                                     current === row.id ? null : current,
                                   );
+                                }}
+                                InputProps={{
+                                  endAdornment: row.isSecret ? (
+                                    <InputAdornment position="end">
+                                      <Tooltip
+                                        title={
+                                          revealedConfigIds.has(row.id)
+                                            ? "Hide secret"
+                                            : "Reveal secret"
+                                        }
+                                      >
+                                        <IconButton
+                                          edge="end"
+                                          size="small"
+                                          aria-label={`${revealedConfigIds.has(row.id) ? "Hide" : "Reveal"} ${row.key}`}
+                                          onClick={() =>
+                                            setRevealedConfigIds((current) => {
+                                              const next = new Set(current);
+                                              if (next.has(row.id))
+                                                next.delete(row.id);
+                                              else next.add(row.id);
+                                              return next;
+                                            })
+                                          }
+                                        >
+                                          {revealedConfigIds.has(row.id) ? (
+                                            <LockOpen fontSize="small" />
+                                          ) : (
+                                            <Lock fontSize="small" />
+                                          )}
+                                        </IconButton>
+                                      </Tooltip>
+                                    </InputAdornment>
+                                  ) : undefined,
                                 }}
                                 inputProps={{
                                   "data-testid": `config-value-input-${row.key}`,
@@ -562,7 +684,13 @@ export function ServiceConfigsView({
                               </Tooltip>
                             </TableCell>
                             <TableCell align="right">
-                              <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  gap: 0.5,
+                                  justifyContent: "flex-end",
+                                }}
+                              >
                                 <Tooltip title="Edit config">
                                   <span>
                                     <IconButton
@@ -608,7 +736,9 @@ export function ServiceConfigsView({
                       {visibleConfigs.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={5}>
-                            <ServiceConfigEmptyState onAddConfig={onAddConfig} />
+                            <ServiceConfigEmptyState
+                              onAddConfig={onAddConfig}
+                            />
                           </TableCell>
                         </TableRow>
                       )}
@@ -671,7 +801,9 @@ export function ServiceConfigsView({
               rows={12}
               value={bulkText}
               onChange={(event) => setBulkText(event.target.value)}
-              placeholder={"DATABASE_URL=postgres://...\nJWT_SECRET=change-me\nFEATURE_FLAG=true"}
+              placeholder={
+                "DATABASE_URL=postgres://...\nJWT_SECRET=change-me\nFEATURE_FLAG=true"
+              }
               inputProps={{ "data-testid": "bulk-config-input" }}
               sx={{ mt: 2, "& textarea": { fontFamily: "monospace" } }}
             />
