@@ -11,6 +11,7 @@ import {
   Card,
   CardContent,
   Checkbox,
+  CircularProgress,
   Divider,
   FormControlLabel,
   Grid,
@@ -40,6 +41,23 @@ const loginSchema = z.object({
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
+
+const fieldSx = {
+  "& .MuiOutlinedInput-root": {
+    minHeight: 52,
+    borderRadius: 1.5,
+    backgroundColor: "background.paper",
+    transition: "box-shadow 150ms ease, border-color 150ms ease",
+    "&.Mui-focused": {
+      boxShadow: "0 0 0 3px rgba(15, 118, 110, 0.14)",
+    },
+  },
+  "& .MuiInputBase-input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0 100px var(--mui-palette-background-paper) inset",
+    WebkitTextFillColor: "var(--mui-palette-text-primary)",
+    caretColor: "var(--mui-palette-text-primary)",
+  },
+};
 
 export function LoginFormCard() {
   const { login, loading, isAuthenticated, initialized } = useAuth();
@@ -99,54 +117,66 @@ export function LoginFormCard() {
     <Box
       component="main"
       sx={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        p: 2,
+        px: { xs: 2, sm: 3 },
+        py: { xs: 3, sm: 6 },
         backgroundColor: "background.default",
+        backgroundImage:
+          "linear-gradient(rgba(15, 118, 110, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 118, 110, 0.035) 1px, transparent 1px)",
+        backgroundSize: "32px 32px",
       }}
     >
       <Card
+        component="section"
+        aria-labelledby="login-title"
         sx={{
-          maxWidth: 440,
+          maxWidth: 472,
           width: "100%",
-          borderRadius: 3,
-          border: "1px solid",
-          borderColor: "divider",
-          boxShadow: 3,
+          overflow: "hidden",
+          borderRadius: { xs: 2, sm: 3 },
+          borderColor: "rgba(15, 118, 110, 0.18)",
+          borderTop: "4px solid",
+          borderTopColor: "primary.main",
+          boxShadow: "0 24px 56px -32px rgba(15, 23, 42, 0.38)",
         }}
       >
-        <CardContent sx={{ p: 4 }}>
-          <Box sx={{ textAlign: "center", mb: 4 }}>
+        <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
+          <Box sx={{ mb: 4 }}>
             <Box
               sx={{
-                width: 56,
-                height: 56,
-                borderRadius: 2,
+                width: 48,
+                height: 48,
+                borderRadius: 1.5,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                mx: "auto",
-                mb: 2,
-                background:
-                  "linear-gradient(135deg, #0f766e 0%, #0d6e67 100%)",
-                color: "white",
-                fontWeight: 700,
-                fontSize: "1.5rem",
+                mb: 2.5,
+                backgroundColor: "primary.main",
+                color: "primary.contrastText",
+                fontWeight: 800,
+                fontSize: "1.25rem",
+                letterSpacing: "-0.04em",
               }}
+              aria-hidden="true"
             >
               M
             </Box>
             <Typography
-              variant="h5"
-              fontWeight={700}
-              color="text.primary"
-              gutterBottom
+              id="login-title"
+              component="h1"
+              variant="h4"
+              sx={{ fontWeight: 700, letterSpacing: "-0.025em", mb: 0.75 }}
             >
               Mixi Config
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ maxWidth: 360 }}
+            >
               {showMfa ? "Security verification" : "Sign in to your account"}
             </Typography>
           </Box>
@@ -155,7 +185,8 @@ export function LoginFormCard() {
             <Alert
               severity={message.severity}
               onClose={() => setMessage(null)}
-              sx={{ mb: 3 }}
+              role="status"
+              sx={{ mb: 3, borderRadius: 1.5 }}
             >
               {message.text}
             </Alert>
@@ -172,7 +203,7 @@ export function LoginFormCard() {
                   Enter the 6-digit MFA code for{" "}
                   <strong>{form.watch("email")}</strong>.
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={2.5}>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -188,23 +219,25 @@ export function LoginFormCard() {
                       placeholder="123456"
                       error={!!form.formState.errors.mfaCode}
                       helperText={form.formState.errors.mfaCode?.message}
+                      sx={fieldSx}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Security color="action" />
+                            <Security color="action" aria-hidden="true" />
                           </InputAdornment>
                         ),
                       }}
                     />
                   </Grid>
                 </Grid>
-                <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 1 }}>
+                <Box sx={{ display: "flex", gap: 2, mb: 1, mt: 1 }}>
                   <Button
                     type="button"
                     variant="outlined"
                     fullWidth
                     onClick={handleBackToEmail}
                     startIcon={<Person />}
+                    sx={{ minHeight: 48 }}
                   >
                     Use another account
                   </Button>
@@ -212,7 +245,7 @@ export function LoginFormCard() {
               </>
             ) : (
               <>
-                <Grid container spacing={2}>
+                <Grid container spacing={2.5}>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
@@ -222,10 +255,11 @@ export function LoginFormCard() {
                       {...form.register("email")}
                       error={!!form.formState.errors.email}
                       helperText={form.formState.errors.email?.message}
+                      sx={fieldSx}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Email color="action" />
+                            <Email color="action" aria-hidden="true" />
                           </InputAdornment>
                         ),
                       }}
@@ -240,19 +274,30 @@ export function LoginFormCard() {
                       {...form.register("password")}
                       error={!!form.formState.errors.password}
                       helperText={form.formState.errors.password?.message}
+                      sx={fieldSx}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Lock color="action" />
+                            <Lock color="action" aria-hidden="true" />
                           </InputAdornment>
                         ),
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
-                              onClick={() => setShowPassword(!showPassword)}
+                              aria-label={
+                                showPassword ? "Hide password" : "Show password"
+                              }
+                              onClick={() =>
+                                setShowPassword((visible) => !visible)
+                              }
                               edge="end"
+                              size="small"
                             >
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
@@ -263,26 +308,36 @@ export function LoginFormCard() {
                     <FormControlLabel
                       control={<Checkbox {...form.register("remember")} />}
                       label="Remember me"
+                      sx={{
+                        ml: -0.5,
+                        "& .MuiFormControlLabel-label": {
+                          color: "text.secondary",
+                        },
+                      }}
                     />
                   </Grid>
                 </Grid>
               </>
             )}
 
-            <Box sx={{ mt: 3 }}>
+            <Box sx={{ mt: 3.5 }}>
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 size="large"
                 disabled={loading}
+                aria-busy={loading}
                 startIcon={
-                  showMfa
-                    ? <Security />
-                    : loading
-                      ? undefined
-                      : <Person />}
-                sx={{ py: 1.5, borderRadius: 2 }}
+                  showMfa ? (
+                    <Security />
+                  ) : loading ? (
+                    <CircularProgress color="inherit" size={18} />
+                  ) : (
+                    <Person />
+                  )
+                }
+                sx={{ minHeight: 52, borderRadius: 1.5, fontWeight: 700 }}
               >
                 {loading
                   ? showMfa
@@ -295,10 +350,15 @@ export function LoginFormCard() {
             </Box>
           </form>
 
-          <Divider sx={{ my: 3 }} />
-          <Typography variant="body2" color="text.secondary" textAlign="center">
+          <Divider sx={{ my: 3.5 }} />
+          <Typography variant="body2" color="text.secondary">
             Don&apos;t have an account?{" "}
-            <MuiLink href="/register" variant="body2" color="primary">
+            <MuiLink
+              href="/register"
+              variant="body2"
+              color="primary"
+              sx={{ fontWeight: 700 }}
+            >
               Register
             </MuiLink>
           </Typography>
